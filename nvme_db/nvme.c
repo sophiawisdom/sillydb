@@ -1,6 +1,7 @@
 #include "db_interface.h"
 #include "nvme_internal.h"
 #include "nvme_init.h"
+#include "nvme_cleanup.h"
 
 #include "spdk/stdinc.h"
 #include "spdk/nvme.h"

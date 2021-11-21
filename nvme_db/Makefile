@@ -1,16 +1,16 @@
 SPDK_ROOT_DIR := /home/sophiawisdom/spdk
 
-APP = main
+APP = nvme nvme_init nvme_cleanup
 
 include $(SPDK_ROOT_DIR)/mk/nvme.libtest.mk
 
 ifeq ($(OS),Linux)
 SYS_LIBS += -laio
-CFLAGS += -DHAVE_LIBAIO
+CFLAGS += -DHAVE_LIBAIO -I../../sillydb
 endif
 
-install: $(APP)
-	$(INSTALL_EXAMPLE)
+install:
+	$(INSTALL_EXAMPLE) $(APP) -I~/sillydb
 
 uninstall:
 	$(UNINSTALL_EXAMPLE)
