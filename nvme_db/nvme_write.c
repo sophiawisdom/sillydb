@@ -13,7 +13,7 @@
 #include "spdk/nvme_zns.h"
 #include "spdk/env.h"
 
-struct db_sequence {
+struct write_sequence {
     struct ns_entry    *ns_entry;
     char        *buf;
     unsigned        using_cmb_io;
@@ -24,7 +24,7 @@ struct db_sequence {
 static void
 write_complete(void *arg, const struct spdk_nvme_cpl *completion)
 {
-    struct db_sequence    *sequence = arg;
+    struct write_sequence    *sequence = arg;
     struct ns_entry            *ns_entry = sequence->ns_entry;
     int                rc;
 
@@ -49,22 +49,12 @@ write_complete(void *arg, const struct spdk_nvme_cpl *completion)
     } else {
         spdk_free(sequence->buf);
     }
-    sequence->buf = spdk_zmalloc(0x1000, 0x1000, NULL, SPDK_ENV_SOCKET_ID_ANY, SPDK_MALLOC_DMA);
-
-    rc = spdk_nvme_ns_cmd_read(ns_entry->ns, ns_entry->qpair, sequence->buf,
-                   0, /* LBA start */
-                   1, /* number of LBAs */
-                   read_complete, (void *)sequence, 0);
-    if (rc != 0) {
-        fprintf(stderr, "starting read I/O failed\n");
-        exit(1);
-    }
 }
 
 static void
 reset_zone_complete(void *arg, const struct spdk_nvme_cpl *completion)
 {
-    struct db_sequence *sequence = arg;
+    struct write_sequence *sequence = arg;
 
     /* Assume the I/O was successful */
     sequence->is_completed = 1;
@@ -82,7 +72,7 @@ reset_zone_complete(void *arg, const struct spdk_nvme_cpl *completion)
 }
 
 static void
-reset_zone_and_wait_for_completion(struct db_sequence *sequence)
+reset_zone_and_wait_for_completion(struct write_sequence *sequence)
 {
     if (spdk_nvme_zns_reset_zone(sequence->ns_entry->ns, sequence->ns_entry->qpair,
                      0, /* starting LBA of the zone to reset */

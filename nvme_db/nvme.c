@@ -53,9 +53,19 @@ struct read_response read_object(void *opaque, int index) {
     struct state *db = opaque;
     while (db -> lock != 0) {}
     db -> lock = 1; // ACQ LOCK
+    
+    struct read_response resp;
 
-    struct read_response resp = (struct read_response){.err = 2};
+    if (index > db -> num_entries) {
+        resp.data = (db_data){.length = 0, .data = NULL};
+        resp.err = 1;
+        db -> lock = 0; // RELEASE LOCK
+        printf("GOT ERR WHEN READING\n");
+        return resp;
+    }
 
-    db -> lock = 0;
+    resp = nvme_sector_read_sync(db, index);
+
+    db -> lock = 0; // RELEASE LOCK
     return resp;
 }
