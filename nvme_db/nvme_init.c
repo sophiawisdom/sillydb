@@ -6,6 +6,7 @@
 //
 
 #include "nvme_init.h"
+#include "nvme_internal.h"
 
 void initialize() {
     struct spdk_env_opts opts;

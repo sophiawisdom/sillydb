@@ -1,4 +1,5 @@
 #include "db_interface.h"
+#include "nvme_internal.h"
 #include "nvme_init.h"
 
 #include "spdk/stdinc.h"
@@ -11,26 +12,6 @@
 #include <string.h>
 #include <stdio.h>
 
-struct ctrlr_entry {
-    struct spdk_nvme_ctrlr        *ctrlr;
-    TAILQ_ENTRY(ctrlr_entry)    link;
-    char                name[1024];
-};
-
-struct ns_entry {
-    struct spdk_nvme_ctrlr    *ctrlr;
-    struct spdk_nvme_ns    *ns;
-    TAILQ_ENTRY(ns_entry)    link;
-    struct spdk_nvme_qpair    *qpair;
-};
-
-struct state {
-    _Atomic int lock;
-    
-    TAILQ_HEAD(control_head, ctrlr_entry) g_controllers;
-    TAILQ_HEAD(namespace_head, ns_entry) g_namespaces;
-};
-
 void *create_db(void) {
     struct state *initial_state = malloc(sizeof(struct state));
     initial_state -> lock = 0;
@@ -39,7 +20,7 @@ void *create_db(void) {
     TAILQ_INIT(&initial_state -> g_namespaces);
     TAILQ_INIT(&initial_state -> g_controllers);
     
-    initialize();
+    initialize(initial_state);
 
     return initial_state;
 }
