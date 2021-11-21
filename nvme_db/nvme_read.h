@@ -8,7 +8,7 @@
 #ifndef nvme_read_h
 #define nvme_read_h
 
-#include <stdio.h>
+#include "nvme_internal.h"
 
 struct read_response nvme_sector_read_sync(struct state *state, int sector);
 
