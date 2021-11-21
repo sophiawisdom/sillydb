@@ -79,7 +79,8 @@ attach_cb(void *cb_ctx, const struct spdk_nvme_transport_id *trid,
 
     entry->ctrlr = ctrlr;
     TAILQ_INSERT_TAIL(&state -> g_controllers, entry, link);
-
+    
+    printf("inserted tail, about to spdk_nvme_ctrlr_get_first_active_ns\n");
     /*
      * Each controller has one or more namespaces.  An NVMe namespace is basically
      *  equivalent to a SCSI LUN.  The controller's IDENTIFY data tells us how
@@ -137,7 +138,6 @@ int initialize(struct state *state) {
      */
     int rc = spdk_nvme_probe(NULL, NULL, probe_cb, attach_cb, NULL);
     if (rc != 0) {
-        printf("failed\n");
         fprintf(stderr, "spdk_nvme_probe() failed\n");
         cleanup();
         return 2;
