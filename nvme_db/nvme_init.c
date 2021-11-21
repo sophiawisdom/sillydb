@@ -159,6 +159,7 @@ int initialize(struct state *state) {
     printf("about to allocate qpairs\n");
     struct ns_entry            *ns_entry;
     TAILQ_FOREACH(ns_entry, &state -> g_namespaces, link) {
+        printf("iterating through namespace...\n");
         /*
          * Allocate an I/O qpair that we can use to submit read/write requests
          *  to namespaces on the controller.  NVMe controllers typically support
