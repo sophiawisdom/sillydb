@@ -10,4 +10,6 @@
 
 #include <stdio.h>
 
+void cleanup(struct state *state);
+
 #endif /* nvme_cleanup_h */
