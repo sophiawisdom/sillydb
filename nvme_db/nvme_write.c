@@ -7,7 +7,7 @@
 
 #include "nvme_write.h"
 
-struct hello_world_sequence {
+struct db_sequence {
     struct ns_entry    *ns_entry;
     char        *buf;
     unsigned        using_cmb_io;
