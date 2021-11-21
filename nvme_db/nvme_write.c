@@ -131,7 +131,9 @@ int nvme_append(struct state *state, int data_length, void *data) {
      *  0 on the namespace, and then later read it back into a separate buffer
      *  to demonstrate the full I/O path.
      */
-    ((int *)sequence.buf) = data_length;
+    int *int_buf = sequence.buf;
+    *int_buf = data_length;
+    *((int *)sequence.buf) = data_length;
     memcpy(sequence.buf+4, data, data_length);
 
     /*
