@@ -40,6 +40,9 @@ void free_db(void *opaque) {
 }
 
 int append_object(void *opaque, db_data object) {
+    if (object.length > 4092) { // sector size - 4 bytes for length.
+        return -1;
+    }
     struct state *db = opaque;
     while (db -> lock != 0) {}
     db -> lock = 1;

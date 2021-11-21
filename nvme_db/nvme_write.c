@@ -15,7 +15,7 @@
 
 struct write_sequence {
     struct ns_entry    *ns_entry;
-    char        *buf;
+    void        *buf;
     unsigned        using_cmb_io;
     struct state *state;
     
@@ -131,7 +131,8 @@ int nvme_append(struct state *state, int data_length, void *data) {
      *  0 on the namespace, and then later read it back into a separate buffer
      *  to demonstrate the full I/O path.
      */
-    snprintf(sequence.buf, 0x1000, "%s", "Hello world!\n");
+    ((int *)sequence.buf) = data_length;
+    memcpy(sequence.buf+4, data, data_length);
 
     /*
      * Write the data buffer to LBA 0 of this namespace.  "write_complete" and
