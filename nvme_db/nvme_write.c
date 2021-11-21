@@ -24,7 +24,7 @@ struct db_sequence {
 static void
 write_complete(void *arg, const struct spdk_nvme_cpl *completion)
 {
-    struct hello_world_sequence    *sequence = arg;
+    struct db_sequence    *sequence = arg;
     struct ns_entry            *ns_entry = sequence->ns_entry;
     int                rc;
 
@@ -64,7 +64,7 @@ write_complete(void *arg, const struct spdk_nvme_cpl *completion)
 static void
 reset_zone_complete(void *arg, const struct spdk_nvme_cpl *completion)
 {
-    struct hello_world_sequence *sequence = arg;
+    struct db_sequence *sequence = arg;
 
     /* Assume the I/O was successful */
     sequence->is_completed = 1;
@@ -82,7 +82,7 @@ reset_zone_complete(void *arg, const struct spdk_nvme_cpl *completion)
 }
 
 static void
-reset_zone_and_wait_for_completion(struct hello_world_sequence *sequence)
+reset_zone_and_wait_for_completion(struct db_sequence *sequence)
 {
     if (spdk_nvme_zns_reset_zone(sequence->ns_entry->ns, sequence->ns_entry->qpair,
                      0, /* starting LBA of the zone to reset */
