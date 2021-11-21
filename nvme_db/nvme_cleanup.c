@@ -8,6 +8,8 @@
 #include "nvme_cleanup.h"
 #include "nvme_internal.h"
 
+#include "spdk/nvme.h"
+
 void cleanup(struct state *state)
 {
     struct ns_entry *ns_entry, *tmp_ns_entry;
