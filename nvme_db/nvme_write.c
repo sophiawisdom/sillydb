@@ -182,8 +182,10 @@ int nvme_append(struct state *state, int data_length, void *data) {
     }
     
     if (sequence -> is_completed != 2) {
+        printf("starting looping is_completed\n");
         return -1;
     }
-
+    
+    printf("successfully completed write!\n");
     return index;
 }
