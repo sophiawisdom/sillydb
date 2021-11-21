@@ -30,6 +30,7 @@ attach_cb(void *cb_ctx, const struct spdk_nvme_transport_id *trid,
     struct ctrlr_entry *entry;
     struct spdk_nvme_ns *ns;
     const struct spdk_nvme_ctrlr_data *cdata;
+    struct state *state = cb_ctx;
 
     entry = malloc(sizeof(struct ctrlr_entry));
     if (entry == NULL) {
@@ -52,7 +53,7 @@ attach_cb(void *cb_ctx, const struct spdk_nvme_transport_id *trid,
     snprintf(entry->name, sizeof(entry->name), "%-20.20s (%-20.20s)", cdata->mn, cdata->sn);
 
     entry->ctrlr = ctrlr;
-    TAILQ_INSERT_TAIL(&g_controllers, entry, link);
+    TAILQ_INSERT_TAIL(&state -> g_controllers, entry, link);
 
     /*
      * Each controller has one or more namespaces.  An NVMe namespace is basically
