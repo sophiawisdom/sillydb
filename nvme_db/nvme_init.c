@@ -90,13 +90,13 @@ int initialize(struct state *state) {
     opts.shm_id = 0;
     if (spdk_env_init(&opts) < 0) {
         fprintf(stderr, "Unable to initialize SPDK env\n");
-        return NULL;
+        return 1;
     }
     
     if (spdk_vmd_init()) {
         fprintf(stderr, "Failed to initialize VMD."
             " Some NVMe devices can be unavailable.\n");
-        return NULL;
+        return 1;
     }
     
     /*
@@ -106,7 +106,7 @@ int initialize(struct state *state) {
      *  called for each controller after the SPDK NVMe driver has completed
      *  initializing the controller we chose to attach.
      */
-    rc = spdk_nvme_probe(NULL, NULL, probe_cb, attach_cb, NULL);
+    int rc = spdk_nvme_probe(NULL, NULL, probe_cb, attach_cb, NULL);
     if (rc != 0) {
         fprintf(stderr, "spdk_nvme_probe() failed\n");
         cleanup();
