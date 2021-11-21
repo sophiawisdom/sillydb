@@ -181,8 +181,8 @@ int nvme_append(struct state *state, int data_length, void *data) {
         spdk_nvme_qpair_process_completions(state->main_namespace->qpair, 0);
     }
     
-    if (sequence -> is_completed != 2) {
-        printf("starting looping is_completed\n");
+    if (sequence -> is_completed != 1) {
+        printf("completed with err\n");
         return -1;
     }
     
