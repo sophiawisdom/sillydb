@@ -19,7 +19,12 @@ struct read_response {
     db_data data;
 };
 
+typedef void (*read_cb)(void *, void *, int);
+
 // Read object at given index
-struct read_response read_object(void *db, int index);
+struct read_response read_object_sync(void *db, int index);
+
+//
+struct read_response read_object_async(void *db, int index, read_cb callback, void *cb_arg);
 
 // db_data *read_objects(void *db, indices indices);
