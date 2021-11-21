@@ -50,6 +50,7 @@ read_complete(void *arg, const struct spdk_nvme_cpl *completion)
 struct read_response nvme_sector_read_sync(struct state *state, int sector) {
     struct read_sequence *sequence = malloc(sizeof(struct read_sequence));
     sequence -> data = spdk_zmalloc(0x1000, 0x1000, NULL, SPDK_ENV_SOCKET_ID_ANY, SPDK_MALLOC_DMA);
+    sequence -> is_completed;
 
     int rc = spdk_nvme_ns_cmd_read(
         state->main_namespace->ns,
@@ -75,6 +76,7 @@ struct read_response nvme_sector_read_sync(struct state *state, int sector) {
     rc = sequence -> is_completed;
     free(sequence);
     if (rc != 1) {
+        printf("got bad is_completed: %d\n", sequence -> is_completed);
         return (struct read_response){.err=rc, .data=( db_data){.length=0, .data=NULL}};
     }
     int length = *((int *)data);
