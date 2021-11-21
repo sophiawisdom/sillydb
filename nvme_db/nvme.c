@@ -30,12 +30,12 @@ struct state {
     TAILQ_ENTRY(ns_entry) g_namespaces;
 }
 
-void *create_db() {
+void *create_db {
     struct state *initial_state = malloc(sizeof(struct state));
     initial_state -> lock = 0;
     
-    TAILQ_HEAD_INITIALIZER(initial_state -> g_namespaces);
-    TAILQ_HEAD_INITIALIZER(initial_state -> g_controllers)
+    initial_state -> g_namespaces TAILQ_HEAD_INITIALIZER(initial_state -> g_namespaces);
+    initial_state -> g_controllers TAILQ_HEAD_INITIALIZER(initial_state -> g_controllers);
     
     initialize();
 
