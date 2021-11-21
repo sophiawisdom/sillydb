@@ -48,7 +48,7 @@ read_complete(void *arg, const struct spdk_nvme_cpl *completion)
 }
 
 struct read_response nvme_sector_read_sync(struct state *state, int sector) {
-    struct read_sequence *sequence = malloc(sizeof(read_sequence));
+    struct read_sequence *sequence = malloc(sizeof(struct read_sequence));
     sequence -> data = spdk_zmalloc(0x1000, 0x1000, NULL, SPDK_ENV_SOCKET_ID_ANY, SPDK_MALLOC_DMA);
 
     int rc = spdk_nvme_ns_cmd_read(
