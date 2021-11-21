@@ -29,7 +29,7 @@ struct state {
     
     TAILQ_ENTRY(ctrlr_entry) g_controllers;
     TAILQ_ENTRY(ns_entry) g_namespaces;
-}
+};
 
 void *create_db() {
     struct state *initial_state = malloc(sizeof(struct state));
