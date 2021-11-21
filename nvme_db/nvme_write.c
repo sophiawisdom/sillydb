@@ -8,6 +8,11 @@
 #include "nvme_write.h"
 #include "nvme_internal.h"
 
+#include "spdk/nvme.h"
+#include "spdk/vmd.h"
+#include "spdk/nvme_zns.h"
+#include "spdk/env.h"
+
 struct db_sequence {
     struct ns_entry    *ns_entry;
     char        *buf;
@@ -174,4 +179,6 @@ int nvme_append(struct state *state, int data_length, void *data) {
     while (!sequence.is_completed) {
         spdk_nvme_qpair_process_completions(ns_entry->qpair, 0);
     }
+
+    return index;
 }
