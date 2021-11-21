@@ -98,7 +98,7 @@ int nvme_append(struct state *state, int data_length, void *data) {
      * I/O operations.
      */
     size_t  sz;
-    struct write_sequence *sequence = malloc(sizeof(write_sequence));
+    struct write_sequence *sequence = malloc(sizeof(struct write_sequence));
     sequence -> using_cmb_io = 1;
     sequence -> buf = spdk_nvme_ctrlr_map_cmb(state->main_namespace->ctrlr, &sz);
     if (sequence -> buf == NULL || sz < 0x1000) {
