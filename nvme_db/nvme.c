@@ -1,39 +1,38 @@
 #include "db_interface.h"
+
+#include "nvme_init.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
+struct spdk_nvme_ctrlr        *ctrlr;
+    TAILQ_ENTRY(ctrlr_entry)    link;
+    char                name[1024];
+};
+
+struct ns_entry {
+    struct spdk_nvme_ctrlr    *ctrlr;
+    struct spdk_nvme_ns    *ns;
+    TAILQ_ENTRY(ns_entry)    link;
+    struct spdk_nvme_qpair    *qpair;
+};
+
 struct state {
     _Atomic int lock;
     
-    
+    TAILQ_HEAD(, ctrlr_entry) g_controllers;
+    TAILQ_HEAD(, ns_entry) g_namespaces;
 }
 
 void *create_db() {
     struct state *initial_state = malloc(sizeof(struct state));
     initial_state -> lock = 0;
     
-    struct spdk_env_opts opts;
-
-    /*
-     * SPDK relies on an abstraction around the local environment
-     * named env that handles memory allocation and PCI device operations.
-     * This library must be initialized first.
-     *
-     */
-    spdk_env_opts_init(&opts);
-    opts.name = "hello_world";
-    opts.shm_id = 0;
-    if (spdk_env_init(&opts) < 0) {
-        fprintf(stderr, "Unable to initialize SPDK env\n");
-        return NULL;
-    }
+    TAILQ_HEAD_INITIALIZER(initial_state -> g_namespaces);
+    TAILQ_HEAD_INITIALIZER(initial_state -> g_controllers)
     
-    if (spdk_vmd_init()) {
-        fprintf(stderr, "Failed to initialize VMD."
-            " Some NVMe devices can be unavailable.\n");
-        return NULL;
-    }
+    initialize();
 
     return initial_state;
 }
