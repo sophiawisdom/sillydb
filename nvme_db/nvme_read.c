@@ -77,6 +77,7 @@ struct read_response nvme_sector_read_sync(struct state *state, int sector) {
     if (rc != 1) {
         return (struct read_response){.err=rc, .data=( db_data){.length=0, .data=NULL}};
     }
+    int length = *((int *)data)
 
-    return (struct read_response){.err=0, .data=(db_data){.data=data, .length=0x1000}};
+    return (struct read_response){.err=0, .data=(db_data){.data=data+4, .length=length}};
 }
