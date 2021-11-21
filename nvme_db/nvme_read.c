@@ -9,6 +9,8 @@
 #include "nvme_internal.h"
 #include "db_interface.h"
 
+#include "spdk/nvme.h"
+
 struct read_sequence {
     struct ns_entry    *ns_entry;
     unsigned        using_cmb_io;
