@@ -3,6 +3,7 @@
 #include "nvme_init.h"
 #include "nvme_cleanup.h"
 #include "nvme_write.h"
+#include "nvme_read.h"
 
 #include "spdk/stdinc.h"
 #include "spdk/nvme.h"
@@ -49,7 +50,7 @@ int append_object(void *opaque, db_data object) {
     return index;
 }
 
-struct read_response read_object(void *opaque, int index) {
+struct read_response read_object_sync(void *opaque, int index) {
     struct state *db = opaque;
     while (db -> lock != 0) {}
     db -> lock = 1; // ACQ LOCK

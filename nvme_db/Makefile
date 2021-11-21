@@ -1,6 +1,6 @@
 SPDK_ROOT_DIR := /home/sophiawisdom/spdk
 
-APP = nvme nvme_init nvme_cleanup nvme_write ../manual_interface
+APP = nvme nvme_init nvme_cleanup nvme_write nvme_read ../manual_interface
 
 include $(SPDK_ROOT_DIR)/mk/nvme.libtest.mk
 
