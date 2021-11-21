@@ -6,6 +6,8 @@
 //
 
 #include "nvme_read.h"
+#include "nvme_internal.h"
+#include "db_interface.h"
 
 struct read_sequence {
     struct ns_entry    *ns_entry;
