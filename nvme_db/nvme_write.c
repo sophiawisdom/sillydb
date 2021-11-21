@@ -98,7 +98,7 @@ int nvme_append(struct state *state, int data_length, void *data) {
      */
     size_t  sz;
     sequence.using_cmb_io = 1;
-    sequence.buf = spdk_nvme_ctrlr_map_cmb(ns_entry->ctrlr, &sz);
+    sequence.buf = spdk_nvme_ctrlr_map_cmb(state->main_namespace->ctrlr, &sz);
     if (sequence.buf == NULL || sz < 0x1000) {
         sequence.using_cmb_io = 0;
         sequence.buf = spdk_zmalloc(0x1000, 0x1000, NULL, SPDK_ENV_SOCKET_ID_ANY, SPDK_MALLOC_DMA);
@@ -113,14 +113,14 @@ int nvme_append(struct state *state, int data_length, void *data) {
         printf("INFO: using host memory buffer for IO\n");
     }
     sequence.is_completed = 0;
-    sequence.ns_entry = ns_entry;
+    sequence.ns_entry = state->main_namespace;
 
     /*
      * If the namespace is a Zoned Namespace, rather than a regular
      * NVM namespace, we need to reset the first zone, before we
      * write to it. This not needed for regular NVM namespaces.
      */
-    if (spdk_nvme_ns_get_csi(ns_entry->ns) == SPDK_NVME_CSI_ZNS) {
+    if (spdk_nvme_ns_get_csi(state->main_namespace->ns) == SPDK_NVME_CSI_ZNS) {
         reset_zone_and_wait_for_completion(&sequence);
     }
 
@@ -145,8 +145,8 @@ int nvme_append(struct state *state, int data_length, void *data) {
      *  It is the responsibility of the application to trigger the polling
      *  process.
      */
-    int rc = spdk_nvme_ns_cmd_write(ns_entry->ns, ns_entry->qpair, sequence.buf,
-                    0, /* LBA start */
+    int rc = spdk_nvme_ns_cmd_write(state->main_namespace->ns, state->main_namespace->qpair, sequence.buf,
+                    index, /* LBA start */
                     1, /* number of LBAs */
                     write_complete, &sequence, 0);
     if (rc != 0) {
@@ -168,7 +168,7 @@ int nvme_append(struct state *state, int data_length, void *data) {
      *  break this loop and then exit the program.
      */
     while (!sequence.is_completed) {
-        spdk_nvme_qpair_process_completions(ns_entry->qpair, 0);
+        spdk_nvme_qpair_process_completions(state->main_namespace->qpair, 0);
     }
 
     return index;
