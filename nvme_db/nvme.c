@@ -36,8 +36,8 @@ void *create_db() {
     initial_state -> lock = 0;
     
     
-    initial_state -> g_namespaces = TAILQ_INIT(initial_state -> g_namespaces);
-    initial_state -> g_controllers = TAILQ_INIT(initial_state -> g_controllers);
+    initial_state -> g_namespaces = TAILQ_INIT(initial_state -> g_namespaces, ctrlr_entry);
+    initial_state -> g_controllers = TAILQ_INIT(initial_state -> g_controllers, ns_entry);
     
     initialize();
 
