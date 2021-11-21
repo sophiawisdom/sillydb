@@ -8,6 +8,8 @@
 #ifndef nvme_internal_h
 #define nvme_internal_h
 
+#include "spdk/env.h"
+
 struct ctrlr_entry {
     struct spdk_nvme_ctrlr        *ctrlr;
     TAILQ_ENTRY(ctrlr_entry)    link;
