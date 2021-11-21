@@ -116,13 +116,15 @@ int nvme_append(struct state *state, int data_length, void *data) {
     }
     sequence -> is_completed = 0;
     sequence -> ns_entry = state->main_namespace;
-
+    
+    printf("about to check if reset zone\n");
     /*
      * If the namespace is a Zoned Namespace, rather than a regular
      * NVM namespace, we need to reset the first zone, before we
      * write to it. This not needed for regular NVM namespaces.
      */
     if (spdk_nvme_ns_get_csi(state->main_namespace->ns) == SPDK_NVME_CSI_ZNS) {
+        printf("about to reset the first zone\n");
         reset_zone_and_wait_for_completion(sequence);
     }
 
