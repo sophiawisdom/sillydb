@@ -6,6 +6,7 @@
 //
 
 #include "nvme_cleanup.h"
+#include "nvme_internal.h"
 
 static void
 cleanup(struct state *state)
