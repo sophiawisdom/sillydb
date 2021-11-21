@@ -17,6 +17,7 @@
 void *create_db(void) {
     struct state *initial_state = malloc(sizeof(struct state));
     initial_state -> lock = 0;
+    initial_state -> num_entries = 0;
     
     printf("about to initialize!\n");
     int ret = initialize(initial_state);

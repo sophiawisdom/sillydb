@@ -26,6 +26,8 @@ struct ns_entry {
 struct state {
     _Atomic int lock;
     
+    int num_entries;
+    
     TAILQ_HEAD(control_head, ctrlr_entry) g_controllers;
     TAILQ_HEAD(namespace_head, ns_entry) g_namespaces;
 };
