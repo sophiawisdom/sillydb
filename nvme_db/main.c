@@ -60,8 +60,6 @@ read_complete(void *arg, const struct spdk_nvme_cpl *completion)
 {
     struct hello_world_sequence *sequence = arg;
 
-    /* Assume the I/O was successful */
-    sequence->is_completed = 1;
     /* See if an error occurred. If so, display information
      * about it, and set completion value so that I/O
      * caller is aware that an error occurred.
@@ -82,6 +80,7 @@ read_complete(void *arg, const struct spdk_nvme_cpl *completion)
      */
     printf("%s", sequence->buf);
     spdk_free(sequence->buf);
+    sequence->is_completed = 1;
 }
 
 static void
@@ -368,34 +367,10 @@ usage(const char *program_name)
     printf(" -V         enumerate VMD\n");
 }
 
-static int
-parse_args(int argc, char **argv)
-{
-    int op;
-
-    while ((op = getopt(argc, argv, "V")) != -1) {
-        switch (op) {
-        case 'V':
-            g_vmd = true;
-            break;
-        default:
-            usage(argv[0]);
-            return 1;
-        }
-    }
-
-    return 0;
-}
-
 int main(int argc, char **argv)
 {
     int rc;
     struct spdk_env_opts opts;
-
-    rc = parse_args(argc, argv);
-    if (rc != 0) {
-        return rc;
-    }
 
     /*
      * SPDK relies on an abstraction around the local environment
