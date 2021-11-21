@@ -17,8 +17,9 @@ struct write_sequence {
     struct ns_entry    *ns_entry;
     char        *buf;
     unsigned        using_cmb_io;
-    int        is_completed;
     struct state *state;
+    
+    int is_completed; // 1: success. 2: err
 };
 
 static void
@@ -26,7 +27,6 @@ write_complete(void *arg, const struct spdk_nvme_cpl *completion)
 {
     struct write_sequence    *sequence = arg;
     struct ns_entry            *ns_entry = sequence->ns_entry;
-    int                rc;
 
     /* See if an error occurred. If so, display information
      * about it, and set completion value so that I/O
@@ -37,7 +37,7 @@ write_complete(void *arg, const struct spdk_nvme_cpl *completion)
         fprintf(stderr, "I/O error status: %s\n", spdk_nvme_cpl_get_status_string(&completion->status));
         fprintf(stderr, "Write I/O failed, aborting run\n");
         sequence->is_completed = 2;
-        exit(1);
+        return;
     }
     /*
      * The write I/O has completed.  Free the buffer associated with
@@ -49,6 +49,7 @@ write_complete(void *arg, const struct spdk_nvme_cpl *completion)
     } else {
         spdk_free(sequence->buf);
     }
+    sequence->is_completed = 1;
 }
 
 static void
@@ -169,6 +170,10 @@ int nvme_append(struct state *state, int data_length, void *data) {
      */
     while (!sequence.is_completed) {
         spdk_nvme_qpair_process_completions(state->main_namespace->qpair, 0);
+    }
+    
+    if (sequence.is_completed != 2) {
+        return -1;
     }
 
     return index;
