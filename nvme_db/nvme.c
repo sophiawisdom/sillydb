@@ -40,8 +40,8 @@ int append_object(void *opaque, db_data object) {
     struct state *db = opaque;
     while (db -> lock != 0) {}
     db -> lock = 1;
-    
-    int index = 5;
+
+    int index = nvme_append(struct state *state, int data_length, void *data); // writes are negative values, but just passed through.
     
     db -> lock = 0;
     return index;
@@ -51,7 +51,7 @@ struct read_response read_object(void *opaque, int index) {
     struct state *db = opaque;
     while (db -> lock != 0) {}
     db -> lock = 1; // ACQ LOCK
-    
+
     struct read_response resp = (struct read_response){.err = 2};
 
     db -> lock = 0;

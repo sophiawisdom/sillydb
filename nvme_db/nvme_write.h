@@ -11,6 +11,6 @@
 #include <stdio.h>
 #include "nvme_internal.h"
 
-int nvme_write(struct state *state, int data_length, void *data);
+int nvme_append(struct state *state, int data_length, void *data);
 
 #endif /* nvme_write_h */

@@ -7,6 +7,13 @@
 
 #include "nvme_write.h"
 
+struct hello_world_sequence {
+    struct ns_entry    *ns_entry;
+    char        *buf;
+    unsigned        using_cmb_io;
+    int        is_completed;
+};
+
 static void
 write_complete(void *arg, const struct spdk_nvme_cpl *completion)
 {
@@ -84,7 +91,9 @@ reset_zone_and_wait_for_completion(struct hello_world_sequence *sequence)
     sequence->is_completed = 0;
 }
 
-int nvme_write(struct state *state, int data_length, void *data) {
+int nvme_append(struct state *state, int data_length, void *data) {
+    int index = state -> num_entries++;
+
     /*
      * Use spdk_dma_zmalloc to allocate a 4KB zeroed buffer.  This memory
      * will be pinned, which is required for data buffers used for SPDK NVMe
