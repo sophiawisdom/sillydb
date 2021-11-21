@@ -98,24 +98,24 @@ int nvme_append(struct state *state, int data_length, void *data) {
      * I/O operations.
      */
     size_t  sz;
-    struct write_sequence sequence;
-    sequence.using_cmb_io = 1;
-    sequence.buf = spdk_nvme_ctrlr_map_cmb(state->main_namespace->ctrlr, &sz);
-    if (sequence.buf == NULL || sz < 0x1000) {
-        sequence.using_cmb_io = 0;
-        sequence.buf = spdk_zmalloc(0x1000, 0x1000, NULL, SPDK_ENV_SOCKET_ID_ANY, SPDK_MALLOC_DMA);
+    struct write_sequence sequence = malloc(sizeof(write_sequence));
+    sequence -> using_cmb_io = 1;
+    sequence -> buf = spdk_nvme_ctrlr_map_cmb(state->main_namespace->ctrlr, &sz);
+    if (sequence -> buf == NULL || sz < 0x1000) {
+        sequence -> using_cmb_io = 0;
+        sequence -> buf = spdk_zmalloc(0x1000, 0x1000, NULL, SPDK_ENV_SOCKET_ID_ANY, SPDK_MALLOC_DMA);
     }
-    if (sequence.buf == NULL) {
+    if (sequence -> buf == NULL) {
         printf("ERROR: write buffer allocation failed\n");
         return -1;
     }
-    if (sequence.using_cmb_io) {
+    if (sequence -> using_cmb_io) {
         printf("INFO: using controller memory buffer for IO\n");
     } else {
         printf("INFO: using host memory buffer for IO\n");
     }
-    sequence.is_completed = 0;
-    sequence.ns_entry = state->main_namespace;
+    sequence -> is_completed = 0;
+    sequence -> ns_entry = state->main_namespace;
 
     /*
      * If the namespace is a Zoned Namespace, rather than a regular
@@ -127,12 +127,13 @@ int nvme_append(struct state *state, int data_length, void *data) {
     }
 
     /*
-     * Print "Hello world!" to sequence.buf.  We will write this data to LBA
+     * Print "Hello world!" to sequence -> buf.  We will write this data to LBA
      *  0 on the namespace, and then later read it back into a separate buffer
      *  to demonstrate the full I/O path.
      */
-    *((int *)sequence.buf) = data_length;
-    memcpy(sequence.buf+4, data, data_length);
+    printf("about to write to sequence buf\n");
+    *((int *)sequence -> buf) = data_length;
+    memcpy(sequence -> buf+4, data, data_length);
 
     /*
      * Write the data buffer to LBA 0 of this namespace.  "write_complete" and
@@ -148,7 +149,8 @@ int nvme_append(struct state *state, int data_length, void *data) {
      *  It is the responsibility of the application to trigger the polling
      *  process.
      */
-    int rc = spdk_nvme_ns_cmd_write(state->main_namespace->ns, state->main_namespace->qpair, sequence.buf,
+    printf("about to issue write\n");
+    int rc = spdk_nvme_ns_cmd_write(state->main_namespace->ns, state->main_namespace->qpair, sequence -> buf,
                     index, /* LBA start */
                     1, /* number of LBAs */
                     write_complete, &sequence, 0);
@@ -167,14 +169,15 @@ int nvme_append(struct state *state, int data_length, void *data) {
      * When the write I/O completes, write_complete() will submit a new I/O
      *  to read LBA 0 into a separate buffer, specifying read_complete() as its
      *  completion routine.  When the read I/O completes, read_complete() will
-     *  print the buffer contents and set sequence.is_completed = 1.  That will
+     *  print the buffer contents and set sequence -> is_completed = 1.  That will
      *  break this loop and then exit the program.
      */
-    while (!sequence.is_completed) {
+    printf("starting looping is_completed\n");
+    while (!sequence -> is_completed) {
         spdk_nvme_qpair_process_completions(state->main_namespace->qpair, 0);
     }
     
-    if (sequence.is_completed != 2) {
+    if (sequence -> is_completed != 2) {
         return -1;
     }
 
