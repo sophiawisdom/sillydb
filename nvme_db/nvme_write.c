@@ -6,7 +6,7 @@
 //
 
 #include "nvme_write.h"
-#incldue "nvme_internal.h"
+#include "nvme_internal.h"
 
 struct db_sequence {
     struct ns_entry    *ns_entry;
