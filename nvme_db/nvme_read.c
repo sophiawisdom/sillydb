@@ -63,5 +63,5 @@ struct read_response nvme_sector_read_sync(struct state *state, int sector) {
         spdk_nvme_qpair_process_completions(ns_entry->qpair, 0);
     }
     
-    return (struct read_response){.err=0, .data=sequence -> data, .length=0x1000};
+    return (struct read_response){.err=0, .data=(db_data){.data=sequence -> data, .length=0x1000}};
 }
