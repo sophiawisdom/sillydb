@@ -13,6 +13,8 @@
 #include "spdk/nvme_zns.h"
 #include "spdk/env.h"
 
+// This is all single-threaded, because it happens only once, in initialization.
+
 static void
 register_ns(struct state *state, struct spdk_nvme_ctrlr *ctrlr, struct spdk_nvme_ns *ns)
 {
@@ -133,13 +135,13 @@ int initialize(struct state *state) {
     if (rc != 0) {
         fprintf(stderr, "spdk_nvme_probe() failed\n");
         cleanup();
-        return 1;
+        return 2;
     }
 
     if (TAILQ_EMPTY(&state -> g_controllers)) {
         fprintf(stderr, "no NVMe controllers found\n");
         cleanup();
-        return 1;
+        return 2;
     }
 
     printf("Initialization complete.\n");

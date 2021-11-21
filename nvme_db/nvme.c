@@ -17,12 +17,19 @@ void *create_db(void) {
     initial_state -> lock = 0;
     
     int ret = initialize(initial_state);
+    if (ret == 2) {
+        cleanup(initial_state);
+    }
+    if (ret > 0) {
+        return NULL;
+    }
 
     return initial_state;
 }
 
 void free_db(void *opaque) {
     struct state *db = opaque;
+    cleanup(db);
     free(db);
 }
 
