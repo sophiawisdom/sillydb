@@ -44,8 +44,6 @@ read_complete(void *arg, const struct spdk_nvme_cpl *completion)
      *  completed.  This will trigger the hello_world() function
      *  to exit its polling loop.
      */
-    printf("%s", sequence->buf);
-    spdk_free(sequence->buf);
     sequence->is_completed = 1;
 }
 
