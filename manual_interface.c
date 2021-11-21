@@ -34,7 +34,7 @@ int main() {
             append_object(db, data);
         } else {
             printf("reading object at index %d\n", atoi(buf));
-            struct read_response resp = read_object(db, atoi(buf));
+            struct read_response resp = read_object_sync(db, atoi(buf));
             printf("err is %d, length is %d, data is \"%s\"\n", resp.err, resp.data.length, resp.data.data);
         }
         memset(buf, 0, 4096);
