@@ -64,11 +64,12 @@ struct read_response read_object_sync(void *opaque, int index) {
         resp.data = (db_data){.length = 0, .data = NULL};
         resp.err = 1;
         db -> lock = 0; // RELEASE LOCK
-        printf("GOT ERR WHEN READING\n");
+        printf("got request for index beyond capabilities: %d\n", index);
         return resp;
     }
 
     resp = nvme_sector_read_sync(db, index);
+    printf("Got response from nvme_sector_read_sync: %d\n", resp.err);
 
     db -> lock = 0; // RELEASE LOCK
     return resp;
