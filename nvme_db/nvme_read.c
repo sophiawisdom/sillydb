@@ -51,10 +51,16 @@ struct read_response nvme_sector_read_sync(struct state *state, int sector) {
     struct read_sequence sequence;
     sequence.data = spdk_zmalloc(0x1000, 0x1000, NULL, SPDK_ENV_SOCKET_ID_ANY, SPDK_MALLOC_DMA);
 
-    int rc = spdk_nvme_ns_cmd_read(state->main_namespace->ns, state->main_namespace->qpair, sequence.data,
-                   0, /* LBA start */
-                   1, /* number of LBAs */
-                   read_complete, (void *)sequence, 0);
+    int rc = spdk_nvme_ns_cmd_read(
+        state->main_namespace->ns,
+        state->main_namespace->qpair,
+        sequence.data,
+        0, /* LBA start */
+        1, /* number of LBAs */
+        read_complete,
+        (void *)sequence,
+        0
+    );
 
     if (rc != 0) {
         fprintf(stderr, "starting read I/O failed\n");
