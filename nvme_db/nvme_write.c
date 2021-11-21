@@ -6,12 +6,14 @@
 //
 
 #include "nvme_write.h"
+#incldue "nvme_internal.h"
 
 struct db_sequence {
     struct ns_entry    *ns_entry;
     char        *buf;
     unsigned        using_cmb_io;
     int        is_completed;
+    struct state *state;
 };
 
 static void
