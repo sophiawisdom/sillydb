@@ -17,6 +17,7 @@ void cleanup(struct state *state)
 
     TAILQ_FOREACH_SAFE(ns_entry, &state -> g_namespaces, link, tmp_ns_entry) {
         TAILQ_REMOVE(&state -> g_namespaces, ns_entry, link);
+        spdk_nvme_ctrlr_free_io_qpair(ns_entry->qpair);
         free(ns_entry);
     }
 

@@ -154,6 +154,28 @@ int initialize(struct state *state) {
         cleanup();
         return 2;
     }
+    
+    printf("about to allocate qpairs\n");
+    
+    TAILQ_FOREACH(ns_entry, &g_namespaces, link) {
+        /*
+         * Allocate an I/O qpair that we can use to submit read/write requests
+         *  to namespaces on the controller.  NVMe controllers typically support
+         *  many qpairs per controller.  Any I/O qpair allocated for a controller
+         *  can submit I/O to any namespace on that controller.
+         *
+         * The SPDK NVMe driver provides no synchronization for qpair accesses -
+         *  the application must ensure only a single thread submits I/O to a
+         *  qpair, and that same thread must also check for completions on that
+         *  qpair.  This enables extremely efficient I/O processing by making all
+         *  I/O operations completely lockless.
+         */
+        ns_entry->qpair = spdk_nvme_ctrlr_alloc_io_qpair(ns_entry->ctrlr, NULL, 0);
+        if (ns_entry->qpair == NULL) {
+            printf("ERROR: spdk_nvme_ctrlr_alloc_io_qpair() failed\n");
+            return;
+        }
+    }
 
     printf("Initialization complete.\n");
     return 0;
