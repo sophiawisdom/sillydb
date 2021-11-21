@@ -6,6 +6,10 @@
 //
 
 #include "nvme_read.h"
+#include "nvme_internal.h"
+#include "db_interface.h"
+
+#include "spdk/nvme.h"
 
 struct read_sequence {
     struct ns_entry    *ns_entry;
@@ -40,27 +44,39 @@ read_complete(void *arg, const struct spdk_nvme_cpl *completion)
      *  completed.  This will trigger the hello_world() function
      *  to exit its polling loop.
      */
-    printf("%s", sequence->buf);
-    spdk_free(sequence->buf);
     sequence->is_completed = 1;
 }
 
 struct read_response nvme_sector_read_sync(struct state *state, int sector) {
-    sequence->buf = spdk_zmalloc(0x1000, 0x1000, NULL, SPDK_ENV_SOCKET_ID_ANY, SPDK_MALLOC_DMA);
+    struct read_sequence *sequence = malloc(sizeof(struct read_sequence));
+    sequence -> data = spdk_zmalloc(0x1000, 0x1000, NULL, SPDK_ENV_SOCKET_ID_ANY, SPDK_MALLOC_DMA);
 
-    rc = spdk_nvme_ns_cmd_read(ns_entry->ns, ns_entry->qpair, sequence->data,
-                   0, /* LBA start */
-                   1, /* number of LBAs */
-                   read_complete, (void *)sequence, 0);
+    int rc = spdk_nvme_ns_cmd_read(
+        state->main_namespace->ns,
+        state->main_namespace->qpair,
+        sequence -> data,
+        0, /* LBA start */
+        1, /* number of LBAs */
+        read_complete,
+        (void *)sequence,
+        0
+    );
 
     if (rc != 0) {
         fprintf(stderr, "starting read I/O failed\n");
-        return (struct read_response){.err=rc, .data=(struct db_data){.length=0, .data=NULL}};
+        free(sequence);
+        return (struct read_response){.err=rc, .data=( db_data){.length=0, .data=NULL}};
     }
     
-    while (!sequence.is_completed) {
-        spdk_nvme_qpair_process_completions(ns_entry->qpair, 0);
+    while (!sequence -> is_completed) {
+        spdk_nvme_qpair_process_completions(state->main_namespace->qpair, 0);
     }
-    
-    return (struct read_response){.err=0, .data=sequence.data;
+    void *data = sequence -> data;
+    rc = sequence -> is_completed;
+    free(sequence);
+    if (rc != 1) {
+        return (struct read_response){.err=rc, .data=( db_data){.length=0, .data=NULL}};
+    }
+
+    return (struct read_response){.err=0, .data=(db_data){.data=data, .length=0x1000}};
 }
