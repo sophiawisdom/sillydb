@@ -118,11 +118,15 @@ int initialize(struct state *state) {
         return 1;
     }
     
+    printf("about to init\n");
+    
     if (spdk_vmd_init()) {
         fprintf(stderr, "Failed to initialize VMD."
             " Some NVMe devices can be unavailable.\n");
         return 1;
     }
+    
+    printf("about to probe\n");
     
     /*
      * Start the SPDK NVMe enumeration process.  probe_cb will be called
@@ -137,6 +141,8 @@ int initialize(struct state *state) {
         cleanup();
         return 2;
     }
+    
+    printf("about to tailq empty\n");
 
     if (TAILQ_EMPTY(&state -> g_controllers)) {
         fprintf(stderr, "no NVMe controllers found\n");
