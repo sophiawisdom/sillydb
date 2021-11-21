@@ -48,13 +48,13 @@ read_complete(void *arg, const struct spdk_nvme_cpl *completion)
 }
 
 struct read_response nvme_sector_read_sync(struct state *state, int sector) {
-    struct read_sequence sequence;
-    sequence.data = spdk_zmalloc(0x1000, 0x1000, NULL, SPDK_ENV_SOCKET_ID_ANY, SPDK_MALLOC_DMA);
+    struct read_sequence sequence = malloc(sizeof(read_sequence));
+    sequence -> data = spdk_zmalloc(0x1000, 0x1000, NULL, SPDK_ENV_SOCKET_ID_ANY, SPDK_MALLOC_DMA);
 
     int rc = spdk_nvme_ns_cmd_read(
         state->main_namespace->ns,
         state->main_namespace->qpair,
-        sequence.data,
+        sequence -> data,
         0, /* LBA start */
         1, /* number of LBAs */
         read_complete,
@@ -64,12 +64,14 @@ struct read_response nvme_sector_read_sync(struct state *state, int sector) {
 
     if (rc != 0) {
         fprintf(stderr, "starting read I/O failed\n");
+        free(sequence);
         return (struct read_response){.err=rc, .data=( db_data){.length=0, .data=NULL}};
     }
     
     while (!sequence.is_completed) {
         spdk_nvme_qpair_process_completions(state->main_namespace->qpair, 0);
     }
-    
+
+    free(sequence);
     return (struct read_response){.err=0, .data=(db_data){.data=sequence -> data, .length=0x1000}};
 }
