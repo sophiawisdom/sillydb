@@ -16,12 +16,12 @@ cleanup(struct state *state)
     struct spdk_nvme_detach_ctx *detach_ctx = NULL;
 
     TAILQ_FOREACH_SAFE(ns_entry, &state -> g_namespaces, link, tmp_ns_entry) {
-        TAILQ_REMOVE(&g_namespaces, ns_entry, link);
+        TAILQ_REMOVE(&state -> g_namespaces, ns_entry, link);
         free(ns_entry);
     }
 
     TAILQ_FOREACH_SAFE(ctrlr_entry, &state -> g_controllers, link, tmp_ctrlr_entry) {
-        TAILQ_REMOVE(&g_controllers, ctrlr_entry, link);
+        TAILQ_REMOVE(&state -> g_controllers, ctrlr_entry, link);
         spdk_nvme_detach_async(ctrlr_entry->ctrlr, &detach_ctx);
         free(ctrlr_entry);
     }
