@@ -1,1 +1,0 @@
-clang manual_interface.c mem_db/mem_db.c -I. -o manual

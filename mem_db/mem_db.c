@@ -37,7 +37,7 @@ void free_db(void *opaque) {
     free(db -> datas);
 }
 
-int append_object(void *opaque, db_data object) {
+int append_object_sync(void *opaque, db_data object) {
     struct state *db = opaque;
     while (db -> lock != 0) {}
     db -> lock = 1;
@@ -57,6 +57,11 @@ int append_object(void *opaque, db_data object) {
 
     db -> lock = 0;
     return index;
+}
+
+void append_object_async(void *db, db_data object, write_cb callback, void *cb_arg) {
+    int resp = append_object_sync(db, object);
+    callback(cb_arg, resp);
 }
 
 struct read_response read_object_sync(void *opaque, int index) {
@@ -81,4 +86,9 @@ struct read_response read_object_sync(void *opaque, int index) {
 
     db -> lock = 0;
     return resp;
+}
+
+void read_object_async(void *db, int index, read_cb callback, void *cb_arg) {
+    struct read_response resp = read_object_sync(db, index);
+    callback(cb_arg, resp);
 }
