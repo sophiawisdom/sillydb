@@ -30,7 +30,7 @@ struct state {
     
     TAILQ_HEAD(control_head, ctrlr_entry) g_controllers;
     TAILQ_HEAD(namespace_head, ns_entry) g_namespaces;
-    ns_entry *main_namespace;
+    struct ns_entry *main_namespace;
 };
 
 #endif /* nvme_internal_h */
