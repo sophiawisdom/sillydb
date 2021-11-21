@@ -145,13 +145,13 @@ int nvme_append(struct state *state, int data_length, void *data) {
      *  It is the responsibility of the application to trigger the polling
      *  process.
      */
-    rc = spdk_nvme_ns_cmd_write(ns_entry->ns, ns_entry->qpair, sequence.buf,
+    int rc = spdk_nvme_ns_cmd_write(ns_entry->ns, ns_entry->qpair, sequence.buf,
                     0, /* LBA start */
                     1, /* number of LBAs */
                     write_complete, &sequence, 0);
     if (rc != 0) {
         fprintf(stderr, "starting write I/O failed\n");
-        exit(1);
+        return -1;
     }
 
     /*
