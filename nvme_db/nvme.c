@@ -50,7 +50,7 @@ struct read_response read_object(void *opaque, int index) {
     while (db -> lock != 0) {}
     db -> lock = 1; // ACQ LOCK
     
-    struct read_response resp = (struct read_response){.error = 2};
+    struct read_response resp = (struct read_response){.err = 2};
 
     db -> lock = 0;
     return resp;
