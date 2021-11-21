@@ -27,8 +27,8 @@ struct ns_entry {
 struct state {
     _Atomic int lock;
     
-    TAILQ_HEAD(tailhead, ctrlr_entry) g_controllers;
-    TAILQ_HEAD(tailhead, ns_entry) g_namespaces;
+    TAILQ_HEAD(, ctrlr_entry) g_controllers;
+    TAILQ_HEAD(, ns_entry) g_namespaces;
 };
 
 void *create_db() {
@@ -36,8 +36,8 @@ void *create_db() {
     initial_state -> lock = 0;
     
     
-    initial_state -> g_namespaces = TAILQ_INIT(initial_state -> g_namespaces);
-    initial_state -> g_controllers = TAILQ_INIT(initial_state -> g_controllers);
+    initial_state -> g_namespaces = TAILQ_INIT(&initial_state -> g_namespaces);
+    initial_state -> g_controllers = TAILQ_INIT(&initial_state -> g_controllers);
     
     initialize();
 
