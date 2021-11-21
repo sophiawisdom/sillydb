@@ -5,13 +5,14 @@
 //  Created by Sophia Wisdom on 11/20/21.
 //
 
-#include "nvme_init.h"
-#include "nvme_internal.h"
 #include "spdk/stdinc.h"
 #include "spdk/nvme.h"
 #include "spdk/vmd.h"
 #include "spdk/nvme_zns.h"
 #include "spdk/env.h"
+
+#include "nvme_init.h"
+#include "nvme_internal.h"
 
 // This is all single-threaded, because it happens only once, in initialization.
 
@@ -156,7 +157,7 @@ int initialize(struct state *state) {
     }
     
     printf("about to allocate qpairs\n");
-    
+    struct ns_entry            *ns_entry;
     TAILQ_FOREACH(ns_entry, &state -> g_namespaces, link) {
         /*
          * Allocate an I/O qpair that we can use to submit read/write requests
