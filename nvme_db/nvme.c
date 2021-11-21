@@ -26,8 +26,8 @@ struct ns_entry {
 struct state {
     _Atomic int lock;
     
-    TAILQ_HEAD(, ctrlr_entry) g_controllers;
-    TAILQ_HEAD(, ns_entry) g_namespaces;
+    TAILQ_ENTRY(ctrlr_entry) g_controllers;
+    TAILQ_ENTRY(ns_entry) g_namespaces;
 }
 
 void *create_db() {
@@ -52,7 +52,7 @@ int append_object(void *opaque, db_data object) {
     while (db -> lock != 0) {}
     db -> lock = 1;
     
-    
+    int index = 5;
     
     db -> lock = 0;
     return index;
@@ -63,7 +63,7 @@ struct read_response read_object(void *opaque, int index) {
     while (db -> lock != 0) {}
     db -> lock = 1; // ACQ LOCK
     
-    
+    struct read_response resp;
 
     db -> lock = 0;
     return resp;
