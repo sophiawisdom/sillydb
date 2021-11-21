@@ -137,6 +137,7 @@ int initialize(struct state *state) {
      */
     int rc = spdk_nvme_probe(NULL, NULL, probe_cb, attach_cb, NULL);
     if (rc != 0) {
+        printf("failed\n");
         fprintf(stderr, "spdk_nvme_probe() failed\n");
         cleanup();
         return 2;
