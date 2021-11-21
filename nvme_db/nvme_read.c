@@ -51,7 +51,7 @@ struct read_response nvme_sector_read_sync(struct state *state, int sector) {
     struct read_sequence sequence;
     sequence->data = spdk_zmalloc(0x1000, 0x1000, NULL, SPDK_ENV_SOCKET_ID_ANY, SPDK_MALLOC_DMA);
 
-    int rc = spdk_nvme_ns_cmd_read(ns_entry->ns, ns_entry->qpair, sequence->data,
+    int rc = spdk_nvme_ns_cmd_read(state->main_namespace->ns, ns_entry->qpair, sequence->data,
                    0, /* LBA start */
                    1, /* number of LBAs */
                    read_complete, (void *)sequence, 0);
@@ -62,7 +62,7 @@ struct read_response nvme_sector_read_sync(struct state *state, int sector) {
     }
     
     while (!sequence.is_completed) {
-        spdk_nvme_qpair_process_completions(ns_entry->qpair, 0);
+        spdk_nvme_qpair_process_completions(state->main_namespace->qpair, 0);
     }
     
     return (struct read_response){.err=0, .data=(db_data){.data=sequence -> data, .length=0x1000}};
