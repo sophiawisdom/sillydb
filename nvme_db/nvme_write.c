@@ -123,7 +123,7 @@ int nvme_append(struct state *state, int data_length, void *data) {
      * write to it. This not needed for regular NVM namespaces.
      */
     if (spdk_nvme_ns_get_csi(state->main_namespace->ns) == SPDK_NVME_CSI_ZNS) {
-        reset_zone_and_wait_for_completion(&sequence);
+        reset_zone_and_wait_for_completion(sequence);
     }
 
     /*
@@ -153,7 +153,7 @@ int nvme_append(struct state *state, int data_length, void *data) {
     int rc = spdk_nvme_ns_cmd_write(state->main_namespace->ns, state->main_namespace->qpair, sequence -> buf,
                     index, /* LBA start */
                     1, /* number of LBAs */
-                    write_complete, &sequence, 0);
+                    write_complete, sequence, 0);
     if (rc != 0) {
         fprintf(stderr, "starting write I/O failed\n");
         return -1;
