@@ -7,8 +7,16 @@
 
 #include "nvme_init.h"
 #include "nvme_internal.h"
+#include "spdk/stdinc.h"
+#include "spdk/nvme.h"
+#include "spdk/vmd.h"
+#include "spdk/nvme_zns.h"
+#include "spdk/env.h"
 
-void initialize() {
+int initialize(struct state *state) {
+    TAILQ_INIT(&initial_state -> g_namespaces);
+    TAILQ_INIT(&initial_state -> g_controllers);
+
     struct spdk_env_opts opts;
 
     /*

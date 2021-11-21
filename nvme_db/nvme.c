@@ -16,11 +16,7 @@ void *create_db(void) {
     struct state *initial_state = malloc(sizeof(struct state));
     initial_state -> lock = 0;
     
-    
-    TAILQ_INIT(&initial_state -> g_namespaces);
-    TAILQ_INIT(&initial_state -> g_controllers);
-    
-    initialize(initial_state);
+    int ret = initialize(initial_state);
 
     return initial_state;
 }

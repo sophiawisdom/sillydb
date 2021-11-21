@@ -9,9 +9,8 @@
 #define nvme_init_h
 
 #include <stdio.h>
-#include "nvme.h"
 #include "nvme_internal.h"
 
-void initialize(struct state *);
+int initialize(struct state *state);
 
 #endif /* nvme_init_h */
