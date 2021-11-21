@@ -106,6 +106,7 @@ int nvme_append(struct state *state, int data_length, void *data) {
      * will be pinned, which is required for data buffers used for SPDK NVMe
      * I/O operations.
      */
+    size_t  sz;
     sequence.using_cmb_io = 1;
     sequence.buf = spdk_nvme_ctrlr_map_cmb(ns_entry->ctrlr, &sz);
     if (sequence.buf == NULL || sz < 0x1000) {
