@@ -177,6 +177,7 @@ int initialize(struct state *state) {
             printf("ERROR: spdk_nvme_ctrlr_alloc_io_qpair() failed\n");
             return;
         }
+        state -> main_namespace = ns_entry;
     }
 
     printf("Initialization complete.\n");
