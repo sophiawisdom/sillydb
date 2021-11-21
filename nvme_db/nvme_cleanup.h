@@ -9,6 +9,7 @@
 #define nvme_cleanup_h
 
 #include <stdio.h>
+#include "nvme_internal.h"
 
 void cleanup(struct state *state);
 

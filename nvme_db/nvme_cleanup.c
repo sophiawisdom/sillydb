@@ -6,7 +6,6 @@
 //
 
 #include "nvme_cleanup.h"
-#include "nvme_internal.h"
 
 #include "spdk/nvme.h"
 
