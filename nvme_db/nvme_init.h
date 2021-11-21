@@ -10,6 +10,6 @@
 
 #include <stdio.h>
 
-void initialize();
+void initialize(void);
 
 #endif /* nvme_init_h */
