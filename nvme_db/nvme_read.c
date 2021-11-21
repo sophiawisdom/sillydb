@@ -58,7 +58,7 @@ struct read_response nvme_sector_read_sync(struct state *state, int sector) {
 
     if (rc != 0) {
         fprintf(stderr, "starting read I/O failed\n");
-        return (struct read_response){.err=rc, .data=(struct db_data){.length=0, .data=NULL}};
+        return (struct read_response){.err=rc, .data=( db_data){.length=0, .data=NULL}};
     }
     
     while (!sequence.is_completed) {
