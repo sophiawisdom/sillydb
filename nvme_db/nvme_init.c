@@ -14,8 +14,8 @@
 #include "spdk/env.h"
 
 int initialize(struct state *state) {
-    TAILQ_INIT(&initial_state -> g_namespaces);
-    TAILQ_INIT(&initial_state -> g_controllers);
+    TAILQ_INIT(&state -> g_namespaces);
+    TAILQ_INIT(&state -> g_controllers);
 
     struct spdk_env_opts opts;
 
