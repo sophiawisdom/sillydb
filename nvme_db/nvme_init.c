@@ -74,6 +74,8 @@ attach_cb(void *cb_ctx, const struct spdk_nvme_transport_id *trid,
      *  specification for more details on IDENTIFY for NVMe controllers.
      */
     cdata = spdk_nvme_ctrlr_get_data(ctrlr);
+    
+    printf("about to get data\n");
 
     snprintf(entry->name, sizeof(entry->name), "%-20.20s (%-20.20s)", cdata->mn, cdata->sn);
 
