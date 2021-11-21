@@ -1,6 +1,11 @@
 #include "db_interface.h"
-
 #include "nvme_init.h"
+
+#include "spdk/stdinc.h"
+#include "spdk/nvme.h"
+#include "spdk/vmd.h"
+#include "spdk/nvme_zns.h"
+#include "spdk/env.h"
 
 #include <stdlib.h>
 #include <string.h>
