@@ -78,6 +78,8 @@ attach_cb(void *cb_ctx, const struct spdk_nvme_transport_id *trid,
     printf("about to get data\n");
 
     snprintf(entry->name, sizeof(entry->name), "%-20.20s (%-20.20s)", cdata->mn, cdata->sn);
+    
+    printf("snprintf'd name\n");
 
     entry->ctrlr = ctrlr;
     TAILQ_INSERT_TAIL(&state -> g_controllers, entry, link);
