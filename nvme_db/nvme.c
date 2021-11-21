@@ -42,7 +42,7 @@ int append_object(void *opaque, db_data object) {
     while (db -> lock != 0) {}
     db -> lock = 1;
 
-    int index = nvme_append(state, object.length, object.data); // writes are negative values, but just passed through.
+    int index = nvme_append(db, object.length, object.data); // writes are negative values, but just passed through.
     
     db -> lock = 0;
     return index;
