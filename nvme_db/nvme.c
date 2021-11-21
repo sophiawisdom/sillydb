@@ -27,8 +27,8 @@ struct ns_entry {
 struct state {
     _Atomic int lock;
     
-    TAILQ_HEAD(, ctrlr_entry) g_controllers;
-    TAILQ_HEAD(, ns_entry) g_namespaces;
+    TAILQ_HEAD(control_head, ctrlr_entry) g_controllers;
+    TAILQ_HEAD(namespace_head, ns_entry) g_namespaces;
 };
 
 void *create_db() {
