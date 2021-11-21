@@ -18,6 +18,7 @@ void *create_db(void) {
     initial_state -> lock = 0;
     
     int ret = initialize(initial_state);
+    printf("retval from initialize is %d\n", ret);
     if (ret == 2) {
         cleanup(initial_state);
     }
