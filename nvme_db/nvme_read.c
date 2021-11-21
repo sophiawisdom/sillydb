@@ -55,7 +55,7 @@ struct read_response nvme_sector_read_sync(struct state *state, int sector) {
         state->main_namespace->ns,
         state->main_namespace->qpair,
         sequence -> data,
-        0, /* LBA start */
+        sector, /* LBA start */
         1, /* number of LBAs */
         read_complete,
         (void *)sequence,

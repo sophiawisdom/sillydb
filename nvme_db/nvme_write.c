@@ -102,7 +102,7 @@ int nvme_append(struct state *state, int data_length, void *data) {
     sequence -> using_cmb_io = 1;
     printf("about to DMA allocate some data\n");
     sequence -> buf = spdk_nvme_ctrlr_map_cmb(state->main_namespace->ctrlr, &sz);
-    printf("size is %ld\n", sz);
+    printf("sz is %ld\n", sz);
     if (sequence -> buf == NULL || sz < 0x1000) {
         sequence -> using_cmb_io = 0;
         sequence -> buf = spdk_zmalloc(0x1000, 0x1000, NULL, SPDK_ENV_SOCKET_ID_ANY, SPDK_MALLOC_DMA);
