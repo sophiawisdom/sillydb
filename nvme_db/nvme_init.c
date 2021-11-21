@@ -14,7 +14,7 @@
 #include "spdk/env.h"
 
 static void
-register_ns(struct spdk_nvme_ctrlr *ctrlr, struct spdk_nvme_ns *ns)
+register_ns(struct state *state, struct spdk_nvme_ctrlr *ctrlr, struct spdk_nvme_ns *ns)
 {
     struct ns_entry *entry;
 
@@ -30,7 +30,7 @@ register_ns(struct spdk_nvme_ctrlr *ctrlr, struct spdk_nvme_ns *ns)
 
     entry->ctrlr = ctrlr;
     entry->ns = ns;
-    TAILQ_INSERT_TAIL(&g_namespaces, entry, link);
+    TAILQ_INSERT_TAIL(&state -> g_namespaces, entry, link);
 
     printf("  Namespace ID: %d size: %juGB\n", spdk_nvme_ns_get_id(ns),
            spdk_nvme_ns_get_size(ns) / 1000000000);
@@ -92,7 +92,7 @@ attach_cb(void *cb_ctx, const struct spdk_nvme_transport_id *trid,
         if (ns == NULL) {
             continue;
         }
-        register_ns(ctrlr, ns);
+        register_ns(state, ctrlr, ns);
     }
 }
 
