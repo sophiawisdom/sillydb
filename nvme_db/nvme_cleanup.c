@@ -8,8 +8,7 @@
 #include "nvme_cleanup.h"
 #include "nvme_internal.h"
 
-static void
-cleanup(struct state *state)
+void cleanup(struct state *state)
 {
     struct ns_entry *ns_entry, *tmp_ns_entry;
     struct ctrlr_entry *ctrlr_entry, *tmp_ctrlr_entry;
