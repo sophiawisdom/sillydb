@@ -107,7 +107,7 @@ int nvme_append(struct state *state, int data_length, void *data) {
     }
     if (sequence.buf == NULL) {
         printf("ERROR: write buffer allocation failed\n");
-        return;
+        return -1;
     }
     if (sequence.using_cmb_io) {
         printf("INFO: using controller memory buffer for IO\n");
