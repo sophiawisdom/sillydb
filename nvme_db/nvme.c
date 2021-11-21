@@ -11,7 +11,8 @@
 #include <string.h>
 #include <stdio.h>
 
-struct spdk_nvme_ctrlr        *ctrlr;
+struct ctrlr_entry {
+    struct spdk_nvme_ctrlr        *ctrlr;
     TAILQ_ENTRY(ctrlr_entry)    link;
     char                name[1024];
 };
@@ -30,7 +31,7 @@ struct state {
     TAILQ_ENTRY(ns_entry) g_namespaces;
 }
 
-void *create_db {
+void *create_db() {
     struct state *initial_state = malloc(sizeof(struct state));
     initial_state -> lock = 0;
     
