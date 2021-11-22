@@ -8,7 +8,7 @@ typedef struct indices {
     int *indices;
 } indices;
 
-void *create_db();
+void *create_db(void);
 void free_db(void *db);
 
 // Returns the index of the data in the database.
@@ -35,7 +35,7 @@ enum write_err {
     KEY_TOO_LONG,
     WRITE_IO_ERROR,
     GENERIC_WRITE_ERROR,
-}
+};
 
 typedef void (*key_write_cb)(void *, enum write_err); // cb_arg and
 
