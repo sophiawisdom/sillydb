@@ -46,7 +46,7 @@ enum read_err {
     KEY_NOT_FOUND,
     READ_IO_ERROR,
     GENERIC_READ_ERROR,
-}
+};
 
 typedef void (*key_read_cb)(void *, enum read_err, db_data);
 // cb_arg, err, value
