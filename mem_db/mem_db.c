@@ -60,8 +60,7 @@ int append_object_sync(void *opaque, db_data object) {
 }
 
 void append_object_async(void *db, db_data object, write_cb callback, void *cb_arg) {
-    int resp = append_object_sync(db, object);
-    callback(cb_arg, resp);
+    callback(cb_arg, append_object_sync(db, object));
 }
 
 struct read_response read_object_sync(void *opaque, int index) {
@@ -89,6 +88,10 @@ struct read_response read_object_sync(void *opaque, int index) {
 }
 
 void read_object_async(void *db, int index, read_cb callback, void *cb_arg) {
-    struct read_response resp = read_object_sync(db, index);
-    callback(cb_arg, resp);
+    
+    callback(cb_arg, read_object_sync(db, index));
+}
+
+void poll(void *db) {
+    return;
 }

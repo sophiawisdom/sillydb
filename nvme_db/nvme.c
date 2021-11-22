@@ -39,7 +39,7 @@ void free_db(void *opaque) {
     free(db);
 }
 
-int append_object(void *opaque, db_data object) {
+int append_object_sync(void *opaque, db_data object) {
     if (object.length > 4092) { // sector size - 4 bytes for length.
         return -1;
     }
@@ -51,6 +51,13 @@ int append_object(void *opaque, db_data object) {
     
     db -> lock = 0;
     return index;
+}
+
+void append_object_async(void *db, db_data object, write_cb callback, void *cb_arg) {
+    int resp = nvme_issue_sector_write(db, object.length, object.data, write_db, cb_arg);
+    if (resp < 0) { // encountered an error issuing the write
+        callback(cb_arg, resp);
+    }
 }
 
 struct read_response read_object_sync(void *opaque, int index) {
@@ -74,3 +81,12 @@ struct read_response read_object_sync(void *opaque, int index) {
     db -> lock = 0; // RELEASE LOCK
     return resp;
 }
+
+/*
+
+void poll(void *db) {
+    poll_for_writes(db);
+    poll_for_reads(db);
+}
+ 
+ */
