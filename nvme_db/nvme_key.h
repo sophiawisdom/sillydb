@@ -13,14 +13,14 @@
 
 struct ctrlr_entry {
     struct spdk_nvme_ctrlr        *ctrlr;
-    TAILQ_ENTRY(ctrlr_entry)    link;
+    TAILQ_ENTRY(, ctrlr_entry)    link;
     char                name[1024];
 };
 
 struct ns_entry {
     struct spdk_nvme_ctrlr    *ctrlr;
     struct spdk_nvme_ns    *ns;
-    TAILQ_ENTRY(ns_entry)    link;
+    TAILQ_ENTRY(, ns_entry)    link;
     struct spdk_nvme_qpair    *qpair;
 };
 
@@ -62,7 +62,7 @@ struct write_cb_state {
     
     unsigned long long ssd_loc; // written in flush_writes and read when the callback returns.
 
-    TAILQ_ENTRY(write_cb_state)    link;
+    TAILQ_ENTRY(, write_cb_state)    link;
 }
 
 struct db_state {
