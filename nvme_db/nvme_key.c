@@ -74,7 +74,7 @@ unsigned short hash_key(db_data key) {
     return hash;
 }
 
-unsigned long long get_time_µs() {
+unsigned long long get_time_us() {
     struct timeval tv;
     gettimeofday(&tv, NULL);
     return (tv.tv_sec * 10000000) + tv.tv_usec;
@@ -153,9 +153,9 @@ bool should_flush_writes(struct db_state *db) {
     }
     
     // Check if oldest write in queue has been waiting more than 1ms.
-    unsigned long long cur_t = get_time_µs();
-    unsigned long long elapsed_µs = cur_t - TAILQ_LAST(&db -> write_callback_queue) -> clock_time_enqueued;
-    if (elapsed_µs > 1000) { // more than 1ms
+    unsigned long long cur_t = get_time_us();
+    unsigned long long elapsed_us = cur_t - TAILQ_LAST(&db -> write_callback_queue) -> clock_time_enqueued;
+    if (elapsed_s > 1000) { // more than 1ms
         return true;
     }
 
@@ -249,7 +249,7 @@ void write_key_data_async(void *opaque, db_data key, db_data value, key_write_cb
     callback_arg -> index = key_idx;
     callback_arg -> key = key;
     callback_arg -> value = value;
-    callback_arg -> clock_time_enqueued = get_time_µs();
+    callback_arg -> clock_time_enqueued = get_time_us();
     TAILQ_INSERT_HEAD(&db -> write_callbacks, callback_arg, link); // Append the callback to a linked list of write callbacks
 
     if (should_flush_writes(db)) {
