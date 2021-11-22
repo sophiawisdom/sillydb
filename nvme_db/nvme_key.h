@@ -101,7 +101,7 @@ void read_key_data_async(void *db, db_data key, key_read_cb callback, void *cb_a
 
 void write_key_data_async(void *db, db_data key, db_data object, key_write_cb callback, void *cb_arg);
 
-void *create_db();
+void *create_db(void);
 void free_db(void *db);
 
 #endif /* nvme_key_h */
