@@ -261,8 +261,6 @@ void write_key_data_async(void *opaque, db_data key, db_data value, key_write_cb
 void read_key_data_async(void *opaque, db_data read_key, read_cb callback, void *cb_arg) {
     struct db_state *db = opaque;
     acq_lock(db); // ACQUIRE LOCK
-    
-    unsigned short key_hash = hash_key(read_key);
 
     struct ram_stored_key found_key;
     bool found = search_for_key(db, read_key, &found_key);
