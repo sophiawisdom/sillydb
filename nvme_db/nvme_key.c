@@ -10,6 +10,8 @@
 #include <stdbool.h>
 #include <time.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define INITIAL_CAPACITY (100)
 
