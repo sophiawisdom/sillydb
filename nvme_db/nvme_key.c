@@ -49,7 +49,6 @@ static void release_lock(struct db_state *db) {
 
 bool search_for_key(struct db_state *db, db_data search_key, struct ram_stored_key *found_key) {
     bool found = false;
-    struct ram_stored_key found_key;
     for (int i = 0; i < db -> num_key_entries; i++) {
         struct ram_stored_key key = keys[i];
         if (key.key_length != search_key.length || key.key_hash != key_hash) {
