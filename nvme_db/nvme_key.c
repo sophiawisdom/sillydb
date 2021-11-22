@@ -7,6 +7,9 @@
 
 #include "nvme_key.h"
 #include <stdatomic.h>
+#include <stdbool.h>
+#include <time.h>
+#include <stdio.h>
 
 #define INITIAL_CAPACITY (100)
 
@@ -292,7 +295,7 @@ void poll(void *opaque) {
     }
     
     unsigned int begin_clock = clock();
-    while ((clock() - begin_clock) < 5000)) { // poll for completions for up to 5ms
+    while ((clock() - begin_clock) < 5000) { // poll for completions for up to 5ms
         spdk_nvme_qpair_process_completions(db->main_namespace->qpair, 0);
     }
     
