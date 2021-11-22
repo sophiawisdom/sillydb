@@ -63,7 +63,7 @@ struct write_cb_state {
     unsigned long long ssd_loc; // written in flush_writes and read when the callback returns.
 
     TAILQ_ENTRY(, write_cb_state)    link;
-}
+};
 
 struct db_state {
     _Atomic int lock;
