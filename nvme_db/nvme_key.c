@@ -68,7 +68,7 @@ unsigned short hash_key(db_data key) {
     for (int i = 0; i < key.length>>1; i++) {
         hash ^= short_data[i];
     }
-    return begin;
+    return hash;
 }
 
 unsigned long long get_time_µs() {
