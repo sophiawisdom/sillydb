@@ -267,16 +267,12 @@ void read_key_data_async(void *opaque, db_data read_key, read_cb callback, void 
     bool found = search_for_key(db, read_key, &found_key);
     if (!found) { // couldn't find key
         release_lock(db); // RELEASE LOCK
-        if (callback != NULL) {
-            callback(cb_arg, KEY_NOT_FOUND, (db_data){.data=NULL, .length=0});
-        }
+        callback(cb_arg, KEY_NOT_FOUND, (db_data){.data=NULL, .length=0});
         return;
     }
     if (found_key.flags & DATA_FLAG_INCOMPLETE) { // The key is in the process of being written, so it's effectively not there.
         release_lock(db);
-        if (callback != NULL) {
-            callback(cb_arg, KEY_NOT_FOUND, (db_data){.data=NULL, .length=0});
-        }
+        callback(cb_arg, KEY_NOT_FOUND, (db_data){.data=NULL, .length=0});
         return;
     }
     

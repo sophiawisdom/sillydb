@@ -1,11 +1,11 @@
 //
-//  nvmd_write_async.c
+//  nvme_write_async.c
 //  
 //
 //  Created by Sophia Wisdom on 11/21/21.
 //
 
-#include "nvmd_write_async.h"
+#include "nvme_write_async.h"
 
 void poll_for_writes(struct state* state) {
     
