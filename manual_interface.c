@@ -12,10 +12,10 @@ static void write_callback(void *arg, enum write_err error) {
 }
 
 static void read_callback(void *arg, enum read_err error, db_data response) {
-    printf("got read callback, time %ld err %d data is length %d, %s\n", clock(), error, (char *)response.length, response.data);
+    printf("got read callback, time %ld err %d data is length %d, %s\n", clock(), error, response.length, (char *)response.data);
 }
 
-int main() {
+int main(int argc, char **argv) {
     void* db = create_db();
     if (db == 0) {
         printf("got err in create_db\n");
