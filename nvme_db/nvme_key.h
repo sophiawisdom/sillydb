@@ -98,6 +98,7 @@ struct db_state {
 };
 
 
+/*
 // You can pass NULL for the callbacks if you wish
 void read_key_data_async(void *db, db_data key, key_read_cb callback, void *cb_arg);
 
@@ -105,5 +106,6 @@ void write_key_data_async(void *db, db_data key, db_data object, key_write_cb ca
 
 void poll_db(void *opaque);
 void free_db(void *db);
+*/
 
 #endif /* nvme_key_h */

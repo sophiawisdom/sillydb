@@ -53,4 +53,4 @@ typedef void (*key_read_cb)(void *, enum read_err, db_data);
 
 void read_value_async(void *db, db_data key, read_cb callback, void *cb_arg);
 
-void poll(void *db);
+void poll_db(void *opaque);
