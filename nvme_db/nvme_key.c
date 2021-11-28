@@ -10,8 +10,6 @@
 #include "nvme_read_key_async.h"
 #include "nvme_write_key_async.h"
 
-#include "db_interface.h"
-
 #include <stdatomic.h>
 #include <stdbool.h>
 #include <time.h>
