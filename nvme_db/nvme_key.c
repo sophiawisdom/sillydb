@@ -101,7 +101,7 @@ static void flush_writes_cb(void *arg, enum write_err err) {
     TAILQ_FOREACH(write_callback, &callback_state -> write_callback_queue, link) {
         db -> writes_in_flight--;
         db -> keys[write_callback -> key_index].flags &= (255-DATA_FLAG_INCOMPLETE); // set incomplete flag to false
-        db -> keys[write_callback -> key_index].data_loc = write_callback -> data_loc;
+        db -> keys[write_callback -> key_index].data_loc = write_callback -> ssd_loc;
         
         if (write_callback -> callback != NULL) {
             write_callback -> callback(write_callback -> cb_arg, write_err);
