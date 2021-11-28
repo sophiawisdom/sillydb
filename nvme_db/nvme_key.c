@@ -249,7 +249,7 @@ void write_key_data_async(void *opaque, db_data key, db_data value, key_write_cb
     callback_arg -> db = db;
     callback_arg -> callback = callback;
     callback_arg -> cb_arg = cb_arg;
-    callback_arg -> index = key_idx;
+    callback_arg -> key_index = key_idx;
     callback_arg -> key = key;
     callback_arg -> value = value;
     callback_arg -> clock_time_enqueued = get_time_us();
