@@ -81,7 +81,7 @@ static bool search_for_key(struct db_state *db, db_data search_key, struct ram_s
     return false;
 }
 
-static unsigned long long get_time_us() {
+static unsigned long long get_time_us(void) {
     struct timeval tv;
     gettimeofday(&tv, NULL);
     return (tv.tv_sec * 10000000) + tv.tv_usec;
