@@ -25,10 +25,11 @@ static void flush_writes_cb(void *arg, const struct spdk_nvme_cpl *cpl) {
      * caller is aware that an error occurred.
      */
     if (spdk_nvme_cpl_is_error(completion)) {
-        spdk_nvme_qpair_print_completion(cb_state->ns_entry->qpair, (struct spdk_nvme_cpl *)completion);
+        // TODO: fix this. go through each write callback and return an error.
+        spdk_nvme_qpair_print_completion(callback_state->ns_entry->qpair, (struct spdk_nvme_cpl *)completion);
         fprintf(stderr, "I/O error status: %s\n", spdk_nvme_cpl_get_status_string(&completion->status));
-        cb_state -> callback(cb_state -> cb_arg, WRITE_IO_ERROR);
-        free(cb_state);
+        callback_state -> callback(callback_state -> cb_arg, WRITE_IO_ERROR);
+        free(callback_state);
         return;
     }
 
