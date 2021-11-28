@@ -8,6 +8,20 @@
 #include "nvme_write_key_async.h"
 #include "spdk/nvme.h"
 
+static unsigned long long callback_ssd_size(struct write_cb_state *write_callback) {
+    return write_callback -> value.length + write_callback -> key.length + sizeof(struct ssd_header);
+}
+
+// MUST HAVE LOCK TO CALL THIS FUNCTION
+static unsigned long long calc_write_bytes_queued(struct db_state *db) {
+    unsigned long long write_bytes_queued = 0;
+    struct write_cb_state *write_callback;
+    TAILQ_FOREACH(write_callback, &db -> write_callback_queue, link) {
+        write_bytes_queued += callback_ssd_size(write_callback);
+    }
+    return write_bytes_queued;
+}
+
 struct flush_writes_state {
     TAILQ_HEAD(flush_writes_head, write_cb_state) write_callback_queue;
     struct db_state *db;
