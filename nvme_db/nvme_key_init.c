@@ -24,7 +24,7 @@ attach_cb(void *cb_ctx, const struct spdk_nvme_transport_id *trid,
     struct ctrlr_entry *entry;
     struct spdk_nvme_ns *ns;
     const struct spdk_nvme_ctrlr_data *cdata;
-    struct state *state = cb_ctx;
+    struct db_state *state = cb_ctx;
 
     entry = malloc(sizeof(struct ctrlr_entry));
     if (entry == NULL) {
@@ -72,7 +72,7 @@ attach_cb(void *cb_ctx, const struct spdk_nvme_transport_id *trid,
     }
 }
 
-int initialize(struct state *state) {
+int initialize(struct db_state *state) {
     TAILQ_INIT(&state -> g_namespaces);
     TAILQ_INIT(&state -> g_controllers);
 
