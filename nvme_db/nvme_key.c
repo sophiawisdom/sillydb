@@ -259,7 +259,7 @@ void write_key_data_async(void *opaque, db_data key, db_data value, key_write_cb
     release_lock(db);
 }
 
-void read_key_data_async(void *opaque, db_data read_key, read_cb callback, void *cb_arg) {
+void read_key_data_async(void *opaque, db_data read_key, key_read_cb callback, void *cb_arg) {
     struct db_state *db = opaque;
     acq_lock(db); // ACQUIRE LOCK
 
