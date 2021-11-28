@@ -6,13 +6,13 @@
 #include <string.h>
 #include <time.h>
 
-void write_callback(void *arg, enum write_err error) {
-    printf("got back a callback, time %lld err %d\n", clock(), error);
+static void write_callback(void *arg, enum write_err error) {
+    printf("got back a callback, time %ld err %d\n", clock(), error);
     free(arg);
 }
 
-void read_callback(void *arg, enum read_err error, db_data response) {
-    printf("got read callback, time %lld err %d data is length %d, %s\n", clock(), error, response.length, response.data);
+static void read_callback(void *arg, enum read_err error, db_data response) {
+    printf("got read callback, time %ld err %d data is length %d, %s\n", clock(), error, (char *)response.length, response.data);
 }
 
 int main() {
