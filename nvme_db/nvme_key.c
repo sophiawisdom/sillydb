@@ -10,6 +10,8 @@
 #include "nvme_read_key_async.h"
 #include "nvme_write_key_async.h"
 
+#include "db_interface.h"
+
 #include <stdatomic.h>
 #include <stdbool.h>
 #include <time.h>
@@ -210,7 +212,7 @@ void write_key_data_async(void *opaque, db_data key, db_data value, key_write_cb
     bool found = search_for_key(db, key, &prev_key);
     if (found) {
         release_lock(db);
-        write_cb(cb_arg, GENERIC_WRITE_ERROR); // in order to support this we would have to delete the previous key and do a bunch of other work, so not implemented yet.
+        callback(cb_arg, GENERIC_WRITE_ERROR); // in order to support this we would have to delete the previous key and do a bunch of other work, so not implemented yet.
         return;
     }
     
