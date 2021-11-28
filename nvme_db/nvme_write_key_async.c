@@ -8,14 +8,14 @@
 #include "nvme_write_key_async.h"
 #include "spdk/nvme.h"
 
-struct write_cb_state {
+struct nvme_write_cb_state {
     nvme_write_cb callback;
     void *cb_arg;
     struct ns_entry *ns_entry;
 };
 
 void write_complete(void *arg, const struct spdk_nvme_cpl *completion) {
-    struct write_cb_state *cb_state = arg;
+    struct nvme_write_cb_state *cb_state = arg;
     struct ns_entry *ns_entry = cb_state->ns_entry;
 
     /* See if an error occurred. If so, display information
@@ -36,7 +36,7 @@ void write_complete(void *arg, const struct spdk_nvme_cpl *completion) {
 
 void nvme_issue_write(struct db_state *db, unsigned long long sector, int sectors_to_write, void *data, nvme_write_cb callback, void *cb_arg) {
 
-    struct write_cb_state *write_state = malloc(sizeof(struct write_cb_state));
+    struct nvme_write_cb_state *write_state = malloc(sizeof(struct nvme_write_cb_state));
     write_state -> callback = callback;
     write_state -> cb_arg = cb_arg;
     write_state -> ns_entry = db -> main_namespace -> ns;
