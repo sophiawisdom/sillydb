@@ -88,6 +88,16 @@ static unsigned long long get_time_us(void) {
 }
 
 // MUST HAVE LOCK TO CALL THIS FUNCTION
+unsigned long long calc_write_bytes_queued(struct db_state *db) {
+    unsigned long long write_bytes_queued = 0;
+    struct write_cb_state *write_callback;
+    TAILQ_FOREACH(write_callback, &db -> write_callback_queue, link) {
+        write_bytes_queued += callback_ssd_size(write_callback);
+    }
+    return write_bytes_queued;
+}
+
+// MUST HAVE LOCK TO CALL THIS FUNCTION
 static bool should_flush_writes(struct db_state *db) {
     // Check if there are enough bytes enqueued to fill a sector.
     // TODO: possibly store the current number of write bytes enqueued and update it when callbacks are enqueued.
