@@ -8,10 +8,6 @@
 #include "nvme_write_key_async.h"
 #include "spdk/nvme.h"
 
-static unsigned long long callback_ssd_size(struct write_cb_state *write_callback) {
-    return write_callback -> value.length + write_callback -> key.length + sizeof(struct ssd_header);
-}
-
 struct flush_writes_state {
     TAILQ_HEAD(flush_writes_head, write_cb_state) write_callback_queue;
     struct db_state *db;

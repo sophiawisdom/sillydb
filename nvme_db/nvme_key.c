@@ -87,6 +87,10 @@ static unsigned long long get_time_us(void) {
     return (tv.tv_sec * 10000000) + tv.tv_usec;
 }
 
+unsigned long long callback_ssd_size(struct write_cb_state *write_callback) {
+    return write_callback -> value.length + write_callback -> key.length + sizeof(struct ssd_header);
+}
+
 // MUST HAVE LOCK TO CALL THIS FUNCTION
 unsigned long long calc_write_bytes_queued(struct db_state *db) {
     unsigned long long write_bytes_queued = 0;

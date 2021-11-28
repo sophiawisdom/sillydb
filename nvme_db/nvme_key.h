@@ -121,5 +121,6 @@ void acq_lock(struct db_state *db);
 void release_lock(struct db_state *db);
 
 unsigned long long calc_write_bytes_queued(struct db_state *db);
+unsigned long long callback_ssd_size(struct write_cb_state *write_callback);
 
 #endif /* nvme_key_h */
