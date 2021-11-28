@@ -22,7 +22,7 @@
 
 // HELPER FUNCTIONS
 
-static void acq_lock(struct db_state *db) {
+void acq_lock(struct db_state *db) {
     // C atomics have weird semantics. Here's what this compiles to on x86:
     /**
      acq_lock:                               # @acq_lock
@@ -50,7 +50,7 @@ static void acq_lock(struct db_state *db) {
     }
 }
 
-static void release_lock(struct db_state *db) {
+void release_lock(struct db_state *db) {
     db -> lock = 0;
 }
 
@@ -87,33 +87,6 @@ static unsigned long long get_time_us(void) {
     return (tv.tv_sec * 10000000) + tv.tv_usec;
 }
 
-struct flush_writes_state {
-    TAILQ_HEAD(flush_writes_head, write_cb_state) write_callback_queue;
-    struct db_state *db;
-};
-
-static void flush_writes_cb(void *arg, enum write_err err) {
-    struct flush_writes_state *callback_state = arg;
-    struct db_state *db = callback_state -> db;
-    acq_lock(callback_state -> db);
-
-    struct write_cb_state *write_callback;
-    TAILQ_FOREACH(write_callback, &callback_state -> write_callback_queue, link) {
-        db -> writes_in_flight--;
-        db -> keys[write_callback -> key_index].flags &= (255-DATA_FLAG_INCOMPLETE); // set incomplete flag to false
-        db -> keys[write_callback -> key_index].data_loc = write_callback -> ssd_loc;
-        
-        if (write_callback -> callback != NULL) {
-            write_callback -> callback(write_callback -> cb_arg, err);
-        }
-    }
-    
-    // TODO: figure out how to free both a) the callback queue and b) all the callbacks inside it.
-    // free(write_callback);
-
-    release_lock(db);
-}
-
 static unsigned long long callback_ssd_size(struct write_cb_state *write_callback) {
     return write_callback -> value.length + write_callback -> key.length + sizeof(struct ssd_header);
 }
@@ -126,44 +99,6 @@ static unsigned long long calc_write_bytes_queued(struct db_state *db) {
         write_bytes_queued += callback_ssd_size(write_callback);
     }
     return write_bytes_queued;
-}
-
-static void copy_write_queue(struct db_state *db, struct flush_writes_state *writes_state) {
-    // TODO: Figure out some way to just copy the head pointer. As stands, not sure how to declare it in the struct correctly.
-    TAILQ_INIT(&writes_state -> write_callback_queue);
-    while (!TAILQ_EMPTY(&db -> write_callback_queue)) {
-        struct write_cb_state *write_callback = TAILQ_FIRST(&db -> write_callback_queue);
-        TAILQ_INSERT_TAIL(&writes_state -> write_callback_queue, write_callback, link);
-        TAILQ_REMOVE(&db -> write_callback_queue, write_callback, link);
-    }
-}
-
-// MUST HAVE LOCK TO CALL THIS FUNCTION
-static void flush_writes(struct db_state *db) {
-    unsigned long long write_bytes_queued = calc_write_bytes_queued(db);
-    unsigned long long sectors_to_write = write_bytes_queued/db -> sector_size; // We have 10000 bytes enqueued with a sector length of 4096, so write 2 sectors
-    unsigned long long current_sector = db -> current_sector_ssd;
-    db -> current_sector_ssd += sectors_to_write;
-    unsigned long long write_size = sectors_to_write * db -> sector_size;
-    
-    struct flush_writes_state *flush_writes_cb_state = malloc(sizeof(struct flush_writes_state));
-    flush_writes_cb_state -> db = db;
-    // transfer the callback queue to the callback, it will be written to when that's completed.
-    copy_write_queue(db, flush_writes_cb_state);
-
-    void *data = calloc(1, db -> sector_size * write_size); // what *specifically* we are writing in this write.
-    // TODO: dma_alloc this ^ ? Would eliminate a needless copy. spdk_nvme_ctrlr_map_cmb or spdk_zmalloc
-    struct write_cb_state *write_callback;
-    unsigned long long data_bytes_written = 0;
-    TAILQ_FOREACH(write_callback, &db -> write_callback_queue, link) {
-        unsigned long long size = callback_ssd_size(write_callback);
-        printf("size is %lld\n", size);
-        // TODO: remove each callback as we encounter it, if we don't consume the whole buffer note that somehow (synthetic_buffer?) and re-enqueue it. Ideally, we would just `break` after that but otherwise just continue through.
-        // TODO: if we don't consume the whole buffer and make a "synthetic" buffer, make sure to make a fake write_db so the data can be deallocated at the end.
-        // Also, enqueue every callback in flush_writes_cb_state -> write_callback_queue and also write the ssd_loc of every callback out.
-    }
-
-    nvme_issue_write(db, current_sector, sectors_to_write, data, flush_writes_cb, flush_writes_cb_state);
 }
 
 // MUST HAVE LOCK TO CALL THIS FUNCTION
@@ -268,6 +203,8 @@ void write_value_async(void *opaque, db_data key, db_data value, key_write_cb ca
     callback_arg -> key_index = key_idx;
     callback_arg -> key = key;
     callback_arg -> value = value;
+    callback_arg -> bytes_written = 0;
+    callback_arg -> flags = 0;
     callback_arg -> clock_time_enqueued = get_time_us();
     TAILQ_INSERT_HEAD(&db -> write_callback_queue, callback_arg, link); // Append the callback to a linked list of write callbacks
 

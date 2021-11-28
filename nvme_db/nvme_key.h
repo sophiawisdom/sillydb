@@ -49,6 +49,10 @@ struct ssd_header {
     // TOCONSIDER: unsigned int padding_length?Can be used to not cross big block boundaries.
 };
 
+#define WRITE_CB_FLAG_PARTIALLY_WRITTEN 1
+#define WRITE_CB_FLAG_PERSISTED 2
+
+// 92 bytes as stands, and created for every write. Could it be smaller?
 struct write_cb_state {
     struct db_state *db;
     
@@ -64,12 +68,15 @@ struct write_cb_state {
     
     unsigned long long ssd_loc; // written in flush_writes and read when the callback returns.
 
+    int flag; // WRITE_CB_FLAG_PARTIALLY_WRITTEN
+    unsigned long long bytes_written; // for partially written cbs.
+
     TAILQ_ENTRY(write_cb_state)    link;
 };
 
 struct db_state {
     _Atomic int lock;
-    
+
     long long num_key_entries;
     long long key_capacity;
     struct ram_stored_key *keys;
@@ -90,6 +97,7 @@ struct db_state {
     TAILQ_HEAD(write_cb_head, write_cb_state) write_callback_queue;
     
     unsigned long long current_sector_ssd; // how many sectors are we into the current SSD (i.e. where will the next value be stored).
+    void *current_sector_data;
     unsigned short current_sector_bytes; // How many bytes are we into the current sector? Mostly this should be 0.
 
     TAILQ_HEAD(control_head, ctrlr_entry) g_controllers;
@@ -107,5 +115,8 @@ void write_key_data_async(void *db, db_data key, db_data object, key_write_cb ca
 void poll_db(void *opaque);
 void free_db(void *db);
 */
+
+void acq_lock(struct db_state *db);
+void release_lock(struct db_state *db);
 
 #endif /* nvme_key_h */
