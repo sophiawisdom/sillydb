@@ -128,7 +128,7 @@ static unsigned long long calc_write_bytes_queued(struct db_state *db) {
     return write_bytes_queued;
 }
 
-void copy_write_queue(struct db_state *db, struct flush_write_state *writes_state) {
+void copy_write_queue(struct db_state *db, struct flush_writes_state *writes_state) {
     // TODO: Figure out some way to just copy the head pointer. As stands, not sure how to declare it in the struct correctly.
     TAILQ_INIT(&writes_state -> write_callback_queue);
     while (!TAILQ_EMPTY(&db -> write_callback_queue)) {
