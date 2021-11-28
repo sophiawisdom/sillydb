@@ -304,6 +304,7 @@ void poll_db(void *opaque) {
     acq_lock(db); // ACQUIRE LOCK
     
     if (should_flush_writes(db)) {
+        printf("flushing writes\n");
         flush_writes(db);
     }
     
