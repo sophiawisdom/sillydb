@@ -67,6 +67,13 @@ void flush_writes(struct db_state *db) {
     printf("buf is %p\n", flush_writes_cb_state -> buf);
     flush_writes_cb_state -> ns_entry = db -> main_namespace -> ns;
 
+    struct write_cb_state *cb;
+    TAILQ_FOREACH(cb, &db -> write_callback_queue, link) {
+        printf("cb is %p\n", cb);
+    }
+
+    // TAILQ_FOREACH_SAFE 
+
     unsigned long long buf_bytes_written = 0;
     while (!TAILQ_EMPTY(&db -> write_callback_queue)) {
         struct write_cb_state *write_callback = TAILQ_FIRST(&db -> write_callback_queue);
