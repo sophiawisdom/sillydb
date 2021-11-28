@@ -88,7 +88,7 @@ static unsigned long long get_time_us() {
 }
 
 struct flush_writes_state {
-    TAILQ_HEAD(write_cb_head, write_cb_state) write_callback_queue;
+    TAILQ_HEAD(flush_write_cb_head, write_cb_state) write_callback_queue;
     struct db_state *db;
 };
 
@@ -104,7 +104,7 @@ static void flush_writes_cb(void *arg, enum write_err err) {
         db -> keys[write_callback -> key_index].data_loc = write_callback -> ssd_loc;
         
         if (write_callback -> callback != NULL) {
-            write_callback -> callback(write_callback -> cb_arg, write_err);
+            write_callback -> callback(write_callback -> cb_arg, err);
         }
     }
     
