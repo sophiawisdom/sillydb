@@ -118,7 +118,7 @@ int initialize(struct db_state *state) {
     int rc = spdk_nvme_probe(NULL, state, probe_cb, attach_cb, NULL);
     if (rc != 0) {
         fprintf(stderr, "spdk_nvme_probe() failed\n");
-        cleanup();
+        // cleanup();
         return 2;
     }
     
@@ -126,7 +126,7 @@ int initialize(struct db_state *state) {
 
     if (TAILQ_EMPTY(&state -> g_controllers)) {
         fprintf(stderr, "no NVMe controllers found\n");
-        cleanup();
+        // cleanup();
         return 2;
     }
     
