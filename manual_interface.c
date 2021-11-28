@@ -14,6 +14,14 @@ void read_callback(void *opaque, struct read_response data) {
     printf("Got async read callback at clock %lu. data is length %d, \"%s\"\n", clock(), data.data.length, data.data.data);
 }
 
+void write_callback(void *arg, enum write_err error) {
+    printf("got back a callback, time %lld err %d\n", clock(), err);
+}
+
+void read_callback(void *arg, enum read_err error, db_data response) {
+    printf("got read callback, time %lld err %d data %s\n")
+}
+
 int main() {
     void* db = create_db();
     if (db == 0) {
@@ -22,7 +30,6 @@ int main() {
     }
     
     bool write_req = 1;
-    bool async = 0;
     char *buf = malloc(4096);
     while (1) {
         int length = read(0, buf, 4096);
@@ -34,36 +41,21 @@ int main() {
                 write_req = 1;
             }
 
-            if (buf[2] == 'A') {
-                async = 1;
-            } else if (buf[2] == 'S') {
-                async = 0;
-            }
-
-            printf("write_req set to %d, async set to %d\n", write_req, async);
+            printf("write_req set to %d\n", write_req);
             continue;
         }
 
         if (write_req) {
-            db_data data = {.length = length, .data = buf};
+            db_data key = {.length = length, .data = buf};
+            printf("key is %s, please input data:\n");
+            char *data_buf = malloc(4096);
+            int data_length = read(0, data_buf, 4096);
+            db_data value= {.length  = data_length, .data = data_buf};
             data.length -= 1; // cut out newline
-            printf("appending of length %d\n", data.length);
-            if (async) {
-                printf("issuing async write at time %lu\n", clock());
-                append_object_async(db, data, write_callback, NULL);
-            } else {
-                append_object_sync(db, data);
-            }
+            write_value_async(db, key, value, write_callback, NULL);
         } else {
-            int index = atoi(buf);
-            printf("reading object at index %d\n", index);
-            if (async) {
-                printf("issuing async read at time %lu\n", clock());
-                read_object_async(db, index, read_callback, NULL);
-            } else {
-                struct read_response resp = read_object_sync(db, index);
-                printf("err is %d, length is %d, data is \"%s\"\n", resp.err, resp.data.length, resp.data.data);
-            }
+            db_data key = {.length = length, .data = buf};
+            read_value_async(db, key, read_callback, NULL);
         }
         memset(buf, 0, 4096);
     }
