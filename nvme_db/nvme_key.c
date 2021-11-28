@@ -152,7 +152,7 @@ void flush_writes(struct db_state *db) {
         // Also, enqueue every callback in flush_writes_cb_state -> write_callback_queue and also write the ssd_loc of every callback out.
     }
 
-    nvme_issue_write(db, current_sector_ssd, sectors_to_write, data, flush_writes_cb, flush_writes_cb_state);
+    nvme_issue_write(db, current_sector, sectors_to_write, data, flush_writes_cb, flush_writes_cb_state);
 }
 
 // MUST HAVE LOCK TO CALL THIS FUNCTION
@@ -166,7 +166,7 @@ bool should_flush_writes(struct db_state *db) {
     
     // Check if oldest write in queue has been waiting more than 1ms.
     unsigned long long cur_t = get_time_us();
-    struct write_cb_state *last = TAILQ_LAST(&db -> write_callback_queue);
+    struct write_cb_state *last = TAILQ_LAST(&db -> write_callback_queue, write_cb_head);
     unsigned long long elapsed_us = cur_t - last -> clock_time_enqueued;
     if (elapsed_us > 1000) { // more than 1ms
         return true;
