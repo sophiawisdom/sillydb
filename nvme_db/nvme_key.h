@@ -45,7 +45,7 @@ __attribute__((packed))
 struct ssd_header {
     unsigned short key_length;
     unsigned int data_length;
-    int flags; // followed by key_length bytes of key and data_length bytes of data.
+    char flags; // followed by key_length bytes of key and data_length bytes of data.
     // TOCONSIDER: unsigned int padding_length?Can be used to not cross big block boundaries.
 };
 

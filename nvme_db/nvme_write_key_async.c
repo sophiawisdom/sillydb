@@ -129,6 +129,8 @@ void flush_writes(struct db_state *db) {
         TAILQ_REMOVE(&db -> write_callback_queue, write_callback, link);
     }
 
+    printf("Writing %d sectors of data tp sector %d %s\n", sectors_to_write, current_sector, flush_writes_cb_state -> buf);
+
     spdk_nvme_ns_cmd_write(
         db -> main_namespace -> ns,
         db -> main_namespace -> qpair,
