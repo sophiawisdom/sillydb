@@ -7,6 +7,12 @@
 
 #include "nvme_key_init.h"
 
+#include "spdk/stdinc.h"
+#include "spdk/nvme.h"
+#include "spdk/vmd.h"
+#include "spdk/nvme_zns.h"
+#include "spdk/env.h"
+
 static bool
 probe_cb(void *cb_ctx, const struct spdk_nvme_transport_id *trid,
      struct spdk_nvme_ctrlr_opts *opts)
