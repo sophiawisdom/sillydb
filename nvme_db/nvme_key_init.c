@@ -134,7 +134,7 @@ int initialize(struct db_state *state) {
     state -> main_namespace = ns_entry;
     state -> sector_size = spdk_nvme_ns_get_sector_size(state -> main_namespace -> ns);
     state -> num_sectors = spdk_nvme_ns_get_num_sectors(state -> main_namespace -> ns);
-    state -> maximum_transfer_size = spdk_nvme_ns_get_max_io_xfer_size(state -> main_namespace -> ns);
+    state -> max_transfer_size = spdk_nvme_ns_get_max_io_xfer_size(state -> main_namespace -> ns);
 
     printf("Initialization complete.\n");
     return 0;
