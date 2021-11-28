@@ -50,6 +50,12 @@ int main(int argc, char **argv) {
             db_data key = {.length = length, .data = buf};
             read_value_async(db, key, read_callback, NULL);
         }
+
+        int init_clock = clock();
+        while (clock() - init_clock() < 5000) {
+            poll_db(db);
+        }
+
         memset(buf, 0, 4096);
     }
 }
