@@ -11,6 +11,7 @@
 #include "db_interface.h"
 #include <stdio.h>
 #include <stdatomic.h>
+#include "spdk/env.h"
 
 struct ctrlr_entry {
     struct spdk_nvme_ctrlr        *ctrlr;
