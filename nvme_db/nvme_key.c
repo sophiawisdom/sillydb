@@ -136,12 +136,19 @@ void *create_db() {
     state -> key_vla_length = 0;
     state -> key_vla = calloc(sizeof(char), state -> key_vla_capacity);
 
+    state -> writes_in_flight = 0;
+    state -> reads_in_flight = 0;
+
     if (initialize(state) != 0) {
         free(state -> keys);
         free(state -> key_vla);
         free(state);
         return NULL;
     }
+
+    state -> current_sector_ssd = 0;
+    state -> current_sector_bytes = 0;
+    state -> current_sector_data = calloc(1, state -> sector_size);
     
     TAILQ_INIT(&state -> write_callback_queue);
     
