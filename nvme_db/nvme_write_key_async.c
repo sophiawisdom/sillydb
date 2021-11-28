@@ -126,11 +126,11 @@ void flush_writes(struct db_state *db) {
             break;
         }
         printf("size is %lld\n", size);
-        TAILQ_INSERT_TAIL(&writes_state -> write_callback_queue, write_callback, link);
+        TAILQ_INSERT_TAIL(&flush_writes_cb_state -> write_callback_queue, write_callback, link);
         TAILQ_REMOVE(&db -> write_callback_queue, write_callback, link);
     }
 
-    return spdk_nvme_ns_cmd_write(
+    spdk_nvme_ns_cmd_write(
         db -> main_namespace -> ns,
         db -> main_namespace -> qpair,
         flush_writes_cb_state -> buf,
@@ -140,4 +140,5 @@ void flush_writes(struct db_state *db) {
         flush_writes_cb_state,
         0 // flags. Worth considering implementing at some point: streams directive for big writes.
     );
+    return;
 }
