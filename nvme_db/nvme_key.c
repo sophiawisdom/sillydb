@@ -139,7 +139,7 @@ void flush_writes(struct db_state *db) {
     flush_writes_cb_state -> db = db;
     // transfer the callback queue to the callback, it will be written to when that's completed.
     flush_writes_cb_state -> write_callback_queue = db -> write_callback_queue;
-    TAILQ_INIT(&state -> write_callback_queue);
+    TAILQ_INIT(&db -> write_callback_queue);
 
     void *data = calloc(1, db -> sector_size * write_size); // what *specifically* we are writing in this write.
     // TODO: dma_alloc this ^ ? Would eliminate a needless copy. spdk_nvme_ctrlr_map_cmb or spdk_zmalloc
@@ -147,6 +147,7 @@ void flush_writes(struct db_state *db) {
     unsigned long long data_bytes_written = 0;
     TAILQ_FOREACH(write_callback, &state -> write_callback_queue, link) {
         unsigned long long size = callback_ssd_size;
+        printf("size is %lld\n", size);
         // TODO: remove each callback as we encounter it, if we don't consume the whole buffer note that somehow (synthetic_buffer?) and re-enqueue it. Ideally, we would just `break` after that but otherwise just continue through.
         // TODO: if we don't consume the whole buffer and make a "synthetic" buffer, make sure to make a fake write_db so the data can be deallocated at the end.
         // Also, enqueue every callback in flush_writes_cb_state -> write_callback_queue and also write the ssd_loc of every callback out.
