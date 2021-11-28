@@ -135,7 +135,7 @@ void flush_writes(struct db_state *db) {
             // make a synthetic callback and then break
             break;
         }
-        printf("removing callback %p\n", write_callback);
+        printf("removing callback %p from %p to %p\n", write_callback, &db -> write_callback_queue, &flush_writes_cb_state -> write_callback_queue);
         TAILQ_INSERT_TAIL(&flush_writes_cb_state -> write_callback_queue, write_callback, link);
         TAILQ_REMOVE(&db -> write_callback_queue, write_callback, link);
     }
