@@ -1,4 +1,4 @@
-typedef struct data {
+typedef struct mata {
     int length;
     void *data;
 } db_data;
