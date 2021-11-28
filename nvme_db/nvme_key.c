@@ -49,10 +49,11 @@ static void release_lock(struct db_state *db) {
     db -> lock = 0;
 }
 
+// MUST HAVE LOCK TO CALL THIS FUNCTION
 bool search_for_key(struct db_state *db, db_data search_key, struct ram_stored_key *found_key) {
     bool found = false;
     for (int i = 0; i < db -> num_key_entries; i++) {
-        struct ram_stored_key key = keys[i];
+        struct ram_stored_key key = db -> keys[i];
         if (key.key_length != search_key.length || key.key_hash != key_hash) {
             continue;
         }
@@ -278,7 +279,7 @@ void read_key_data_async(void *opaque, db_data read_key, key_read_cb callback, v
     release_lock(db);
 }
 
-void poll(void *opaque) {
+void poll_db(void *opaque) {
     struct db_state *db = opaque;
     acq_lock(db); // ACQUIRE LOCK
     
