@@ -28,8 +28,8 @@ static void flush_writes_cb(void *arg, const struct spdk_nvme_cpl *cpl) {
         // TODO: fix this. go through each write callback and return an error.
         spdk_nvme_qpair_print_completion(callback_state->ns_entry->qpair, (struct spdk_nvme_cpl *)completion);
         fprintf(stderr, "I/O error status: %s\n", spdk_nvme_cpl_get_status_string(&completion->status));
-        callback_state -> callback(callback_state -> cb_arg, WRITE_IO_ERROR);
-        free(callback_state);
+        // callback_state -> callback(callback_state -> cb_arg, WRITE_IO_ERROR);
+        // free(callback_state);
         return;
     }
 
@@ -39,9 +39,7 @@ static void flush_writes_cb(void *arg, const struct spdk_nvme_cpl *cpl) {
         db -> keys[write_callback -> key_index].flags &= (255-DATA_FLAG_INCOMPLETE); // set incomplete flag to false
         db -> keys[write_callback -> key_index].data_loc = write_callback -> ssd_loc;
         
-        if (write_callback -> callback != NULL) {
-            write_callback -> callback(write_callback -> cb_arg, err);
-        }
+        write_callback -> callback(write_callback -> cb_arg, WRITE_SUCCESSFUL);
     }
     
     // TODO: figure out how to free both a) the callback queue and b) all the callbacks inside it.
