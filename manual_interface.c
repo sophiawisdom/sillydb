@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
         }
 
         int init_clock = clock();
-        while (clock() - init_clock() < 5000) {
+        while (clock() - init_clock < 5000) {
             poll_db(db);
         }
 
