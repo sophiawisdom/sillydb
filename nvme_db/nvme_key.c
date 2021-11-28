@@ -88,7 +88,7 @@ static unsigned long long get_time_us() {
 }
 
 struct flush_writes_state {
-    TAILQ_HEAD(flush_write_cb_head, write_cb_state) write_callback_queue;
+    TAILQ_HEAD(tailq_head_firstarg, tailq_head_secondarg) write_callback_queue;
     struct db_state *db;
 };
 
