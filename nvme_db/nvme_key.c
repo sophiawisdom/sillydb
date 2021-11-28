@@ -53,7 +53,7 @@ static void release_lock(struct db_state *db) {
     db -> lock = 0;
 }
 
-unsigned short hash_key(db_data key) {
+static unsigned short hash_key(db_data key) {
     unsigned short hash = 0x5555; // 0b01010101
     unsigned short *short_data = key.data;
     for (int i = 0; i < key.length>>1; i++) {
@@ -63,7 +63,7 @@ unsigned short hash_key(db_data key) {
 }
 
 // MUST HAVE LOCK TO CALL THIS FUNCTION
-bool search_for_key(struct db_state *db, db_data search_key, struct ram_stored_key *found_key) {
+static bool search_for_key(struct db_state *db, db_data search_key, struct ram_stored_key *found_key) {
     unsigned short key_hash = hash_key(search_key);
     for (int i = 0; i < db -> num_key_entries; i++) {
         struct ram_stored_key key = db -> keys[i];
@@ -80,7 +80,7 @@ bool search_for_key(struct db_state *db, db_data search_key, struct ram_stored_k
     return false;
 }
 
-unsigned long long get_time_us() {
+static unsigned long long get_time_us() {
     struct timeval tv;
     gettimeofday(&tv, NULL);
     return (tv.tv_sec * 10000000) + tv.tv_usec;
@@ -91,7 +91,7 @@ struct flush_writes_state {
     struct db_state *db;
 };
 
-void flush_writes_cb(void *arg, enum write_err err) {
+static void flush_writes_cb(void *arg, enum write_err err) {
     struct flush_writes_state *callback_state = arg;
     struct db_state *db = callback_state -> db;
     acq_lock(callback_state -> db);
@@ -113,12 +113,12 @@ void flush_writes_cb(void *arg, enum write_err err) {
     release_lock(db);
 }
 
-unsigned long long callback_ssd_size(struct write_cb_state *write_callback) {
+static unsigned long long callback_ssd_size(struct write_cb_state *write_callback) {
     return write_callback -> value.length + write_callback -> key.length + sizeof(struct ssd_header);
 }
 
 // MUST HAVE LOCK TO CALL THIS FUNCTION
-unsigned long long calc_write_bytes_queued(struct db_state *db) {
+static unsigned long long calc_write_bytes_queued(struct db_state *db) {
     unsigned long long write_bytes_queued = 0;
     struct write_cb_state *write_callback;
     TAILQ_FOREACH(write_callback, &db -> write_callback_queue, link) {
@@ -145,8 +145,8 @@ void flush_writes(struct db_state *db) {
     // TODO: dma_alloc this ^ ? Would eliminate a needless copy. spdk_nvme_ctrlr_map_cmb or spdk_zmalloc
     struct write_cb_state *write_callback;
     unsigned long long data_bytes_written = 0;
-    TAILQ_FOREACH(write_callback, &state -> write_callback_queue, link) {
-        unsigned long long size = callback_ssd_size;
+    TAILQ_FOREACH(write_callback, &db -> write_callback_queue, link) {
+        unsigned long long size = callback_ssd_size(write_callback);
         printf("size is %lld\n", size);
         // TODO: remove each callback as we encounter it, if we don't consume the whole buffer note that somehow (synthetic_buffer?) and re-enqueue it. Ideally, we would just `break` after that but otherwise just continue through.
         // TODO: if we don't consume the whole buffer and make a "synthetic" buffer, make sure to make a fake write_db so the data can be deallocated at the end.
