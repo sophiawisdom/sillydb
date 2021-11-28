@@ -185,9 +185,6 @@ void *create_db() {
         return NULL;
     }
     
-    state -> write_cache_size = 4096; // guesstimate of sector size. One day we need to actually determine for this is.
-    state -> write_cache = calloc(state -> write_cache_size, 1);
-    
     TAILQ_INIT(&state -> write_callback_queue);
     
     return state;
@@ -227,7 +224,7 @@ void write_key_data_async(void *opaque, db_data key, db_data value, key_write_cb
     if (current_key_vla_offset > db -> key_vla_capacity) { // resize VLA
         db -> key_vla_capacity *= 2;
         db -> key_vla = realloc(db -> key_vla, db -> key_vla_capacity);
-        printf("resizing VLA to %d\n", db -> key_vla_capacity);
+        printf("resizing VLA to %lld\n", db -> key_vla_capacity);
     }
     memcpy(db -> key_vla + current_key_vla_offset, key.data, key.length);
     db -> key_vla_length += key.length;
