@@ -84,12 +84,12 @@ unsigned long long get_time_us() {
 
 struct flush_writes_state {
     TAILQ_HEAD(write_cb_head, write_cb_state) write_callback_queue;
-}
+};
 
 void flush_writes_cb(void *arg, enum write_err err) {
-    acq_lock(state -> db);
-
     struct flush_writes_state *callback_state = arg;
+    acq_lock(callback_state -> db);
+
     struct write_cb_state *write_callback;
     TAILQ_FOREACH(write_callback, &callback_state -> write_callback_queue, link) {
         db -> writes_in_flight--;
@@ -141,7 +141,7 @@ void flush_writes(struct db_state *db) {
         // TODO: if we don't consume the whole buffer and make a "synthetic" buffer, make sure to make a fake write_db so the data can be deallocated at the end.
         // Also, enqueue every callback in flush_writes_cb_state -> write_callback_queue and also write the ssd_loc of every callback out.
     }
-    
+
     nvme_issue_write(db, current_sector_ssd, sectors_to_write, data, flush_writes_cb, flush_writes_cb_state);
 }
 
