@@ -103,6 +103,9 @@ unsigned long long calc_write_bytes_queued(struct db_state *db) {
 
 // MUST HAVE LOCK TO CALL THIS FUNCTION
 static bool should_flush_writes(struct db_state *db) {
+    if (TAILQ_EMPTY(&db -> write_callback_queue)) {
+        return false;
+    }
     // Check if there are enough bytes enqueued to fill a sector.
     // TODO: possibly store the current number of write bytes enqueued and update it when callbacks are enqueued.
     // Current behavior could get ~O(n^2) with hundreds of tiny callbacks.

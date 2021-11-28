@@ -53,6 +53,7 @@ static void flush_writes_cb(void *arg, const struct spdk_nvme_cpl *completion) {
 // MUST HAVE LOCK TO CALL THIS FUNCTION
 void flush_writes(struct db_state *db) {
     unsigned long long write_bytes_queued = calc_write_bytes_queued(db);
+    printf("write bytes queued: %d\n", write_bytes_queued);
     unsigned long long sectors_to_write = write_bytes_queued/db -> sector_size; // e.g. We have 10000 bytes enqueued with a sector length of 4096, so write 2 sectors
     unsigned long long current_sector = db -> current_sector_ssd; // sector we're going to write to
     db -> current_sector_ssd += sectors_to_write;
