@@ -19,7 +19,7 @@ void write_callback(void *arg, enum write_err error) {
 }
 
 void read_callback(void *arg, enum read_err error, db_data response) {
-    printf("got read callback, time %lld err %d data %s\n")
+    printf("got read callback, time %lld err %d data %s\n");
 }
 
 int main() {
