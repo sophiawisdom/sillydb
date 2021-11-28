@@ -16,7 +16,6 @@ struct nvme_write_cb_state {
 
 static void write_complete(void *arg, const struct spdk_nvme_cpl *completion) {
     struct nvme_write_cb_state *cb_state = arg;
-    struct ns_entry *ns_entry = cb_state->ns_entry;
 
     printf("write_complete called\n");
 
@@ -43,7 +42,7 @@ void nvme_issue_write(struct db_state *db, unsigned long long sector, int sector
     write_state -> cb_arg = cb_arg;
     write_state -> ns_entry = db -> main_namespace -> ns;
 
-    int rc = spdk_nvme_ns_cmd_write(
+    return spdk_nvme_ns_cmd_write(
                     db->main_namespace->ns,
                     db->main_namespace->qpair,
                     data, // data to write
