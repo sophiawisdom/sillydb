@@ -88,7 +88,7 @@ static unsigned long long get_time_us() {
 }
 
 struct flush_writes_state {
-    TAILQ_HEAD(write_cb_test, write_cb_state) write_callback_queue;
+    TAILQ_HEAD(flush_writes_head, write_cb_state) write_callback_queue;
     struct db_state *db;
 };
 
@@ -134,7 +134,7 @@ void copy_write_queue(struct db_state *db, struct flush_write_state *writes_stat
     while (!TAILQ_EMPTY(&db -> write_callback_queue)) {
         struct write_cb_state *write_callback = TAILQ_FIRST(&db -> write_callback_queue);
         TAILQ_INSERT_TAIL(&writes_state -> write_callback_queue, write_callback);
-        TAILQ_REMOVE(&db -> write_callback_queue, write_callback, write_cb_head);
+        TAILQ_REMOVE(&db -> write_callback_queue, write_callback, write_cb_state);
     }
 }
 
