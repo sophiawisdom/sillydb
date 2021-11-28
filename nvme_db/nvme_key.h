@@ -116,6 +116,7 @@ void poll_db(void *opaque);
 void free_db(void *db);
 */
 
+// TODO: add debug assert in all functions that require lock to make sure they have the lock.
 void acq_lock(struct db_state *db);
 void release_lock(struct db_state *db);
 
