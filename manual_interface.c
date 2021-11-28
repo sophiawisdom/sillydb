@@ -6,21 +6,13 @@
 #include <string.h>
 #include <time.h>
 
-void write_callback(void *opaque, int index) {
-    printf("Got async write callback at clock %lu. index is %d\n", clock(), index);
-}
-
-void read_callback(void *opaque, struct read_response data) {
-    printf("Got async read callback at clock %lu. data is length %d, \"%s\"\n", clock(), data.data.length, data.data.data);
-}
-
 void write_callback(void *arg, enum write_err error) {
     printf("got back a callback, time %lld err %d\n", clock(), error);
     free(arg);
 }
 
 void read_callback(void *arg, enum read_err error, db_data response) {
-    printf("got read callback, time %lld err %d data %s\n", clock(), error, response.data);
+    printf("got read callback, time %lld err %d data is length %d, %s\n", clock(), error, response.length, response.data);
 }
 
 int main() {
@@ -48,7 +40,7 @@ int main() {
 
         if (write_req) {
             db_data key = {.length = length, .data = buf};
-            printf("key is %s, please input data:\n");
+            printf("key is %s, please input data:\n", buf);
             char *data_buf = malloc(4096);
             int data_length = read(0, data_buf, 4096);
             db_data value= {.length  = data_length, .data = data_buf};
