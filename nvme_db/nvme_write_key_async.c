@@ -66,6 +66,7 @@ void flush_writes(struct db_state *db) {
     flush_writes_cb_state -> buf = spdk_zmalloc(write_size, db -> sector_size, NULL, SPDK_ENV_SOCKET_ID_ANY, SPDK_MALLOC_DMA);
     printf("buf is %p\n", flush_writes_cb_state -> buf);
     flush_writes_cb_state -> ns_entry = db -> main_namespace -> ns;
+    TAILQ_INIT(&flush_writes_cb_state -> write_callback_queue);
 
     struct write_cb_state *cb;
     TAILQ_FOREACH(cb, &db -> write_callback_queue, link) {
