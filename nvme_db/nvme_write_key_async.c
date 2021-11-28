@@ -133,6 +133,7 @@ void flush_writes(struct db_state *db) {
     return spdk_nvme_ns_cmd_write(
         db -> main_namespace -> ns,
         db -> main_namespace -> qpair,
+        flush_writes_cb_state -> buf,
         current_sector, // LBA start
         sectors_to_write, // number of LBAs
         flush_writes_cb,
