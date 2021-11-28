@@ -6,6 +6,7 @@
 //
 
 #include "nvme_write_key_async.h"
+#include "spdk/nvme.h"
 
 struct write_cb_state {
     nvme_write_cb callback;
