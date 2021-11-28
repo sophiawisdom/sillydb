@@ -87,7 +87,7 @@ struct db_state {
     unsigned int max_transfer_size; // https://spdk.io/doc/nvme_8h.html#ac2aac85501f13bff557d3a224d8ec156
 
     // Writes are queued until there are sufficiently many to write a whole sector, or else for a few ms.
-    TAILQ_HEAD(write_cb_head, write_cb_state) write_callback_queue;
+    TAILQ_HEAD(, write_cb_state) write_callback_queue;
     
     unsigned long long current_sector_ssd; // how many sectors are we into the current SSD (i.e. where will the next value be stored).
     unsigned short current_sector_bytes; // How many bytes are we into the current sector? Mostly this should be 0.
