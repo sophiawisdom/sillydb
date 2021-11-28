@@ -88,7 +88,7 @@ static unsigned long long get_time_us() {
 }
 
 struct flush_writes_state {
-    TAILQ_HEAD(, write_cb_state) write_callback_queue;
+    TAILQ_HEAD(write_cb_test, write_cb_state) write_callback_queue;
     struct db_state *db;
 };
 
@@ -128,6 +128,16 @@ static unsigned long long calc_write_bytes_queued(struct db_state *db) {
     return write_bytes_queued;
 }
 
+void copy_write_queue(struct db_state *db, struct flush_write_state *writes_state) {
+    // TODO: Figure out some way to just copy the head pointer. As stands, not sure how to declare it in the struct correctly.
+    TAILQ_INIT(&writes_state -> write_callback_queue);
+    while (!TAILQ_EMPTY(&db -> write_callback_queue)) {
+        struct write_cb_state *write_callback = TAILQ_FIRST(&db -> write_callback_queue);
+        TAILQ_INSERT_TAIL(&writes_state -> write_callback_queue, write_callback);
+        TAILQ_REMOVE(&db -> write_callback_queue, write_callback, write_cb_head);
+    }
+}
+
 // MUST HAVE LOCK TO CALL THIS FUNCTION
 void flush_writes(struct db_state *db) {
     unsigned long long write_bytes_queued = calc_write_bytes_queued(db);
@@ -139,8 +149,7 @@ void flush_writes(struct db_state *db) {
     struct flush_writes_state *flush_writes_cb_state = malloc(sizeof(struct flush_writes_state));
     flush_writes_cb_state -> db = db;
     // transfer the callback queue to the callback, it will be written to when that's completed.
-    flush_writes_cb_state -> write_callback_queue = db -> write_callback_queue;
-    TAILQ_INIT(&db -> write_callback_queue);
+    copy_write_queue(db, flush_writes_cb_state);
 
     void *data = calloc(1, db -> sector_size * write_size); // what *specifically* we are writing in this write.
     // TODO: dma_alloc this ^ ? Would eliminate a needless copy. spdk_nvme_ctrlr_map_cmb or spdk_zmalloc
