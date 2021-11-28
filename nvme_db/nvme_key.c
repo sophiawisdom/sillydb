@@ -90,10 +90,12 @@ unsigned long long get_time_us() {
 
 struct flush_writes_state {
     TAILQ_HEAD(write_cb_head, write_cb_state) write_callback_queue;
+    struct db_state *db;
 };
 
 void flush_writes_cb(void *arg, enum write_err err) {
     struct flush_writes_state *callback_state = arg;
+    struct db_state *db = callback_state -> db;
     acq_lock(callback_state -> db);
 
     struct write_cb_state *write_callback;
@@ -121,7 +123,7 @@ unsigned long long callback_ssd_size(struct write_cb_state *write_callback) {
 unsigned long long calc_write_bytes_queued(struct db_state *db) {
     unsigned long long write_bytes_queued = 0;
     struct write_cb_state *write_callback;
-    TAILQ_FOREACH(write_callback, &state -> write_callback_queue, link) {
+    TAILQ_FOREACH(write_callback, &db -> write_callback_queue, link) {
         write_bytes_queued += callback_ssd_size(write_callback);
     }
     return write_bytes_queued;
@@ -136,6 +138,10 @@ void flush_writes(struct db_state *db) {
     unsigned long long write_size = sectors_to_write * db -> sector_size;
     
     struct flush_writes_state *flush_writes_cb_state = malloc(sizeof(struct flush_writes_state));
+    flush_writes_cb_state -> db = db;
+    // transfer the callback queue to the callback, it will be written to when that's completed.
+    flush_writes_cb_state -> write_callback_queue = db -> write_callback_queue;
+    TAILQ_INIT(&state -> write_callback_queue);
 
     void *data = calloc(1, db -> sector_size * write_size); // what *specifically* we are writing in this write.
     // TODO: dma_alloc this ^ ? Would eliminate a needless copy. spdk_nvme_ctrlr_map_cmb or spdk_zmalloc
@@ -173,7 +179,7 @@ bool should_flush_writes(struct db_state *db) {
 // PUBLIC API
 
 void *create_db() {
-    struct db_state *state = malloc(sizeof(struct key_state));
+    struct db_state *state = malloc(sizeof(struct db_state));
 
     state -> lock = 0;
 
@@ -245,7 +251,7 @@ void write_key_data_async(void *opaque, db_data key, db_data value, key_write_cb
 
     db -> writes_in_flight++;
 
-    struct write_cb_state *callback_arg = malloc(sizeof(struct write_db_state)); // FREED BY THE WRITE CALLBACK
+    struct write_cb_state *callback_arg = malloc(sizeof(struct write_cb_state)); // FREED BY THE WRITE CALLBACK
     callback_arg -> db = db;
     callback_arg -> callback = callback;
     callback_arg -> cb_arg = cb_arg;
