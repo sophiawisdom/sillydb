@@ -210,9 +210,7 @@ void write_key_data_async(void *opaque, db_data key, db_data value, key_write_cb
     bool found = search_for_key(db, key, &prev_key);
     if (found) {
         release_lock(db);
-        if (state -> callback != NULL) {
-            write_cb(cb_arg, GENERIC_WRITE_ERROR); // in order to support this we would have to delete the previous key and do a bunch of other work, so not implemented yet.
-        }
+        write_cb(cb_arg, GENERIC_WRITE_ERROR); // in order to support this we would have to delete the previous key and do a bunch of other work, so not implemented yet.
         return;
     }
     
