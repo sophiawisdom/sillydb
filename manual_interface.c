@@ -51,6 +51,7 @@ int main(int argc, char **argv) {
             read_value_async(db, key, read_callback, NULL);
         }
 
+        usleep(10000);
         printf("beginning polling\n");
         int init_clock = clock();
         while (clock() - init_clock < 5000) {
