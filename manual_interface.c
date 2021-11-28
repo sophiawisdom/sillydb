@@ -15,11 +15,12 @@ void read_callback(void *opaque, struct read_response data) {
 }
 
 void write_callback(void *arg, enum write_err error) {
-    printf("got back a callback, time %lld err %d\n", clock(), err);
+    printf("got back a callback, time %lld err %d\n", clock(), error);
+    free(arg);
 }
 
 void read_callback(void *arg, enum read_err error, db_data response) {
-    printf("got read callback, time %lld err %d data %s\n");
+    printf("got read callback, time %lld err %d data %s\n", clock(), error, response.data);
 }
 
 int main() {
@@ -51,8 +52,8 @@ int main() {
             char *data_buf = malloc(4096);
             int data_length = read(0, data_buf, 4096);
             db_data value= {.length  = data_length, .data = data_buf};
-            data.length -= 1; // cut out newline
-            write_value_async(db, key, value, write_callback, NULL);
+            value.length -= 1; // cut out newline
+            write_value_async(db, key, value, write_callback, data_buf);
         } else {
             db_data key = {.length = length, .data = buf};
             read_value_async(db, key, read_callback, NULL);
