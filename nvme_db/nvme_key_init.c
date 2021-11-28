@@ -158,7 +158,7 @@ int initialize(struct db_state *state) {
     ns_entry->qpair = spdk_nvme_ctrlr_alloc_io_qpair(ns_entry->ctrlr, NULL, 0);
     if (ns_entry->qpair == NULL) {
         printf("ERROR: spdk_nvme_ctrlr_alloc_io_qpair() failed\n");
-        return;
+        return 2;
     }
     state -> main_namespace = ns_entry;
     state -> sector_size = spdk_nvme_ns_get_sector_size(state -> main_namespace -> ns);
