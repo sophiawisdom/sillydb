@@ -130,7 +130,7 @@ void flush_writes(struct db_state *db) {
             buf_bytes_written += bytes_to_write;
         }
 
-        if (buf_bytes_written == write_size) {
+        if (buf_bytes_written >= write_size) {
             // make a synthetic callback and then break
             break;
         }
