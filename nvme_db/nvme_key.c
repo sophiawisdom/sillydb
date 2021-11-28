@@ -52,13 +52,14 @@ static void release_lock(struct db_state *db) {
 // MUST HAVE LOCK TO CALL THIS FUNCTION
 bool search_for_key(struct db_state *db, db_data search_key, struct ram_stored_key *found_key) {
     bool found = false;
+    unsigned short key_hash = hash_key(search_key);
     for (int i = 0; i < db -> num_key_entries; i++) {
         struct ram_stored_key key = db -> keys[i];
         if (key.key_length != search_key.length || key.key_hash != key_hash) {
             continue;
         }
 
-        void *key_str = db -> key_vla[key.key_offset];
+        char *key_str = db -> key_vla[key.key_offset];
         if (memcmp(search_key.data, key_str, key.key_length) == 0) {
             *found_key = key;
             return true;
