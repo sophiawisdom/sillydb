@@ -233,7 +233,7 @@ void write_key_data_async(void *opaque, db_data key, db_data value, key_write_cb
     db -> key_vla_length += key.length;
 
     struct ram_stored_key ram_key;
-    ram_key.key_length = key.key_length;
+    ram_key.key_length = key.length;
     ram_key.key_hash = hash_key(key);
     ram_key.key_offset = current_key_vla_offset;
     ram_key.data_length = value.length;
@@ -251,7 +251,7 @@ void write_key_data_async(void *opaque, db_data key, db_data value, key_write_cb
     callback_arg -> key = key;
     callback_arg -> value = value;
     callback_arg -> clock_time_enqueued = get_time_us();
-    TAILQ_INSERT_HEAD(&db -> write_callbacks, callback_arg, link); // Append the callback to a linked list of write callbacks
+    TAILQ_INSERT_HEAD(&db -> write_callback_queue, callback_arg, link); // Append the callback to a linked list of write callbacks
 
     if (should_flush_writes(db)) {
         flush_writes(db);
