@@ -53,25 +53,6 @@ static void release_lock(struct db_state *db) {
     db -> lock = 0;
 }
 
-// MUST HAVE LOCK TO CALL THIS FUNCTION
-bool search_for_key(struct db_state *db, db_data search_key, struct ram_stored_key *found_key) {
-    bool found = false;
-    unsigned short key_hash = hash_key(search_key);
-    for (int i = 0; i < db -> num_key_entries; i++) {
-        struct ram_stored_key key = db -> keys[i];
-        if (key.key_length != search_key.length || key.key_hash != key_hash) {
-            continue;
-        }
-
-        char *key_str = db -> key_vla[key.key_offset];
-        if (memcmp(search_key.data, key_str, key.key_length) == 0) {
-            *found_key = key;
-            return true;
-        }
-    }
-    return false;
-}
-
 unsigned short hash_key(db_data key) {
     unsigned short hash = 0x5555; // 0b01010101
     unsigned short *short_data = key.data;
@@ -79,6 +60,24 @@ unsigned short hash_key(db_data key) {
         hash ^= short_data[i];
     }
     return hash;
+}
+
+// MUST HAVE LOCK TO CALL THIS FUNCTION
+bool search_for_key(struct db_state *db, db_data search_key, struct ram_stored_key *found_key) {
+    unsigned short key_hash = hash_key(search_key);
+    for (int i = 0; i < db -> num_key_entries; i++) {
+        struct ram_stored_key key = db -> keys[i];
+        if (key.key_length != search_key.length || key.key_hash != key_hash) {
+            continue;
+        }
+
+        void *key_str = &db -> key_vla[key.key_offset];
+        if (memcmp(search_key.data, key_str, key.key_length) == 0) {
+            *found_key = key;
+            return true;
+        }
+    }
+    return false;
 }
 
 unsigned long long get_time_us() {
