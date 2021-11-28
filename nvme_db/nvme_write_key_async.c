@@ -14,9 +14,11 @@ struct nvme_write_cb_state {
     struct ns_entry *ns_entry;
 };
 
-void write_complete(void *arg, const struct spdk_nvme_cpl *completion) {
+static void write_complete(void *arg, const struct spdk_nvme_cpl *completion) {
     struct nvme_write_cb_state *cb_state = arg;
     struct ns_entry *ns_entry = cb_state->ns_entry;
+
+    printf("write_complete called\n");
 
     /* See if an error occurred. If so, display information
      * about it, and set completion value so that I/O
