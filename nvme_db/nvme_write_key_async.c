@@ -55,6 +55,7 @@ void flush_writes(struct db_state *db) {
     unsigned long long write_bytes_queued = calc_write_bytes_queued(db);
     printf("write bytes queued: %d\n", write_bytes_queued);
     unsigned long long sectors_to_write = write_bytes_queued/db -> sector_size; // e.g. We have 10000 bytes enqueued with a sector length of 4096, so write 2 sectors
+    sectors_to_write = sectors_to_write == 0 ? 1 : sectors_to_write; // at min 1
     unsigned long long current_sector = db -> current_sector_ssd; // sector we're going to write to
     db -> current_sector_ssd += sectors_to_write;
     unsigned long long write_size = sectors_to_write * db -> sector_size;
@@ -130,6 +131,11 @@ void flush_writes(struct db_state *db) {
         TAILQ_INSERT_TAIL(&flush_writes_cb_state -> write_callback_queue, write_callback, link);
         TAILQ_REMOVE(&db -> write_callback_queue, write_callback, link);
     }
+
+    if (buf_bytes_written < write_size) {
+        memset(&flush_writes_cb_state -> buf[buf_bytes_written], 0, write_size-buf_bytes_written);
+    }
+
 
     printf("Writing %d sectors of data tp sector %d %s\n", sectors_to_write, current_sector, flush_writes_cb_state -> buf);
 
