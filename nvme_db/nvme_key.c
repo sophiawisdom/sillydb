@@ -13,6 +13,7 @@
 #include <stdatomic.h>
 #include <stdbool.h>
 #include <time.h>
+#include <sys/time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -71,7 +72,7 @@ static bool search_for_key(struct db_state *db, db_data search_key, struct ram_s
             continue;
         }
 
-        void *key_str = &db -> key_vla[key.key_offset];
+        void *key_str = db -> key_vla + key.key_offset;
         if (memcmp(search_key.data, key_str, key.key_length) == 0) {
             *found_key = key;
             return true;
