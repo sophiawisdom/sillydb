@@ -14,7 +14,7 @@
 #include "spdk/env.h"
 
 static void
-register_ns(struct state *state, struct spdk_nvme_ctrlr *ctrlr, struct spdk_nvme_ns *ns)
+register_ns(struct db_state *state, struct spdk_nvme_ctrlr *ctrlr, struct spdk_nvme_ns *ns)
 {
     struct ns_entry *entry;
 
