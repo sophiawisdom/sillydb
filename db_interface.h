@@ -27,6 +27,6 @@ enum read_err {
 typedef void (*key_read_cb)(void *, enum read_err, db_data);
 // cb_arg, err, value
 
-void read_value_async(void *db, db_data key, read_cb callback, void *cb_arg);
+void read_value_async(void *db, db_data key, key_read_cb callback, void *cb_arg);
 
 void poll_db(void *opaque);

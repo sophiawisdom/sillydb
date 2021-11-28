@@ -128,7 +128,7 @@ static unsigned long long calc_write_bytes_queued(struct db_state *db) {
     return write_bytes_queued;
 }
 
-void copy_write_queue(struct db_state *db, struct flush_writes_state *writes_state) {
+static void copy_write_queue(struct db_state *db, struct flush_writes_state *writes_state) {
     // TODO: Figure out some way to just copy the head pointer. As stands, not sure how to declare it in the struct correctly.
     TAILQ_INIT(&writes_state -> write_callback_queue);
     while (!TAILQ_EMPTY(&db -> write_callback_queue)) {
@@ -139,7 +139,7 @@ void copy_write_queue(struct db_state *db, struct flush_writes_state *writes_sta
 }
 
 // MUST HAVE LOCK TO CALL THIS FUNCTION
-void flush_writes(struct db_state *db) {
+static void flush_writes(struct db_state *db) {
     unsigned long long write_bytes_queued = calc_write_bytes_queued(db);
     unsigned long long sectors_to_write = write_bytes_queued/db -> sector_size; // We have 10000 bytes enqueued with a sector length of 4096, so write 2 sectors
     unsigned long long current_sector = db -> current_sector_ssd;
@@ -167,7 +167,7 @@ void flush_writes(struct db_state *db) {
 }
 
 // MUST HAVE LOCK TO CALL THIS FUNCTION
-bool should_flush_writes(struct db_state *db) {
+static bool should_flush_writes(struct db_state *db) {
     // Check if there are enough bytes enqueued to fill a sector.
     // TODO: possibly store the current number of write bytes enqueued and update it when callbacks are enqueued.
     // Current behavior could get ~O(n^2) with hundreds of tiny callbacks.
