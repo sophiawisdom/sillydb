@@ -15,7 +15,7 @@ struct flush_writes_state {
     struct ns_entry *ns_entry;
 };
 
-static void flush_writes_cb(void *arg, const struct spdk_nvme_cpl *cpl) {
+static void flush_writes_cb(void *arg, const struct spdk_nvme_cpl *completion) {
     struct flush_writes_state *callback_state = arg;
     struct db_state *db = callback_state -> db;
     acq_lock(callback_state -> db);
