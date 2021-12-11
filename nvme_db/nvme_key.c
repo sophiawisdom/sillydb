@@ -167,7 +167,7 @@ void free_db(void *db) {
 void write_value_async(void *opaque, db_data key, db_data value, key_write_cb callback, void *cb_arg) {
     struct db_state *db = opaque;
     acq_lock(db);
-    
+
     // Check if the key exists already, which requires special logic that's not yet implemented.
     struct ram_stored_key prev_key;
     bool found = search_for_key(db, key, &prev_key);
@@ -176,7 +176,7 @@ void write_value_async(void *opaque, db_data key, db_data value, key_write_cb ca
         callback(cb_arg, GENERIC_WRITE_ERROR); // in order to support this we would have to delete the previous key and do a bunch of other work, so not implemented yet.
         return;
     }
-    
+
     // Get key index in list, possibly resizing db -> keys
     long long key_idx = db -> num_key_entries++;
     if (key_idx >= db -> key_capacity) {
@@ -240,7 +240,7 @@ void read_value_async(void *opaque, db_data read_key, key_read_cb callback, void
         callback(cb_arg, KEY_NOT_FOUND, (db_data){.data=NULL, .length=0});
         return;
     }
-    
+
     db -> reads_in_flight++;
     // DO SOME CALLBACK
     release_lock(db);
