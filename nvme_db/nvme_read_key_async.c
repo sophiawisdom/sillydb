@@ -6,6 +6,10 @@
 //
 
 #include "nvme_read_key_async.h"
+#include "spdk/nvme.h"
+#include "spdk/vmd.h"
+#include "spdk/nvme_zns.h"
+#include "spdk/env.h"
 
 struct read_cb_state {
     struct db_state *db;
@@ -20,7 +24,7 @@ struct read_cb_state {
 static void
 read_complete(struct read_cb_state *arg, const struct spdk_nvme_cpl *completion)
 {
-    db -> reads_in_flight--; // don't need to lock here because this key doesn't need a lock
+    arg -> db -> reads_in_flight--; // don't need to lock here because this key doesn't need a lock
     printf("read has completed! buf: %s\n", arg -> data);
 
     /* See if an error occurred. If so, display information
