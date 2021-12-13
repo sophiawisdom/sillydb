@@ -86,8 +86,8 @@ struct db_state {
     long long key_vla_capacity; // capacity of key_vla
     void *key_vla;
 
-    int writes_in_flight;
-    int reads_in_flight;
+    _Atomic int writes_in_flight; // CAN BE ACCESSED WITHOUT LOCK
+    _Atomic int reads_in_flight; // CAN BE ACCESSED WITHOUT LOCK
 
     unsigned int sector_size; // https://spdk.io/doc/nvme_8h.html#a0d24c0b2b0b2a22b0c0af2ca2e157e04
     unsigned long long num_sectors; // https://spdk.io/doc/nvme_8h.html#a7c522609f730db26f66e7f5b6b3501e0

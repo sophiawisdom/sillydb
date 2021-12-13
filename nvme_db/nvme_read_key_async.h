@@ -10,4 +10,8 @@
 
 #include <stdio.h>
 
+void read_key(struct db_state *db, struct ram_stored_key key, key_read_cb callback, void *cb_arg);
+
+// TODO: batch read_keys if we think it could improve performance.
+
 #endif /* nvme_read_key_async_h */

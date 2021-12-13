@@ -242,7 +242,7 @@ void read_value_async(void *opaque, db_data read_key, key_read_cb callback, void
     }
 
     db -> reads_in_flight++;
-    // DO SOME CALLBACK
+    read_key(db, found_key, callback, cb_arg);
     release_lock(db);
 }
 
