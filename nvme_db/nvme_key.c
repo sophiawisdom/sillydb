@@ -221,12 +221,16 @@ void write_value_async(void *opaque, db_data key, db_data value, key_write_cb ca
     if (should_flush_writes(db)) {
         flush_writes(db);
     }
+
+    print_keylist(db);
     release_lock(db);
 }
 
 void read_value_async(void *opaque, db_data read_key, key_read_cb callback, void *cb_arg) {
     struct db_state *db = opaque;
     acq_lock(db); // ACQUIRE LOCK
+
+    print_keylist(db);
 
     struct ram_stored_key found_key;
     bool found = search_for_key(db, read_key, &found_key);
@@ -260,6 +264,20 @@ void poll_db(void *opaque) {
     while ((clock() - begin_clock) < 5000) { // poll for completions for up to 5ms
         spdk_nvme_qpair_process_completions(db->main_namespace->qpair, 0);
     }
+}
+
+void print_keylist(struct db_state *db) {
+    // acq_lock(db);
+
+    for (int i = 0; i < db -> num_key_entries; i++) {
+        printf("Key entry %d\n", i);
+        struct ram_stored_key key = db -> keys[i];
+        printf("Key has length %d, hash %d, vla offset %d, flags %d, data length %d data loc %d\n",
+        key.key_length, key.key_hash, key.key_offset, key.flags, key.data_length, key.data_loc);
+        printf("key itself is %s\n", db -> key_vla + key.vla_offset); // todo print only till end of key
+    })
+
+    // release_lock(db);
 }
 
 // gnu++ standard + a -f
