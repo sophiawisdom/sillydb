@@ -38,11 +38,11 @@ read_complete(struct read_cb_state *arg, const struct spdk_nvme_cpl *completion)
         release_lock(arg -> db);
         fprintf(stderr, "I/O error status: %s\n", spdk_nvme_cpl_get_status_string(&completion->status));
         fprintf(stderr, "Read I/O failed, aborting run\n");
-        arg -> callback(arg -> cb_arg, READ_IO_ERROR, (struct db_data){.length=0, .data=NULL});
+        arg -> callback(arg -> cb_arg, READ_IO_ERROR, (db_data){.length=0, .data=NULL});
         goto end;
     }
 
-    arg -> callback(arg -> cb_arg, READ_SUCCESSFUL, (struct db_data){.length=arg -> data_length, .data=arg -> data + arg -> key_header_offset});
+    arg -> callback(arg -> cb_arg, READ_SUCCESSFUL, (db_data){.length=arg -> data_length, .data=arg -> data + arg -> key_header_offset});
 
 end:
     spdk_free(arg -> data);
