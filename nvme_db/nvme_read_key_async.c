@@ -70,6 +70,6 @@ void issue_nvme_read(struct db_state *db, struct ram_stored_key key, key_read_cb
         sectors_to_read,
         read_complete,
         read_cb,
-    )
+    );
     return 0;
 }
