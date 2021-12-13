@@ -18,7 +18,9 @@ struct flush_writes_state {
 static void flush_writes_cb(void *arg, const struct spdk_nvme_cpl *completion) {
     struct flush_writes_state *callback_state = arg;
     struct db_state *db = callback_state -> db;
+    printf("flush_writes_cb called\n");
     acq_lock(callback_state -> db);
+    printf("Acquired lock\n");
 
     /* See if an error occurred. If so, display information
      * about it, and set completion value so that I/O
