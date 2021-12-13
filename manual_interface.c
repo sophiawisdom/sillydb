@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
         usleep(10000);
         printf("beginning polling\n");
         int init_clock = clock();
-        while (clock() - init_clock < 5000) {
+        while (clock() - init_clock < 50000) {
             poll_db(db);
         }
         printf("finished polling\n");
