@@ -25,14 +25,16 @@ static void
 read_complete(struct read_cb_state *arg, const struct spdk_nvme_cpl *completion)
 {
     arg -> db -> reads_in_flight--; // don't need to lock here because this key doesn't need a lock
-    printf("read has completed! buf: %s\n", arg -> data);
+    printf("read has completed! buf: %s\n", (char *) arg -> data);
 
     /* See if an error occurred. If so, display information
      * about it, and set completion value so that I/O
      * caller is aware that an error occurred.
      */
     if (spdk_nvme_cpl_is_error(completion)) {
+        acq_lock(arg -> db);
         spdk_nvme_qpair_print_completion(sequence->ns_entry->qpair, (struct spdk_nvme_cpl *)completion);
+        release_lock(arg -> db);
         fprintf(stderr, "I/O error status: %s\n", spdk_nvme_cpl_get_status_string(&completion->status));
         fprintf(stderr, "Read I/O failed, aborting run\n");
         arg -> callback(arg -> cb_arg, READ_IO_ERROR, NULL);
