@@ -254,13 +254,12 @@ void poll_db(void *opaque) {
         printf("flushing writes\n");
         flush_writes(db);
     }
-    
+
+    release_lock(db); // have to release lock here so the callback can acquire lock
     unsigned int begin_clock = clock();
     while ((clock() - begin_clock) < 5000) { // poll for completions for up to 5ms
         spdk_nvme_qpair_process_completions(db->main_namespace->qpair, 0);
     }
-    
-    release_lock(db);
 }
 
 // gnu++ standard + a -f
