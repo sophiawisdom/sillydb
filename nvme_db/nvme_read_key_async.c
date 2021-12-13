@@ -33,7 +33,7 @@ read_complete(struct read_cb_state *arg, const struct spdk_nvme_cpl *completion)
      */
     if (spdk_nvme_cpl_is_error(completion)) {
         acq_lock(arg -> db);
-        spdk_nvme_qpair_print_completion(sequence->ns_entry->qpair, (struct spdk_nvme_cpl *)completion);
+        spdk_nvme_qpair_print_completion(arg->main_namespace->qpair, (struct spdk_nvme_cpl *)completion);
         release_lock(arg -> db);
         fprintf(stderr, "I/O error status: %s\n", spdk_nvme_cpl_get_status_string(&completion->status));
         fprintf(stderr, "Read I/O failed, aborting run\n");
