@@ -43,7 +43,7 @@ end:
     return;
 }
 
-void read_key(struct db_state *db, struct ram_stored_key key, key_read_cb callback, void *cb_arg) {
+void issue_nvme_read(struct db_state *db, struct ram_stored_key key, key_read_cb callback, void *cb_arg) {
     unsigned long long key_sector = key.data_loc/db -> sector_size;
     unsigned long long bytes_to_read = key.data_length + key.key_length + sizeof(struct ssd_header);
     unsigned long long sectors_to_read = ceil(((double) bytes_to_read) / ((double) db -> sector_size));

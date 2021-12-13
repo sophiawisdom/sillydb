@@ -9,8 +9,9 @@
 #define nvme_read_key_async_h
 
 #include <stdio.h>
+#include "nvme_key.h"
 
-void read_key(struct db_state *db, struct ram_stored_key key, key_read_cb callback, void *cb_arg);
+void issue_nvme_read(struct db_state *db, struct ram_stored_key key, key_read_cb callback, void *cb_arg);
 
 // TODO: batch read_keys if we think it could improve performance.
 
