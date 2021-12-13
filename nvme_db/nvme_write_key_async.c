@@ -85,8 +85,8 @@ void flush_writes(struct db_state *db) {
             return;
         }
         unsigned long long bytes_to_write = write_size - buf_bytes_written;
-        db -> keys[write_callback -> key_index] -> data_loc = (current_sector * db -> sector_size) + buf_bytes_written;
-        printf("Writing data to %lld\n", db -> keys[write_callback -> key_index] -> data_loc);
+        db -> keys[write_callback -> key_index].data_loc = (current_sector * db -> sector_size) + buf_bytes_written;
+        printf("Writing data to %lld\n", db -> keys[write_callback -> key_index].data_loc);
 
         // Two important non-regular scenarios here: 1) it's a 'synthetic' callback where
         // part of the data has already been written to the ssd. 2) we can't write all the
