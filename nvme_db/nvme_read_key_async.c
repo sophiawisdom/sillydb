@@ -16,6 +16,7 @@ struct read_cb_state {
     void *data;
 
     unsigned long long key_header_offset; // offset from beginning of buf to ssd_header
+    unsigned long long data_length;
 
     key_read_cb callback;
     void *cb_arg;
@@ -33,15 +34,15 @@ read_complete(struct read_cb_state *arg, const struct spdk_nvme_cpl *completion)
      */
     if (spdk_nvme_cpl_is_error(completion)) {
         acq_lock(arg -> db);
-        spdk_nvme_qpair_print_completion(arg->main_namespace->qpair, (struct spdk_nvme_cpl *)completion);
+        spdk_nvme_qpair_print_completion(arg->db->main_namespace->qpair, (struct spdk_nvme_cpl *)completion);
         release_lock(arg -> db);
         fprintf(stderr, "I/O error status: %s\n", spdk_nvme_cpl_get_status_string(&completion->status));
         fprintf(stderr, "Read I/O failed, aborting run\n");
-        arg -> callback(arg -> cb_arg, READ_IO_ERROR, NULL);
+        arg -> callback(arg -> cb_arg, READ_IO_ERROR, (struct db_data){.length=0, .data=NULL});
         goto end;
     }
 
-    arg -> callback(arg -> cb_arg, READ_SUCCESSFUL, arg -> data + arg -> key_header_offset);
+    arg -> callback(arg -> cb_arg, READ_SUCCESSFUL, (struct db_data){.length=arg -> data_length, .data=arg -> data + arg -> key_header_offset});
 
 end:
     spdk_free(arg -> data);
@@ -50,14 +51,15 @@ end:
 }
 
 void issue_nvme_read(struct db_state *db, struct ram_stored_key key, key_read_cb callback, void *cb_arg) {
-    unsigned long long key_sector = key.data_loc/db -> sector_size;
+    unsigned long long data_beginning = key.data_loc + sizeof(struct ssd_header) + key.key_length;
+    unsigned long long key_sector = data_beginning/db -> sector_size;
     unsigned long long bytes_to_read = key.data_length + key.key_length + sizeof(struct ssd_header);
     unsigned long long sectors_to_read = ceil(((double) bytes_to_read) / ((double) db -> sector_size));
     struct read_cb_state *read_cb = calloc(sizeof(struct read_cb_state), 1);
     read_cb -> db = db;
     read_cb -> callback = callback;
     read_cb -> cb_arg = cb_arg;
-    read_cb -> key_header_offset = key.data_loc - (key_sector * db -> sector_size);
+    read_cb -> key_header_offset = data_beginning - (key_sector * db -> sector_size);
     read_cb -> data = spdk_zmalloc(db -> sector_size * sectors_to_read, db -> sector_size, NULL, SPDK_ENV_SOCKET_ID_ANY, SPDK_MALLOC_DMA);
 
     spdk_nvme_ns_cmd_read(
