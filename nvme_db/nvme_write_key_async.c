@@ -39,7 +39,7 @@ static void flush_writes_cb(void *arg, const struct spdk_nvme_cpl *completion) {
     TAILQ_FOREACH(write_callback, &callback_state -> write_callback_queue, link) {
         db -> writes_in_flight--;
         db -> keys[write_callback -> key_index].flags &= (255-DATA_FLAG_INCOMPLETE); // set incomplete flag to false
-        db -> keys[write_callback -> key_index].data_loc = write_callback -> ssd_loc;
+        // db -> keys[write_callback -> key_index].data_loc = write_callback -> ssd_loc;
         
         write_callback -> callback(write_callback -> cb_arg, WRITE_SUCCESSFUL);
     }

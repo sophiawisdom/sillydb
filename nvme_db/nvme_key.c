@@ -125,7 +125,7 @@ static bool should_flush_writes(struct db_state *db) {
 }
 
 static void print_key(struct db_state *db, struct ram_stored_key key) {
-            printf("Key has length %d, hash %d, vla offset %d, flags %d, data length %d data loc %llubn\n",
+            printf("Key has length %d, hash %d, vla offset %d, flags %d, data length %d data loc %llu\n",
         key.key_length, key.key_hash, key.key_offset, key.flags, key.data_length, key.data_loc);
         printf("key itself is %s\n", db -> key_vla + key.key_offset); // todo print only till end of key
 }
