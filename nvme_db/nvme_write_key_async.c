@@ -52,6 +52,19 @@ static void flush_writes_cb(void *arg, const struct spdk_nvme_cpl *completion) {
     spdk_free(callback_state -> buf);
 }
 
+static short halfbyte(char halfbyte) {
+    if (halfbyte < 10) {
+        return 48 + halfbyte;
+    }
+    return 97 + halfbyte-10;
+}
+
+short byte_to_hex(unsigned char byte) {
+    short firstletter = halfbyte(byte & 15);
+    short secondletter = halfbyte((byte & 240)<<4);
+    return (firstletter<<8) + secondletter;
+}
+
 // MUST HAVE LOCK TO CALL THIS FUNCTION
 void flush_writes(struct db_state *db) {
     unsigned long long write_bytes_queued = calc_write_bytes_queued(db);
@@ -148,7 +161,13 @@ void flush_writes(struct db_state *db) {
         memset(&flush_writes_cb_state -> buf[buf_bytes_written], 0, write_size-buf_bytes_written);
     }
 
-    printf("Wrote %lld bytes. buf is %s\n", buf_bytes_written, flush_writes_cb_state -> buf);
+    printf("Wrote %lld bytes. buf is \"%s\"\n", buf_bytes_written, flush_writes_cb_state -> buf);
+    short *d = calloc(buf_bytes_written+1, 2);
+    for (int i = 0; i < buf_bytes_written; i++) {
+        d[i] = byte_to_hex(flush_writes_cb_state -> buf[i]);
+    }
+    d[buf_bytes_written] = 0;
+    printf("buf: %s\n", (char *)d);
 
 
     printf("Writing %d sectors of data tp sector %d %p %s\n", sectors_to_write, current_sector, flush_writes_cb_state -> buf, flush_writes_cb_state -> buf);
