@@ -39,7 +39,8 @@ int main(int argc, char **argv) {
         }
 
         if (write_req) {
-            db_data key = {.length = length, .data = buf};
+            db_data key = {.length = length-1, .data = buf};
+            buf[length-1] = 0;
             printf("key is %s, please input data:\n", buf);
             char *data_buf = malloc(4096);
             int data_length = read(0, data_buf, 4096);
