@@ -171,8 +171,9 @@ void flush_writes(struct db_state *db) {
     d[buf_bytes_written] = 0;
     printf("buf: %s\n", (char *)d);
 
+    print_keylist(db);
 
-    printf("Writing %d sectors of data tp sector %d %p %s\n", sectors_to_write, current_sector, flush_writes_cb_state -> buf, flush_writes_cb_state -> buf);
+    printf("Writing %d sectors of data to sector %d %p %s\n", sectors_to_write, current_sector, flush_writes_cb_state -> buf, flush_writes_cb_state -> buf);
 
     spdk_nvme_ns_cmd_write(
         db -> main_namespace -> ns,
