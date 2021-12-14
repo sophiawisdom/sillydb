@@ -144,7 +144,7 @@ void flush_writes(struct db_state *db) {
         // because if it was too high it would skip the whole thing.
         if (buf_bytes_written < write_size) {
             int bytes_to_write = write_callback -> value.length - bytes_to_skip;
-            printf("Writing %d bytes of data from offset %d to offset %d\n", bytes_to_write, bytes_to_skip, buf_bytes_written)
+            printf("Writing %d bytes of data from offset %d to offset %d\n", bytes_to_write, bytes_to_skip, buf_bytes_written);se
             memcpy(&flush_writes_cb_state -> buf[buf_bytes_written], write_callback -> value.data+bytes_to_skip, bytes_to_write);
             buf_bytes_written += bytes_to_write;
         }
