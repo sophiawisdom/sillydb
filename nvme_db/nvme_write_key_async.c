@@ -62,7 +62,7 @@ static short halfbyte(char halfbyte) {
 short byte_to_hex(unsigned char byte) {
     short firstletter = halfbyte(byte & 15);
     short secondletter = halfbyte((byte & 240)<<4);
-    return (firstletter<<8) + secondletter;
+    return (secondletter<<8) + firstletter;
 }
 
 // MUST HAVE LOCK TO CALL THIS FUNCTION
