@@ -245,6 +245,9 @@ void read_value_async(void *opaque, db_data read_key, key_read_cb callback, void
         return;
     }
 
+    printf("Trying to read key:\n");
+    print_key(db, found_key);
+
     db -> reads_in_flight++;
     issue_nvme_read(db, found_key, callback, cb_arg);
     release_lock(db);
@@ -266,15 +269,19 @@ void poll_db(void *opaque) {
     }
 }
 
+static void print_key(struct db_state *db, struct ram_stored_key key) {
+            printf("Key has length %d, hash %d, vla offset %d, flags %d, data length %d data loc %llubn\n",
+        key.key_length, key.key_hash, key.key_offset, key.flags, key.data_length, key.data_loc);
+        printf("key itself is %s\n", db -> key_vla + key.key_offset); // todo print only till end of key
+}
+
 void print_keylist(struct db_state *db) {
     // acq_lock(db);
 
     for (int i = 0; i < db -> num_key_entries; i++) {
         printf("Key entry %d\n", i);
         struct ram_stored_key key = db -> keys[i];
-        printf("Key has length %d, hash %d, vla offset %d, flags %d, data length %d data loc %llubn\n",
-        key.key_length, key.key_hash, key.key_offset, key.flags, key.data_length, key.data_loc);
-        printf("key itself is %s\n", db -> key_vla + key.key_offset); // todo print only till end of key
+        print_key(key);
     }
 
     // release_lock(db);
