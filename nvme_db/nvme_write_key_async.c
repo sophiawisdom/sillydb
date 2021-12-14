@@ -163,8 +163,9 @@ void flush_writes(struct db_state *db) {
 
     printf("Wrote %lld bytes. buf is \"%s\"\n", buf_bytes_written, flush_writes_cb_state -> buf);
     short *d = calloc(buf_bytes_written+1, 2);
+    char *char_buf = flush_writes_cb_state -> buf;
     for (int i = 0; i < buf_bytes_written; i++) {
-        d[i] = byte_to_hex(flush_writes_cb_state -> buf[i]);
+        d[i] = byte_to_hex(char_buf[i]);
     }
     d[buf_bytes_written] = 0;
     printf("buf: %s\n", (char *)d);
