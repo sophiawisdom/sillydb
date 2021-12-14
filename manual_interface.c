@@ -48,7 +48,8 @@ int main(int argc, char **argv) {
             value.length -= 1; // cut out newline
             write_value_async(db, key, value, write_callback, data_buf);
         } else {
-            db_data key = {.length = length, .data = buf};
+            db_data key = {.length = length-1, .data = buf};
+            buf[length-1] = 0;
             read_value_async(db, key, read_callback, NULL);
         }
 
