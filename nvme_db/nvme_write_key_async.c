@@ -148,6 +148,8 @@ void flush_writes(struct db_state *db) {
         memset(&flush_writes_cb_state -> buf[buf_bytes_written], 0, write_size-buf_bytes_written);
     }
 
+    printf("Wrote %lld bytes\n", buf_bytes_written);
+
 
     printf("Writing %d sectors of data tp sector %d %p %s\n", sectors_to_write, current_sector, flush_writes_cb_state -> buf, flush_writes_cb_state -> buf);
 
