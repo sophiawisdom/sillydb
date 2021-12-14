@@ -272,7 +272,7 @@ void print_keylist(struct db_state *db) {
     for (int i = 0; i < db -> num_key_entries; i++) {
         printf("Key entry %d\n", i);
         struct ram_stored_key key = db -> keys[i];
-        printf("Key has length %d, hash %d, vla offset %d, flags %d, data length %d data loc %d\n",
+        printf("Key has length %d, hash %d, vla offset %d, flags %d, data length %d data loc %llubn\n",
         key.key_length, key.key_hash, key.key_offset, key.flags, key.data_length, key.data_loc);
         printf("key itself is %s\n", db -> key_vla + key.key_offset); // todo print only till end of key
     }
