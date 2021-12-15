@@ -92,7 +92,7 @@ void flush_writes(struct db_state *db) {
 
     unsigned long long buf_bytes_written = db -> current_sector_bytes;
     if (db -> current_sector_bytes) {
-        memcpy(&flush_writes_cb_state -> buf, db -> current_sector_data, db -> current_sector_bytes);
+        memcpy(flush_writes_cb_state -> buf, db -> current_sector_data, db -> current_sector_bytes);
     }
     while (!TAILQ_EMPTY(&db -> write_callback_queue)) {
         struct write_cb_state *write_callback = TAILQ_FIRST(&db -> write_callback_queue);
