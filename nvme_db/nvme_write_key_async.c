@@ -92,7 +92,7 @@ void flush_writes(struct db_state *db) {
         struct write_cb_state *write_callback = TAILQ_FIRST(&db -> write_callback_queue);
         unsigned long long size = callback_ssd_size(write_callback);
 
-        db -> keys[write_callback -> key_index].data_loc = data_write_begin + buf_bytes_written;
+        db -> keys[write_callback -> key_index].data_loc = buf_bytes_written;
         printf("Writing data to %lld\n", db -> keys[write_callback -> key_index].data_loc);
 
         // Two important non-regular scenarios here: 1) it's a 'synthetic' callback where
