@@ -202,7 +202,6 @@ void write_zeroes(struct db_state *db, int start_block, int num_blocks) {
         start_block,
         num_blocks,
         write_zeroes_cb,
-        NULL,
-        0
+        NULL
     );
 }
