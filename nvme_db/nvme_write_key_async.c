@@ -202,6 +202,7 @@ void write_zeroes(struct db_state *db, int start_block, int num_blocks) {
     spdk_nvme_ns_cmd_write(
         db -> main_namespace -> ns,
         db -> main_namespace -> qpair,
+        buf,
         start_block,
         num_blocks,
         write_zeroes_cb,
