@@ -15,4 +15,6 @@ typedef void (*nvme_write_cb)(void *, enum write_err);
 
 void flush_writes(struct db_state *db);
 
+void write_zeroes(struct db_state *db, int start_block, int num_blocks);
+
 #endif /* nvme_write_key_async_h */

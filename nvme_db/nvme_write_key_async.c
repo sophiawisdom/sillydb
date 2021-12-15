@@ -185,3 +185,24 @@ void flush_writes(struct db_state *db) {
     );
     return;
 }
+
+static void write_zeroes_cb(void *arg, const struct spdk_nvme_cpl *completion) {
+    if (spdk_nvme_cpl_is_error(completion)) {
+        printf("got error while writing zeroes!\n");
+    } else {
+        printf("successfully wrote zeroes\n");
+    }
+}
+
+
+void write_zeroes(struct db_state *db, int start_block, int num_blocks) {
+    spdk_nvme_ns_cmd_write_zeroes(
+        db -> main_namespace -> ns,
+        db -> main_namespace -> qpair,
+        start_block,
+        num_blocks,
+        write_zeroes_cb,
+        NULL,
+        0
+    );
+}
