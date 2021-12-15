@@ -123,7 +123,8 @@ void flush_writes(struct db_state *db) {
         memcpy(&flush_writes_cb_state -> buf[buf_bytes_written], write_callback -> value.data, write_callback -> value.length);
         buf_bytes_written += write_callback -> value.length;
 
-        printf("removing callback %p from %p to %p\n", write_callback, &db -> write_callback_queue, &flush_writes_cb_state -> write_callback_queue);
+        printf("Wrote %d + %d + %d bytes\n", sizeof(header), write_callback -> key.length, write_callback -> value.length);
+
         TAILQ_REMOVE(&db -> write_callback_queue, write_callback, link);
         TAILQ_INSERT_TAIL(&flush_writes_cb_state -> write_callback_queue, write_callback, link);
     }
