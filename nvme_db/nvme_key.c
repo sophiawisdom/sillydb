@@ -281,9 +281,9 @@ void print_keylist(struct db_state *db) {
     // acq_lock(db);
 
     for (int i = 0; i < db -> num_key_entries; i++) {
-        printf("Key entry %d\n", i);
+        //printf("Key entry %d\n", i);
         struct ram_stored_key key = db -> keys[i];
-        print_key(db, key);
+        //print_key(db, key);
     }
 
     // release_lock(db);
