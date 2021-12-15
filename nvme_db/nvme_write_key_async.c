@@ -18,9 +18,9 @@ struct flush_writes_state {
 static void flush_writes_cb(void *arg, const struct spdk_nvme_cpl *completion) {
     struct flush_writes_state *callback_state = arg;
     struct db_state *db = callback_state -> db;
-    printf("flush_writes_cb called\n");
-    acq_lock(callback_state -> db);
-    printf("Acquired lock\n");
+    acq_lock(db);
+
+    enum write_err error = WRITE_SUCCESSFUL;
 
     /* See if an error occurred. If so, display information
      * about it, and set completion value so that I/O
@@ -30,25 +30,30 @@ static void flush_writes_cb(void *arg, const struct spdk_nvme_cpl *completion) {
         // TODO: fix this. go through each write callback and return an error.
         spdk_nvme_qpair_print_completion(callback_state->ns_entry->qpair, (struct spdk_nvme_cpl *)completion);
         fprintf(stderr, "I/O error status: %s\n", spdk_nvme_cpl_get_status_string(&completion->status));
-        // callback_state -> callback(callback_state -> cb_arg, WRITE_IO_ERROR);
-        // free(callback_state);
-        return;
+        error = WRITE_IO_ERROR;
     }
 
     struct write_cb_state *write_callback;
-    TAILQ_FOREACH(write_callback, &callback_state -> write_callback_queue, link) {
+    TAILQ_FOREACH_SAFE(write_callback, &callback_state -> write_callback_queue, link) {
         db -> writes_in_flight--;
-        db -> keys[write_callback -> key_index].flags &= (255-DATA_FLAG_INCOMPLETE); // set incomplete flag to false
+        if (error == WRITE_IO_ERROR) {
+            // TODO: what to do here when we get an IO error? remove the key is the only thing.
+        } else {
+            db -> keys[write_callback -> key_index].flags &= (255-DATA_FLAG_INCOMPLETE); // set incomplete flag to false
+        }
         // db -> keys[write_callback -> key_index].data_loc = write_callback -> ssd_loc;
         
-        write_callback -> callback(write_callback -> cb_arg, WRITE_SUCCESSFUL);
+        write_callback -> callback(write_callback -> cb_arg, error);
+        free(write_callback);
     }
+
+    TAILQ_INIT(&callback_state -> write_callback_queue); // believe this frees it? unclear...
     
     // TODO: figure out how to free both a) the callback queue and b) all the callbacks inside it.
     // free(write_callback);
 
+exit:
     release_lock(db);
-
     spdk_free(callback_state -> buf);
 }
 
@@ -172,6 +177,8 @@ static void write_zeroes_cb(void *arg, const struct spdk_nvme_cpl *completion) {
 
 
 void write_zeroes(struct db_state *db, int start_block, int num_blocks) {
+    // In theory we could use e.g. write_uncorrectable, or write_zeroes, but the SSD i've been testing on doesn't support those,
+    // so instead just actually write zeroes. This is useful for testing.
     void *buf = spdk_zmalloc(db -> sector_size * num_blocks, db -> sector_size, NULL, SPDK_ENV_SOCKET_ID_ANY, SPDK_MALLOC_DMA);
     memset(buf, 0, db -> sector_size * num_blocks);
     spdk_nvme_ns_cmd_write(
