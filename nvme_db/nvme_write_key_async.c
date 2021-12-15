@@ -140,9 +140,8 @@ void flush_writes(struct db_state *db) {
     char *char_buf = flush_writes_cb_state -> buf;
     for (int i = 0; i < buf_bytes_written; i++) {
         short hex = byte_to_hex(char_buf[i]);
-        d[i*3] = ((char) hex);
-        d[i*3+1] = ((char) hex&65280);
-        d[i*3+2] = 32;
+        memcpy(&d[i*3], hex, 2);
+        d[(i*3)+2] = 32;
     }
     d[buf_bytes_written] = 0;
     printf("buf: %s\n", d);
