@@ -88,13 +88,11 @@ void flush_writes(struct db_state *db) {
         printf("cb is %p\n", cb);
     }
 
-    // TAILQ_FOREACH_SAFE 
-
     unsigned long long buf_bytes_written = 0;
     while (!TAILQ_EMPTY(&db -> write_callback_queue)) {
         struct write_cb_state *write_callback = TAILQ_FIRST(&db -> write_callback_queue);
         unsigned long long size = callback_ssd_size(write_callback);
-        unsigned long long bytes_to_skip = write_callback -> bytes_written;
+        unsigned long long bytes_to_skip = write_callback -> bytes_written; // we've already written some of the CB, so skip this many bytes of what we would write
         if (bytes_to_skip > size) {
             printf("GOT INVALID STATE, BYTES_TO_SKIP (%llu) > SIZE (%llu)", bytes_to_skip, size);
             return;
