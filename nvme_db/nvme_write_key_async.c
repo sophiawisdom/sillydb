@@ -72,9 +72,9 @@ void flush_writes(struct db_state *db) {
     unsigned long long sectors_to_write = write_bytes_queued/db -> sector_size; // e.g. We have 10000 bytes enqueued with a sector length of 4096, so write 2 sectors
     sectors_to_write = sectors_to_write == 0 ? 1 : sectors_to_write; // at min 1
     unsigned long long current_sector = db -> current_sector_ssd; // sector we're going to write to
-    db -> current_sector_ssd += sectors_to_write;
+    db -> current_sector_ssd += write_bytes_queued/db -> sector_size;
     unsigned long long write_size = sectors_to_write * db -> sector_size;
-    
+
     struct flush_writes_state *flush_writes_cb_state = malloc(sizeof(struct flush_writes_state));
     flush_writes_cb_state -> db = db;
     // transfer the callback queue to the callback, it will be written to when that's completed.
