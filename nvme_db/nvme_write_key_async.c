@@ -196,7 +196,7 @@ static void write_zeroes_cb(void *arg, const struct spdk_nvme_cpl *completion) {
 
 
 void write_zeroes(struct db_state *db, int start_block, int num_blocks) {
-    spdk_nvme_ns_cmd_write_zeroes(
+    spdk_nvme_ns_cmd_write_uncorrectable(
         db -> main_namespace -> ns,
         db -> main_namespace -> qpair,
         start_block,
