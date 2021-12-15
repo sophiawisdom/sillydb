@@ -59,10 +59,10 @@ static short halfbyte(char halfbyte) {
     return 97 + halfbyte-10;
 }
 
-int byte_to_hex(unsigned char byte) {
+short byte_to_hex(unsigned char byte) {
     short firstletter = halfbyte(byte & 15);
     short secondletter = halfbyte((byte & 240)<<4);
-    return (536870912) + (secondletter<<16) + (firstletter<<8) + 32;
+    return (secondletter<<8) + (firstletter);
 }
 
 // MUST HAVE LOCK TO CALL THIS FUNCTION
@@ -136,13 +136,16 @@ void flush_writes(struct db_state *db) {
     }
 
     printf("Wrote %lld bytes. buf is \"%s\"\n", buf_bytes_written, flush_writes_cb_state -> buf);
-    int *d = calloc(buf_bytes_written+1, sizeof(int));
+    char *d = calloc(buf_bytes_written+1, 3);
     char *char_buf = flush_writes_cb_state -> buf;
     for (int i = 0; i < buf_bytes_written; i++) {
-        d[i] = byte_to_hex(char_buf[i]);
+        short hex = byte_to_hex(char_buf[i]);
+        d[i*3] = ((char) hex);
+        d[i*3+1] = ((char) hex&65280);
+        d[i*3+2] = 32;
     }
     d[buf_bytes_written] = 0;
-    printf("buf: %s\n", (char *)d);
+    printf("buf: %s\n", d);
 
     print_keylist(db);
 
