@@ -187,6 +187,7 @@ void flush_writes(struct db_state *db) {
 }
 
 static void write_zeroes_cb(void *arg, const struct spdk_nvme_cpl *completion) {
+    spdk_free(arg);
     if (spdk_nvme_cpl_is_error(completion)) {
         printf("got error while writing zeroes!\n");
     } else {
@@ -196,12 +197,15 @@ static void write_zeroes_cb(void *arg, const struct spdk_nvme_cpl *completion) {
 
 
 void write_zeroes(struct db_state *db, int start_block, int num_blocks) {
-    spdk_nvme_ns_cmd_write_uncorrectable(
+    void *buf = spdk_zmalloc(db -> sector_size * num_blocks, db -> sector_size, NULL, SPDK_ENV_SOCKET_ID_ANY, SPDK_MALLOC_DMA);
+    memset(buf, 0, db -> sector_size * num_blocks);
+    spdk_nvme_ns_cmd_write(
         db -> main_namespace -> ns,
         db -> main_namespace -> qpair,
         start_block,
         num_blocks,
         write_zeroes_cb,
-        NULL
+        buf,
+        0
     );
 }
