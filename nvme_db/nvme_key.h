@@ -53,6 +53,8 @@ struct ssd_header {
 #define WRITE_CB_FLAG_PERSISTED 2
 
 // 92 bytes as stands, and created for every write. Could it be smaller?
+
+// all the data needed to process a write callback
 struct write_cb_state {
     struct db_state *db;
     
@@ -89,7 +91,7 @@ struct db_state {
     _Atomic int writes_in_flight; // CAN BE ACCESSED WITHOUT LOCK
     _Atomic int reads_in_flight; // CAN BE ACCESSED WITHOUT LOCK
 
-    unsigned int sector_size; // https://spdk.io/doc/nvme_8h.html#a0d24c0b2b0b2a22b0c0af2ca2e157e04
+    unsigned int sector_size; // https://spdk.io/doc/nvme_8h.html#a0d24c0b2b0b2a22b0c0af2ca2e157e04, aka block size
     unsigned long long num_sectors; // https://spdk.io/doc/nvme_8h.html#a7c522609f730db26f66e7f5b6b3501e0
     unsigned int max_transfer_size; // https://spdk.io/doc/nvme_8h.html#ac2aac85501f13bff557d3a224d8ec156
 
@@ -99,6 +101,10 @@ struct db_state {
     unsigned long long current_sector_ssd; // how many sectors are we into the current SSD (i.e. where will the next value be stored).
     void *current_sector_data;
     unsigned short current_sector_bytes; // How many bytes are we into the current sector? Mostly this should be 0.
+
+    void *data_written_to_current_sector; // sector_size bytes capacity, current_sector_bytes length.
+    // We write at sector_size granularity, but often receive smaller inputs (e.g. 50 bytes) so we write to the same sector multiple times.
+    // This stores the data we've already written to that sector.
 
     TAILQ_HEAD(control_head, ctrlr_entry) g_controllers;
     TAILQ_HEAD(namespace_head, ns_entry) g_namespaces;
