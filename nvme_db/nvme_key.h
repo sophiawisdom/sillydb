@@ -99,12 +99,10 @@ struct db_state {
     TAILQ_HEAD(write_cb_head, write_cb_state) write_callback_queue;
     
     unsigned long long current_sector_ssd; // how many sectors are we into the current SSD (i.e. where will the next value be stored).
-    void *current_sector_data;
-    unsigned short current_sector_bytes; // How many bytes are we into the current sector? Mostly this should be 0.
-
-    void *data_written_to_current_sector; // sector_size bytes capacity, current_sector_bytes length.
+    void *current_sector_data; // sector_size bytes capacity, current_sector_bytes length.
     // We write at sector_size granularity, but often receive smaller inputs (e.g. 50 bytes) so we write to the same sector multiple times.
     // This stores the data we've already written to that sector.
+    unsigned short current_sector_bytes; // How many bytes are we into the current sector? Mostly this should be 0.
 
     TAILQ_HEAD(control_head, ctrlr_entry) g_controllers;
     TAILQ_HEAD(namespace_head, ns_entry) g_namespaces;

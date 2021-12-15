@@ -159,8 +159,6 @@ void *create_db() {
     state -> current_sector_bytes = 0;
     state -> current_sector_data = calloc(1, state -> sector_size);
 
-    state -> data_written_to_current_sector = calloc(state -> sector_size, 1);
-
     TAILQ_INIT(&state -> write_callback_queue);
 
     printf("Freeing first 50 blocks\n");

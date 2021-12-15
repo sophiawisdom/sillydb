@@ -69,10 +69,12 @@ short byte_to_hex(unsigned char byte) {
 void flush_writes(struct db_state *db) {
     unsigned long long write_bytes_queued = calc_write_bytes_queued(db);
     printf("write bytes queued: %d\n", write_bytes_queued);
-    unsigned long long sectors_to_write = write_bytes_queued/db -> sector_size; // e.g. We have 10000 bytes enqueued with a sector length of 4096, so write 2 sectors
-    sectors_to_write = sectors_to_write == 0 ? 1 : sectors_to_write; // at min 1
+    unsigned long long data_write_begin = db -> current_sector_bytes + (db -> sector_size * db -> current_sector_ssd);
+
+    unsigned long long sectors_to_write = (db -> current_sector_bytes + write_bytes_queued)/db -> sector_size; // e.g. We have 10000 bytes enqueued with a sector length of 4096, so write 2 sectors
     unsigned long long current_sector = db -> current_sector_ssd; // sector we're going to write to
-    db -> current_sector_ssd += write_bytes_queued/db -> sector_size;
+    db -> current_sector_ssd += sectors_to_write;
+    sectors_to_write = sectors_to_write == 0 ? 1 : sectors_to_write; // at min 1
     unsigned long long write_size = sectors_to_write * db -> sector_size;
 
     struct flush_writes_state *flush_writes_cb_state = malloc(sizeof(struct flush_writes_state));
@@ -88,17 +90,15 @@ void flush_writes(struct db_state *db) {
         printf("cb is %p\n", cb);
     }
 
-    unsigned long long buf_bytes_written = 0;
+    unsigned long long buf_bytes_written = db -> current_sector_bytes;
+    if (db -> current_sector_bytes) {
+        memcpy(&flush_writes_cb_state -> buf, db -> current_sector_data, db -> current_sector_bytes);
+    }
     while (!TAILQ_EMPTY(&db -> write_callback_queue)) {
         struct write_cb_state *write_callback = TAILQ_FIRST(&db -> write_callback_queue);
         unsigned long long size = callback_ssd_size(write_callback);
-        unsigned long long bytes_to_skip = write_callback -> bytes_written; // we've already written some of the CB, so skip this many bytes of what we would write
-        if (bytes_to_skip > size) {
-            printf("GOT INVALID STATE, BYTES_TO_SKIP (%llu) > SIZE (%llu)", bytes_to_skip, size);
-            return;
-        }
-        unsigned long long bytes_to_write = write_size - buf_bytes_written;
-        db -> keys[write_callback -> key_index].data_loc = (current_sector * db -> sector_size) + buf_bytes_written;
+
+        db -> keys[write_callback -> key_index].data_loc = data_write_begin + buf_bytes_written;
         printf("Writing data to %lld\n", db -> keys[write_callback -> key_index].data_loc);
 
         // Two important non-regular scenarios here: 1) it's a 'synthetic' callback where
@@ -112,51 +112,26 @@ void flush_writes(struct db_state *db) {
             .data_length = write_callback -> value.length,
             .flags = 0
         };
-        if (bytes_to_skip < sizeof(header)) {
-            void *head = (void *)&header;
-            int bytes_to_write = sizeof(header)-bytes_to_skip;
-            if (bytes_to_write + buf_bytes_written > write_size) { // max(buf_bytes_written+bytes_to_write, write_size)
-                bytes_to_write = write_size - buf_bytes_written;
-            }
-            memcpy(&flush_writes_cb_state -> buf[buf_bytes_written], head+bytes_to_skip, bytes_to_write);
-            buf_bytes_written += bytes_to_write;
-            bytes_to_skip = 0;
-        } else {
-            bytes_to_skip -= sizeof(header);
-        }
+        memcpy(&flush_writes_cb_state -> buf[buf_bytes_written], &header, sizeof(header));
+        buf_bytes_written += sizeof(header);
 
         // Write key
-        if (bytes_to_skip < write_callback -> key.length && buf_bytes_written < write_size) {
-            int bytes_to_write = write_callback -> key.length-bytes_to_skip;
-            if (bytes_to_write + buf_bytes_written > write_size) { // max(buf_bytes_written+bytes_to_write, write_size)
-                bytes_to_write = write_size - buf_bytes_written;
-            }
-            memcpy(&flush_writes_cb_state -> buf[buf_bytes_written], write_callback -> key.data+bytes_to_skip, bytes_to_write);
-            buf_bytes_written += bytes_to_write;
-            bytes_to_skip = 0;
-        } else {
-            bytes_to_skip -= write_callback -> key.length;
-        }
+        memcpy(&flush_writes_cb_state -> buf[buf_bytes_written], write_callback -> key.data, write_callback -> key.length);
+        buf_bytes_written += write_callback -> key.length;
 
-        // Write data. Not necessary to not write if bytes_to_skip is too high
-        // because if it was too high it would skip the whole thing.
-        if (buf_bytes_written < write_size) {
-            int bytes_to_write = write_callback -> value.length - bytes_to_skip;
-            printf("Writing %d bytes of data from offset %d to offset %d\n", bytes_to_write, bytes_to_skip, buf_bytes_written);
-            memcpy(&flush_writes_cb_state -> buf[buf_bytes_written], write_callback -> value.data+bytes_to_skip, bytes_to_write);
-            buf_bytes_written += bytes_to_write;
-        }
+        // Write data
+        memcpy(&flush_writes_cb_state -> buf[buf_bytes_written], write_callback -> value.data, write_callback -> value.length);
+        buf_bytes_written += write_callback -> value.length;
 
-        if (buf_bytes_written == write_size) {
-            // make a synthetic callback and then break
-            break;
-        }
         printf("removing callback %p from %p to %p\n", write_callback, &db -> write_callback_queue, &flush_writes_cb_state -> write_callback_queue);
         TAILQ_REMOVE(&db -> write_callback_queue, write_callback, link);
         TAILQ_INSERT_TAIL(&flush_writes_cb_state -> write_callback_queue, write_callback, link);
     }
 
-    if (buf_bytes_written < write_size) {
+    if (buf_bytes_written < write_size) { // We're writing to 9.5 sectors, so fill out the last .5 with 0s and store the first .5
+        // if write_size is 10000 bytes and we end up writing 9400 bytes, we want to 0 out the last 600 and store the first 400.
+        db -> current_sector_bytes = db -> sector_size - (write_size - buf_bytes_written);
+        memcpy(db -> current_sector_data, &flush_writes_cb_state -> buf[write_size - db -> sector_size], db -> current_sector_bytes)l
         memset(&flush_writes_cb_state -> buf[buf_bytes_written], 0, write_size-buf_bytes_written);
     }
 

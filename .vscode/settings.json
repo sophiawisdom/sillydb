@@ -1,0 +1,5 @@
+{
+    "files.associations": {
+        "nvme_read_key_async.h": "c"
+    }
+}
