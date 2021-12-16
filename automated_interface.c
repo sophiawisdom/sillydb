@@ -104,6 +104,8 @@ int main() {
     poll_db(db);
     usleep(10000);
     poll_db(db);
+    usleep(10000);
+    poll_db(db);
 
     srandom(seed);
     for (int i = 0; i < num_keys; i++) {
