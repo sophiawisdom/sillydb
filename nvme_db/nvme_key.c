@@ -231,7 +231,7 @@ void write_value_async(void *opaque, db_data key, db_data value, key_write_cb ca
         flush_writes(db);
     }
 
-    print_keylist(db);
+    // print_keylist(db);
     release_lock(db);
 }
 

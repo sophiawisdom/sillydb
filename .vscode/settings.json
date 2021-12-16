@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "nvme_read_key_async.h": "c"
+        "nvme_read_key_async.h": "c",
+        "db_interface.h": "c"
     }
 }
