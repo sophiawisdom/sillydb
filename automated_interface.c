@@ -40,6 +40,7 @@ void read_cb(void *cb_arg, enum read_err error, db_data value) {
     if (memcmp(value.data, data -> expected_value.data, value.length) != 0) {
         printf("Expected data not what was received for key %.16s\n", data -> key.data);
         printf("got:      %.64s (%d)\n", value.data, value.length);
+        write(1, value.data, 64);
         printf("expected: %.64s (%d)\n", data -> expected_value.data, data -> expected_value.length);
         errors++;
         goto exit;
