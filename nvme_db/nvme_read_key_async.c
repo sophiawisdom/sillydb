@@ -55,7 +55,7 @@ void issue_nvme_read(struct db_state *db, struct ram_stored_key key, key_read_cb
     printf("data_beginning is %llu, data_loc is %llu\n", data_beginning, key.data_loc);
     unsigned long long key_sector = data_beginning/db -> sector_size;
     unsigned long long bytes_within_sector = data_beginning - (key_sector * db -> sector_size);
-    unsigned long long bytes_to_read = key.data_length + key.key_length + sizeof(struct ssd_header);
+    unsigned long long bytes_to_read = key.data_length;
     unsigned long long sectors_to_read = ceil(((double) bytes_to_read + bytes_within_sector) / ((double) db -> sector_size));
     struct read_cb_state *read_cb = calloc(sizeof(struct read_cb_state), 1);
     read_cb -> db = db;
