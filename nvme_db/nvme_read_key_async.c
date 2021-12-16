@@ -60,6 +60,7 @@ void issue_nvme_read(struct db_state *db, struct ram_stored_key key, key_read_cb
     read_cb -> db = db;
     read_cb -> callback = callback;
     read_cb -> cb_arg = cb_arg;
+    read_cb -> data_length = key.data_length;
     read_cb -> key_header_offset = data_beginning - (key_sector * db -> sector_size);
     read_cb -> data = spdk_zmalloc(db -> sector_size * sectors_to_read, db -> sector_size, NULL, SPDK_ENV_SOCKET_ID_ANY, SPDK_MALLOC_DMA);
 
