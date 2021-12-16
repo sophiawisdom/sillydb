@@ -33,8 +33,11 @@ static void flush_writes_cb(void *arg, const struct spdk_nvme_cpl *completion) {
         error = WRITE_IO_ERROR;
     }
 
+    struct write_cb_state *prev_callback;
     struct write_cb_state *write_callback;
     TAILQ_FOREACH(write_callback, &callback_state -> write_callback_queue, link) {
+        free(prev_callback);
+        prev_callback = write_callback;
         db -> writes_in_flight--;
         if (error == WRITE_IO_ERROR) {
             // TODO: what to do here when we get an IO error? remove the key is the only thing.
@@ -44,8 +47,8 @@ static void flush_writes_cb(void *arg, const struct spdk_nvme_cpl *completion) {
         // db -> keys[write_callback -> key_index].data_loc = write_callback -> ssd_loc;
         
         write_callback -> callback(write_callback -> cb_arg, error);
-        free(write_callback);
     }
+    free(prev_callback);
 
     TAILQ_INIT(&callback_state -> write_callback_queue); // believe this frees it? unclear...
     
