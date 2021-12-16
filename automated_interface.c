@@ -101,7 +101,7 @@ int main() {
         write_value_async(db, key, value, write_callback, data);
     }
 
-    for (int i = 0; i < 1000) {
+    for (int i = 0; i < 1000; i++) {
         poll_db(db);
         usleep(1000);
     }
