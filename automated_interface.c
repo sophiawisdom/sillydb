@@ -74,7 +74,7 @@ char *random_bytes(int num_bytes) {
 db_data generate_key() {
     unsigned int key_exp = (random()) % 7 + 4; // e.g. 5, so key is 2<<5 bytes = 32.
     unsigned int key_len = (2<<key_exp) + (16-(random()%32));
-    key_len = 4;
+    key_len = 400;
     db_data key = {.length=key_len, .data=random_bytes(key_len)};
     return key;
 }
@@ -82,7 +82,7 @@ db_data generate_key() {
 db_data generate_data() {
     unsigned int data_exp = (random() % 9) + 6;
     unsigned int data_len = (2<<data_exp) + (64-(random()%128));
-    data_len = 8;
+    data_len = 800;
     db_data value = {.length=data_len, .data=random_bytes(data_len)};
     return value;
 }
