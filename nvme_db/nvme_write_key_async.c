@@ -139,11 +139,11 @@ void flush_writes(struct db_state *db) {
     if (buf_bytes_written < write_size) { // We're writing to 9.5 sectors, so fill out the last .5 with 0s and store the first .5
         // if write_size is 10000 bytes and we end up writing 9400 bytes, we want to 0 out the last 600 and store the first 400.
         db -> current_sector_bytes = db -> sector_size - (write_size - buf_bytes_written);
-        memset(&flush_writes_cb_state -> buf[buf_bytes_written], 3, write_size-buf_bytes_written);
+        memset(&flush_writes_cb_state -> buf[buf_bytes_written], 'a', write_size-buf_bytes_written);
         memcpy(db -> current_sector_data, &flush_writes_cb_state -> buf[write_size - db -> sector_size], db -> sector_size);
     } else {
         db -> current_sector_bytes = 0;
-        memset(db -> current_sector_data, 2, db -> sector_size);
+        memset(db -> current_sector_data, 'b', db -> sector_size);
     }
 
     printf("Wrote %lld bytes\n", buf_bytes_written);
@@ -189,7 +189,7 @@ void write_zeroes(struct db_state *db, int start_block, int num_blocks) {
     // In theory we could use e.g. write_uncorrectable, or write_zeroes, but the SSD i've been testing on doesn't support those,
     // so instead just actually write zeroes. This is useful for testing.
     void *buf = spdk_zmalloc(db -> sector_size * num_blocks, db -> sector_size, NULL, SPDK_ENV_SOCKET_ID_ANY, SPDK_MALLOC_DMA);
-    memset(buf, 1, db -> sector_size * num_blocks);
+    memset(buf, 'c', db -> sector_size * num_blocks);
     spdk_nvme_ns_cmd_write(
         db -> main_namespace -> ns,
         db -> main_namespace -> qpair,
