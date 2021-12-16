@@ -263,7 +263,7 @@ void read_value_async(void *opaque, db_data read_key, key_read_cb callback, void
         return;
     }
 
-    printf("Trying to read key: %s at %llu\n", read_key.data, found_key.data_loc);
+    printf("Trying to read key: %.16s at %llu\n", read_key.data, found_key.data_loc);
     print_key(db, found_key);
 
     db -> reads_in_flight++;
