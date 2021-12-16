@@ -34,8 +34,8 @@ void read_cb(void *cb_arg, enum read_err error, db_data value) {
 
     if (memcmp(value.data, data -> expected_value.data, value.length) != 0) {
         printf("Expected data not what was received for key %.16s\n", data -> key.data);
-        printf("got:      %.32s\n", value.data);
-        printf("expected: %.32s\n", data -> expected_value.data);
+        printf("got:      %.64s\n", value.data);
+        printf("expected: %.64s\n", data -> expected_value.data);
         goto exit;
     }
 
@@ -82,7 +82,7 @@ db_data generate_key() {
 db_data generate_data() {
     unsigned int data_exp = (random() % 9) + 6;
     unsigned int data_len = (2<<data_exp) + (64-(random()%128));
-    data_len = 32;
+    data_len = 64;
     db_data value = {.length=data_len, .data=random_bytes(data_len)};
     return value;
 }
