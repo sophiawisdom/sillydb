@@ -59,11 +59,13 @@ db_data generate_data() {
 
 int main() {
     unsigned int seed = 1234;
-    srandom(seed);
     unsigned int num_keys = 10;
     void *db = create_db();
+    srandom(seed);
     for (int i = 0; i < num_keys; i++) {
-        write_value_async(db, generate_key(), generate_data(), write_callback, NULL);
+        db_data key = generate_key();
+        db_data value = generate_data();
+        write_value_async(db, key, value, write_callback, NULL);
     }
 
     poll_db(db);
