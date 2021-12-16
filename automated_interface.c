@@ -101,11 +101,10 @@ int main() {
         write_value_async(db, key, value, write_callback, data);
     }
 
-    poll_db(db);
-    usleep(10000);
-    poll_db(db);
-    usleep(10000);
-    poll_db(db);
+    for (int i = 0; i < 1000) {
+        poll_db(db);
+        usleep(1000);
+    }
 
     srandom(seed);
     for (int i = 0; i < num_keys; i++) {
