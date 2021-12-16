@@ -130,13 +130,13 @@ void flush_writes(struct db_state *db) {
         memcpy(&flush_writes_cb_state -> buf[buf_bytes_written], write_callback -> value.data, write_callback -> value.length);
         buf_bytes_written += write_callback -> value.length;
 
-        unsigned long long bytes_written = sizeof(header), write_callback -> key.length, write_callback -> value.length;
+        unsigned long long bytes_written = sizeof(header) + write_callback -> key.length + write_callback -> value.length;
         unsigned long long original_sector = db -> keys[write_callback -> key_index].data_loc / db -> sector_size;
         unsigned long long original_sector_bytes = db -> keys[write_callback -> key_index].data_loc % db -> sector_size;
         unsigned long long end_sector = (db -> keys[write_callback -> key_index].data_loc + bytes_written)/db -> sector_size;
         unsigned long long end_sector_bytes = (db -> keys[write_callback -> key_index].data_loc + bytes_written)%db -> sector_size;
-        printf("Wrote %d bytes from sector %d byte %d to sector %d byte %d for key %.16s\n",
-        bytes_written, original_sector, original_sector_bytes, end_sector, end_sector_bytes, write_callback -> key.data);
+        printf("Wrote %lld bytes from sector %lld byte %lld to sector %lld byte %lld for key %.16s\n",
+        bytes_written, original_sector, original_sector_bytes, end_sector, end_sector_bytes, (char *)write_callback -> key.data);
 
         TAILQ_REMOVE(&db -> write_callback_queue, write_callback, link);
         TAILQ_INSERT_TAIL(&flush_writes_cb_state -> write_callback_queue, write_callback, link);
