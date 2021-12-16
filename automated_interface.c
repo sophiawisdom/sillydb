@@ -6,9 +6,12 @@
 
 void write_callback(void *cb_arg, enum write_err error) {
     if (error != WRITE_SUCCESSFUL) {
-        printf("GOT ERROR: %d\n", error);
-        return;
+        printf("GOT ERROR ON WRITE: %d\n", error);
     }
+    
+    free(data -> key.data);
+    free(data -> expected_value.data);
+    free(data);
 }
 
 struct read_cb_data {
@@ -20,22 +23,26 @@ void read_cb(void *cb_arg, enum read_err error, db_data value) {
     struct read_cb_data *data = cb_arg;
     if (error != READ_SUCCESSFUL) {
         printf("GOT ERROR READING: %d\n", error);
-        return;
+        goto exit;
     }
 
     if (data -> expected_value.length != value.length) {
-        printf("Expected length would be %d but was %d for key\n", data -> expected_value.length, value.length);
-        return;
+        printf("Expected length would be %d but was %d for key %.16s\n", data -> expected_value.length, value.length, data -> key.data);
+        goto exit;
     }
 
     if (memcmp(value.data, data -> expected_value.data, value.length) != 0) {
-        printf("Expected data not what was received for key %s\n", data -> key.data);
-        printf("got: %s\n", value.data);
-        printf("expected: %s\n", data -> expected_value.data);
-        return;
+        printf("Expected data not what was received for key %.16s\n", data -> key.data);
+        printf("got: %.16s\n", value.data);
+        printf("expected: %.16s\n", data -> expected_value.data);
+        goto exit;
     }
 
+exit:
     printf("Read completed with err %d!\n", error);
+    free(data -> key.data);
+    free(data -> expected_value.data);
+    free(data);
 }
 
 static short halfbyte(char halfbyte) {
@@ -85,6 +92,9 @@ int main() {
     for (int i = 0; i < num_keys; i++) {
         db_data key = generate_key();
         db_data value = generate_data();
+        struct read_cb_data *data = calloc(sizeof(struct read_cb_data), 1);
+        data -> key = key;
+        data -> expected_value = value;
         write_value_async(db, key, value, write_callback, NULL);
     }
 
