@@ -58,6 +58,7 @@ static void flush_writes_cb(void *arg, const struct spdk_nvme_cpl *completion) {
 exit:
     release_lock(db);
     spdk_free(callback_state -> buf);
+    free(callback_state);
 }
 
 static short halfbyte(char halfbyte) {
