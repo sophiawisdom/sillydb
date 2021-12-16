@@ -174,7 +174,7 @@ void free_db(void *opaque) {
     free(db -> keys);
     free(db -> key_vla);
     free(db -> current_sector_data);
-    free(TAILQ_FIRST(db -> g_controllers));
+    free(TAILQ_FIRST(&db -> g_controllers));
     free(db);
     // TODO: TAILQ_FREE our tail queues
     // make sure all writes have persisted? this shouldn't really happen very much. mostly we expect the process to exit instead.
