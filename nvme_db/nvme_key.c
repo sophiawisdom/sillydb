@@ -161,8 +161,8 @@ void *create_db() {
 
     TAILQ_INIT(&state -> write_callback_queue);
 
-    printf("Freeing first 50 blocks\n");
-    write_zeroes(state, 0, 50);
+    printf("Freeing first 50000 blocks\n");
+    write_zeroes(state, 0, 50000);
     
     return state;
 }
