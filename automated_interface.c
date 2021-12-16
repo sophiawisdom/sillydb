@@ -32,6 +32,8 @@ void read_cb(void *cb_arg, enum read_err error, db_data value) {
         printf("Expected data not what was received for key %s\n", data -> key.data);
         return;
     }
+
+    printf("Read completed successfully!\n");
 }
 
 char *random_bytes(int num_bytes) {
@@ -81,4 +83,6 @@ int main() {
         data -> expected_value = value;
         read_value_async(db, key, read_cb, data);
     }
+
+    printf("Exiting!\n");
 }
