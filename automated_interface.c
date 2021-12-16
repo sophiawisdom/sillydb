@@ -65,7 +65,8 @@ char *random_bytes(int num_bytes) {
     for (int i = 0; i < num_ints; i++) {
         int val = random();
         short hexfirst = byte_to_hex(val&255);
-        short hexsecond = byte_to_hex((val&65280) >> 8);
+        val>>=8;
+        short hexsecond = byte_to_hex(val&255);
         buf[i] = (hexfirst << 16) + hexsecond;
     }
     return buf;
