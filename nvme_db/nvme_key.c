@@ -169,6 +169,10 @@ void *create_db() {
 
 void free_db(void *db) {
     acq_lock(db);
+
+    free(db -> keys);
+    free(db -> key_vla);
+    free(db);
     // TODO: TAILQ_FREE our tail queues
     // make sure all writes have persisted? this shouldn't really happen very much. mostly we expect the process to exit instead.
 }
