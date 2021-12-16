@@ -24,12 +24,12 @@ void read_cb(void *cb_arg, enum read_err error, db_data value) {
     }
 
     if (data -> expected_value.length != value.length) {
-        printf("Expected length would be %d but was %d for key %s\n", data -> expected_value.length, value.length, data -> key.data);
+        printf("Expected length would be %d but was %d for key\n", data -> expected_value.length, value.length);
         return;
     }
 
     if (memcmp(value.data, data -> expected_value.data, value.length) != 0) {
-        printf("Expected data not what was received for key %s\n", data -> key.data);
+        printf("Expected data not what was received for key\n");
         return;
     }
 
