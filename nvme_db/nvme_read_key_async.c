@@ -26,7 +26,7 @@ static void
 read_complete(struct read_cb_state *arg, const struct spdk_nvme_cpl *completion)
 {
     arg -> db -> reads_in_flight--; // don't need to lock here because this key doesn't need a lock
-    printf("read has completed!\n");
+    printf("read has completed! data_length is %d\n", arg -> data_length);
 
     /* See if an error occurred. If so, display information
      * about it, and set completion value so that I/O
