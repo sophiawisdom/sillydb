@@ -3,6 +3,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+struct read_cb_data {
+    db_data key;
+    db_data expected_value;
+};
 
 void write_callback(void *cb_arg, enum write_err error) {
     struct read_cb_data *data = cb_arg;
@@ -15,11 +19,6 @@ void write_callback(void *cb_arg, enum write_err error) {
     free(data -> expected_value.data);
     free(data);
 }
-
-struct read_cb_data {
-    db_data key;
-    db_data expected_value;
-};
 
 void read_cb(void *cb_arg, enum read_err error, db_data value) {
     struct read_cb_data *data = cb_arg;
