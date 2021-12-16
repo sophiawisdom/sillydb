@@ -46,13 +46,13 @@ char *random_bytes(int num_bytes) {
 db_data generate_key() {
     unsigned int key_exp = (random()) % 7 + 4; // e.g. 5, so key is 2<<5 bytes = 32.
     unsigned int key_len = (2<<key_exp) + (16-(random()%32));
-    return db_data{.length=key_len, .buf=random_bytes(key_len)};
+    return struct data{.length=key_len, .buf=random_bytes(key_len)};
 }
 
 db_data generate_data() {
     unsigned int data_exp = (random() % 9) + 6;
     unsigned int data_len = (2<<data_exp) + (64-(random()%128));
-    return db_data{.length=data_len, .buf=random_bytes(data_len)};
+    return struct data{.length=data_len, .buf=random_bytes(data_len)};
 }
 
 int main() {
