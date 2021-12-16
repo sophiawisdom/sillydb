@@ -89,7 +89,7 @@ db_data generate_data() {
 
 int main() {
     unsigned int seed = 1234;
-    unsigned int num_keys = 1000;
+    unsigned int num_keys = 50;
     void *db = create_db();
     srandom(seed);
     for (int i = 0; i < num_keys; i++) {
