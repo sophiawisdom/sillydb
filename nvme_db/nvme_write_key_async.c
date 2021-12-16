@@ -138,7 +138,7 @@ void flush_writes(struct db_state *db) {
         memset(db -> current_sector_data, 0, db -> sector_size);
     }
 
-    printf("Wrote %lld bytes. buf is \"%s\"\n", buf_bytes_written, flush_writes_cb_state -> buf);
+    printf("Wrote %lld bytes\n", buf_bytes_written);
     char *d = calloc(buf_bytes_written+1, 3);
     char *char_buf = flush_writes_cb_state -> buf;
     for (int i = 0; i < buf_bytes_written; i++) {
