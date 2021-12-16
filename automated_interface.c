@@ -116,9 +116,10 @@ int main() {
         read_value_async(db, key, read_cb, data);
     }
 
-    poll_db(db);
-    usleep(10000);
-    poll_db(db);
+    for (int i = 0; i < 1000; i++) {
+        poll_db(db);
+        usleep(1000);
+    }
 
     printf("Exiting!\n");
 }
