@@ -190,7 +190,7 @@ void write_value_async(void *opaque, db_data key, db_data value, key_write_cb ca
     long long key_idx = db -> num_key_entries++;
     if (key_idx >= db -> key_capacity) {
         db -> key_capacity *= 2;
-        db -> keys = realloc(db -> keys, db -> key_capacity);
+        db -> keys = realloc(db -> keys, db -> key_capacity * sizeof(struct ram_stored_key));
         printf("resizing key area\n");
     }
 
