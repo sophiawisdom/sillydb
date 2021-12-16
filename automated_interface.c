@@ -16,10 +16,10 @@ struct read_cb_data {
     db_data expected_value;
 };
 
-void read_cb(void *cb_arg, enum read_err, db_data value) {
+void read_cb(void *cb_arg, enum read_err error, db_data value) {
     struct read_cb_data *data = cb_arg;
-    if (read_err != READ_SUCCESSFUL) {
-        printf("GOT ERROR READING: %d\n", read_err);
+    if (error != READ_SUCCESSFUL) {
+        printf("GOT ERROR READING: %d\n", error);
         return;
     }
 
