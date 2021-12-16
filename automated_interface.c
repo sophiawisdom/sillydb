@@ -29,18 +29,36 @@ void read_cb(void *cb_arg, enum read_err error, db_data value) {
     }
 
     if (memcmp(value.data, data -> expected_value.data, value.length) != 0) {
-        printf("Expected data not what was received for key\n");
+        printf("Expected data not what was received for key %s\n", data -> key.data);
+        printf("got: %s\n", value.data);
+        printf("expected: %s\n", data -> expected_value.data);
         return;
     }
 
     printf("Read completed with err %d!\n", error);
 }
 
+static short halfbyte(char halfbyte) {
+    if (halfbyte < 10) {
+        return 48 + halfbyte;
+    }
+    return 97 + halfbyte-10;
+}
+
+static short byte_to_hex(unsigned char byte) {
+    short firstletter = halfbyte(byte & 15);
+    short secondletter = halfbyte((byte & 240)<<4);
+    return (secondletter<<8) + (firstletter);
+}
+
 char *random_bytes(int num_bytes) {
     unsigned int num_ints = (num_bytes>>2) + ((num_bytes&3) ? 1 : 0);
     int *buf = malloc(num_ints*sizeof(int));
     for (int i = 0; i < num_ints; i++) {
-        buf[i] = random();
+        int val = random();
+        short hexfirst = byte_to_hex(val&255);
+        short hexsecond = byte_to_hex((val&65280) >> 8);
+        buf[i] = (hexfirst << 16) + hexsecond;
     }
     return buf;
 }
