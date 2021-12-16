@@ -23,7 +23,7 @@ void read_cb(void *cb_arg, enum read_err error, db_data value) {
         return;
     }
 
-    if (expected_value.length != value.length) {
+    if (data -> expected_value.length != value.length) {
         printf("Expected length would be %d but was %d for key %s\n", data -> expected_value.length, value.length, data -> key.data);
         return;
     }
