@@ -55,7 +55,8 @@ static short halfbyte(char halfbyte) {
 
 static short byte_to_hex(unsigned char byte) {
     short firstletter = halfbyte(byte & 15);
-    short secondletter = halfbyte((byte & 240)<<4);
+    byte >>=4;
+    short secondletter = halfbyte(byte);
     return (secondletter<<8) + (firstletter);
 }
 
