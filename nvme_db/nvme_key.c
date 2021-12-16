@@ -167,7 +167,8 @@ void *create_db() {
     return state;
 }
 
-void free_db(void *db) {
+void free_db(void *opaque) {
+    struct db_state *db = opaque;
     acq_lock(db);
 
     free(db -> keys);
