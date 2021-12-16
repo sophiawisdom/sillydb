@@ -196,7 +196,7 @@ void write_value_async(void *opaque, db_data key, db_data value, key_write_cb ca
 
     // Write the key itself to the VLA, possibly resizing db -> key_vla
     long long current_key_vla_offset = db -> key_vla_length;
-    if (current_key_vla_offset > db -> key_vla_capacity) { // resize VLA
+    if ((key.length + current_key_vla_offset) > db -> key_vla_capacity) { // resize VLA
         db -> key_vla_capacity *= 2;
         db -> key_vla = realloc(db -> key_vla, db -> key_vla_capacity);
         printf("resizing VLA to %lld\n", db -> key_vla_capacity);
