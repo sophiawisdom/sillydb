@@ -33,7 +33,7 @@ static void flush_writes_cb(void *arg, const struct spdk_nvme_cpl *completion) {
         error = WRITE_IO_ERROR;
     }
 
-    struct write_cb_state *prev_callback;
+    struct write_cb_state *prev_callback = NULL;
     struct write_cb_state *write_callback;
     TAILQ_FOREACH(write_callback, &callback_state -> write_callback_queue, link) {
         free(prev_callback);
