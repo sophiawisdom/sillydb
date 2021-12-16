@@ -189,7 +189,7 @@ void write_zeroes(struct db_state *db, int start_block, int num_blocks) {
     // In theory we could use e.g. write_uncorrectable, or write_zeroes, but the SSD i've been testing on doesn't support those,
     // so instead just actually write zeroes. This is useful for testing.
     void *buf = spdk_zmalloc(db -> sector_size * num_blocks, db -> sector_size, NULL, SPDK_ENV_SOCKET_ID_ANY, SPDK_MALLOC_DMA);
-    memset(buf, 0, db -> sector_size * num_blocks);
+    wmemset(buf, 0xdeadbeef, db -> sector_size * num_blocks / sizeof(int));
     spdk_nvme_ns_cmd_write(
         db -> main_namespace -> ns,
         db -> main_namespace -> qpair,
