@@ -41,6 +41,7 @@ void read_cb(void *cb_arg, enum read_err error, db_data value) {
         printf("Expected data not what was received for key %.16s\n", data -> key.data);
         printf("got: write%.64s (%d)\n", value.data, value.length);
         write(2, value.data, 64);
+        write(2, "just did write\n", 16);
         printf("expected: %.64s (%d)\n", data -> expected_value.data, data -> expected_value.length);
         errors++;
         goto exit;
