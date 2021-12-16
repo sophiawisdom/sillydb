@@ -96,7 +96,7 @@ int main() {
         struct read_cb_data *data = calloc(sizeof(struct read_cb_data), 1);
         data -> key = key;
         data -> expected_value = value;
-        write_value_async(db, key, value, write_callback, NULL);
+        write_value_async(db, key, value, write_callback, data);
     }
 
     poll_db(db);
