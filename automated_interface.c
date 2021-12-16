@@ -33,7 +33,7 @@ void read_cb(void *cb_arg, enum read_err error, db_data value) {
         return;
     }
 
-    printf("Read completed successfully!\n");
+    printf("Read completed with err %d!\n", error);
 }
 
 char *random_bytes(int num_bytes) {
