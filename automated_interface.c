@@ -84,5 +84,9 @@ int main() {
         read_value_async(db, key, read_cb, data);
     }
 
+    poll_db(db);
+    usleep(10000);
+    poll_db(db);
+
     printf("Exiting!\n");
 }
