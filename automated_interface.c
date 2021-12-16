@@ -122,4 +122,5 @@ int main() {
     }
 
     printf("Exiting!\n");
+    free_db(db);
 }
