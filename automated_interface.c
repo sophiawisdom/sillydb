@@ -28,7 +28,7 @@ void read_cb(void *cb_arg, enum read_err error, db_data value) {
         return;
     }
 
-    if (memcmp(value.data, expected_value.data, value.length) != 0) {
+    if (memcmp(value.data, data -> expected_value.data, value.length) != 0) {
         printf("Expected data not what was received for key %s\n", data -> key.data);
         return;
     }
