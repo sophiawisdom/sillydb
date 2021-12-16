@@ -70,7 +70,7 @@ void issue_nvme_read(struct db_state *db, struct ram_stored_key key, key_read_cb
     unsigned long long end_sector = (key.data_loc + key.data_length)/db -> sector_size;
     unsigned long long end_sector_bytes = (key.data_loc + key.data_length)%db -> sector_size;
     printf("reading %lld bytes from sector %lld byte %lld to sector %lld byte %lld for key %.16s\n",
-    bytes_to_read, original_sector, original_sector_bytes, end_sector, end_sector_bytes, (char *)key.data);
+    bytes_to_read, original_sector, original_sector_bytes, end_sector, end_sector_bytes, &db -> key_vla[key.key_offset]);
 
     printf("Starting read at sector %llu for %llu bytes and %lld sectors\n", key_sector, bytes_to_read, sectors_to_read);
     spdk_nvme_ns_cmd_read(
