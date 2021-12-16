@@ -34,7 +34,7 @@ static void flush_writes_cb(void *arg, const struct spdk_nvme_cpl *completion) {
     }
 
     struct write_cb_state *write_callback;
-    TAILQ_FOREACH_SAFE(write_callback, &callback_state -> write_callback_queue, link) {
+    TAILQ_FOREACH(write_callback, &callback_state -> write_callback_queue, link) {
         db -> writes_in_flight--;
         if (error == WRITE_IO_ERROR) {
             // TODO: what to do here when we get an IO error? remove the key is the only thing.
