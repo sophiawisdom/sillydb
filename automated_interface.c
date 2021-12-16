@@ -89,9 +89,10 @@ db_data generate_data() {
     return value;
 }
 
-int main() {
+int main(int argc, char **argv) {
     unsigned int seed = 1234;
-    unsigned int num_keys = 3;
+    unsigned int num_keys = atoi(argv[1]);
+    printf("%d keys\n", num_keys);
     void *db = create_db();
     srandom(seed);
     for (int i = 0; i < num_keys; i++) {
