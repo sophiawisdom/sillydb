@@ -233,7 +233,7 @@ void write_value_async(void *opaque, db_data key, db_data value, key_write_cb ca
     callback_arg -> bytes_written = 0;
     callback_arg -> flag = 0;
     callback_arg -> clock_time_enqueued = get_time_us();
-    TAILQ_INSERT_HEAD(&db -> write_callback_queue, callback_arg, link); // Append the callback to a linked list of write callbacks
+    TAILQ_INSERT_TAIL(&db -> write_callback_queue, callback_arg, link); // Append the callback to a linked list of write callbacks
 
     if (should_flush_writes(db)) {
         flush_writes(db);
