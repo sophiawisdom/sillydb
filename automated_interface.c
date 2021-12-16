@@ -1,5 +1,9 @@
 #include "db_interface.h"
 
+#include <stdlib.h>
+#include <stdio.h>
+
+
 void write_callback(void *cb_arg, enum write_err error) {
     if (error != WRITE_SUCCESSFUL) {
         printf("GOT ERROR: %d\n", error);
