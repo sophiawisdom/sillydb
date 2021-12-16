@@ -64,7 +64,7 @@ void issue_nvme_read(struct db_state *db, struct ram_stored_key key, key_read_cb
     read_cb -> key_header_offset = data_beginning - (key_sector * db -> sector_size);
     read_cb -> data = spdk_zmalloc(db -> sector_size * sectors_to_read, db -> sector_size, NULL, SPDK_ENV_SOCKET_ID_ANY, SPDK_MALLOC_DMA);
 
-    printf("Starting read at sector %llu for %llu bytes\n", key_sector, sectors_to_read);
+    printf("Starting read at sector %llu for %llu bytes\n", key_sector, bytes_to_read);
     spdk_nvme_ns_cmd_read(
         db -> main_namespace -> ns,
         db -> main_namespace -> qpair,
