@@ -84,7 +84,7 @@ db_data generate_key() {
 db_data generate_data() {
     unsigned int data_exp = (random() % 9) + 6;
     unsigned int data_len = (2<<data_exp) + (64-(random()%128));
-    data_len = 64;
+    // data_len = 64;
     db_data value = {.length=data_len, .data=random_bytes(data_len)};
     return value;
 }
