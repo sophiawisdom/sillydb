@@ -151,6 +151,7 @@ void flush_writes(struct db_state *db) {
     }
     d[buf_bytes_written] = 0;
     // printf("buf: %s\n", d);
+    free(d);
 
     // print_keylist(db);
 
