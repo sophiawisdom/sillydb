@@ -147,9 +147,9 @@ void flush_writes(struct db_state *db) {
         d[(i*3)+2] = 32;
     }
     d[buf_bytes_written] = 0;
-    printf("buf: %s\n", d);
+    // printf("buf: %s\n", d);
 
-    print_keylist(db);
+    // print_keylist(db);
 
     printf("Writing %d sectors of data to sector %d\n", sectors_to_write, current_sector);
 
