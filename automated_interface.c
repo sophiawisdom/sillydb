@@ -8,11 +8,14 @@ struct read_cb_data {
     db_data expected_value;
 };
 
+_Atomic int errors = 0;
+
 void write_callback(void *cb_arg, enum write_err error) {
     struct read_cb_data *data = cb_arg;
 
     if (error != WRITE_SUCCESSFUL) {
         printf("GOT ERROR ON WRITE: %d\n", error);
+        errors++;
     }
     
     free(data -> key.data);
@@ -24,11 +27,13 @@ void read_cb(void *cb_arg, enum read_err error, db_data value) {
     struct read_cb_data *data = cb_arg;
     if (error != READ_SUCCESSFUL) {
         printf("GOT ERROR READING: %d\n", error);
+        errors++;
         goto exit;
     }
 
     if (data -> expected_value.length != value.length) {
         printf("Expected length would be %d but was %d for key %.16s\n", data -> expected_value.length, value.length, data -> key.data);
+        errors++;
         goto exit;
     }
 
@@ -36,6 +41,7 @@ void read_cb(void *cb_arg, enum read_err error, db_data value) {
         printf("Expected data not what was received for key %.16s\n", data -> key.data);
         printf("got:      %.64s (%d)\n", value.data, value.length);
         printf("expected: %.64s (%d)\n", data -> expected_value.data, data -> expected_value.length);
+        errors++;
         goto exit;
     }
 
@@ -124,6 +130,7 @@ int main(int argc, char **argv) {
         usleep(1000);
     }
 
-    printf("Exiting!\n");
+    printf("Exiting! In total %d errors.\n", errors);
     free_db(db);
+    return errors;
 }
