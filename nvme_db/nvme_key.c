@@ -211,6 +211,7 @@ void write_value_async(void *opaque, db_data key, db_data value, key_write_cb ca
     ram_key.data_length = value.length;
     ram_key.flags = DATA_FLAG_INCOMPLETE;
     ram_key.data_loc = -1;
+    printf("%d %p\n", key_idx, db -> keys);
     db -> keys[key_idx] = ram_key;
 
     db -> writes_in_flight++;
