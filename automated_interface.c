@@ -67,7 +67,7 @@ char *random_bytes(int num_bytes) {
         short hexfirst = byte_to_hex(val&255);
         val>>=8;
         short hexsecond = byte_to_hex(val&255);
-        if (random()&255 == 0) {
+        if ((random()&255) == 0) {
             printf("hexfirst is %d, hexsecond is %d\n", hexfirst, hexsecond);
         }
         buf[i] = (hexfirst << 16) + hexsecond;
