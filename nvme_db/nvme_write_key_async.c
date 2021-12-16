@@ -40,6 +40,7 @@ static void flush_writes_cb(void *arg, const struct spdk_nvme_cpl *completion) {
         prev_callback = write_callback;
         db -> writes_in_flight--;
         if (error == WRITE_IO_ERROR) {
+            printf("Not setting incomplete false due to IO error\n");
             // TODO: what to do here when we get an IO error? remove the key is the only thing.
         } else {
             db -> keys[write_callback -> key_index].flags &= (255-DATA_FLAG_INCOMPLETE); // set incomplete flag to false
