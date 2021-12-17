@@ -84,9 +84,11 @@ void flush_writes(struct db_state *db) {
     printf("write bytes queued: %d. current_sector_bytes is %d\n", write_bytes_queued, db -> current_sector_bytes);
     unsigned long long data_write_begin = db -> current_sector_bytes + (db -> sector_size * db -> current_sector_ssd);
     double bytes_to_write = db -> current_sector_bytes + write_bytes_queued;
-    unsigned long long sectors_to_write = ceil(bytes_to_write/((double)db -> sector_size)); // e.g. We have 10000 bytes enqueued with a sector length of 4096, so write 3 sectors with 1 partially written
     unsigned long long current_sector = db -> current_sector_ssd; // sector we're going to write to
-    db -> current_sector_ssd += sectors_to_write;
+    printf("current_sector_bytes is %lld, write_bytes_queued %lld, increasing current sector by %d\n",
+    db -> current_sector_bytes, write_bytes_queued, (db -> current_sector_bytes + write_bytes_queued)/db -> sector_size);
+    db -> current_sector_ssd += (db -> current_sector_bytes + write_bytes_queued)/db -> sector_size;
+    unsigned long long sectors_to_write = ceil(bytes_to_write/((double)db -> sector_size)); // e.g. We have 10000 bytes enqueued with a sector length of 4096, so write 3 sectors with 1 partially written
     sectors_to_write = sectors_to_write == 0 ? 1 : sectors_to_write; // at min 1
     unsigned long long write_size = sectors_to_write * db -> sector_size;
 
