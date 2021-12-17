@@ -81,6 +81,7 @@ short byte_to_hex(unsigned char byte) {
 // MUST HAVE LOCK TO CALL THIS FUNCTION
 void flush_writes(struct db_state *db) {
     unsigned long long write_bytes_queued = calc_write_bytes_queued(db);
+    // TODO: fail with error if there's not enough space on the SSD.
     printf("write bytes queued: %d. current_sector_bytes is %d\n", write_bytes_queued, db -> current_sector_bytes);
     double bytes_to_write = db -> current_sector_bytes + write_bytes_queued;
     unsigned long long current_sector = db -> current_sector_ssd; // sector we're going to write to
@@ -145,9 +146,9 @@ void flush_writes(struct db_state *db) {
 
     if (buf_bytes_written < write_size) { // We're writing to 9.5 sectors, so fill out the last .5 with 0s and store the first .5
         // if write_size is 10000 bytes and we end up writing 9400 bytes, we want to 0 out the last 600 and store the first 400.
+        printf("setting %d bytes from %lld to 'a'\n", write_size - buf_bytes_written, buf_bytes_written + current_sector*db -> sector_size)
         db -> current_sector_bytes = db -> sector_size - (write_size - buf_bytes_written);
         memset(&flush_writes_cb_state -> buf[buf_bytes_written], 'a', write_size-buf_bytes_written);
-        printf("setting %d bytes from %lld to 'a'\n", write_size - buf_bytes_written, buf_bytes_written);
         memcpy(db -> current_sector_data, &flush_writes_cb_state -> buf[write_size - db -> sector_size], db -> current_sector_bytes);
     } else {
         db -> current_sector_bytes = 0;

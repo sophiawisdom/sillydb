@@ -10,6 +10,7 @@ enum write_err {
     WRITE_SUCCESSFUL,
     KEY_TOO_LONG,
     WRITE_IO_ERROR,
+    NOT_ENOUGH_SPACE_ERROR,
     GENERIC_WRITE_ERROR,
 };
 
