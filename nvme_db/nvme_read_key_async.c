@@ -111,7 +111,8 @@ void dump_sectors_to_file(void *opaque, int start_lba, int num_lbas) {
         db -> main_namespace -> qpair,
         dump_state -> buf,
         start_lba,
-        num_lbas, // callback
+        num_lbas,
+        sector_read_cb, // callback
         dump_state, // callback arg
         0
     );
