@@ -99,7 +99,7 @@ static void sector_read_cb(struct dump_cb *state, const struct spdk_nvme_cpl *co
 void dump_sectors_to_file(void *opaque, int start_lba, int num_lbas) {
     struct db_state *db = opaque;
     char *filename = calloc(500, 1);
-    sprintf(filename, "/home/sophiawisdom/dump_%d", time());
+    sprintf(filename, "/home/sophiawisdom/dump_%d", time(NULL));
     int fd = open(filename, O_CREAT | O_WRONLY);
     struct dump_cb *dump_state = malloc(sizeof(struct dump_cb));
     dump_state -> fd = fd;
