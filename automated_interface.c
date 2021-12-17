@@ -115,7 +115,7 @@ int main(int argc, char **argv) {
     for (int i = 0; i < num_keys; i++) {
         db_data key = generate_key();
         db_data value = generate_data();
-        bytes_written += key.length + value.length + 7
+        bytes_written += key.length + value.length + 7;
         struct read_cb_data *data = calloc(sizeof(struct read_cb_data), 1);
         data -> key = key;
         data -> expected_value = value;
