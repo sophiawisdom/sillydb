@@ -216,7 +216,8 @@ static void flush_cb(void *arg,  const struct spdk_nvme_cpl *completion) {
     printf("Completed flush\n");
 }
 
-void flush_commands(struct db_state *db) {
+void flush_commands(void *opaque) {
+    struct db_state *db = opaque;
     spdk_nvme_ns_cmd_flush(
         db -> main_namespace -> ns,
         db -> main_namespace -> qpair,
