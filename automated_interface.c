@@ -128,13 +128,14 @@ int main(int argc, char **argv) {
         } else {
             unsigned int waits = atoi(argv[2]);
             flush_commands(db);
+            poll_db(db);
             /*
             for (int i = 0; i < waits; i++) {
                 poll_db(db);
                 usleep(1000);
             }
             */
-            wait_for_no_writes(db);
+            // wait_for_no_writes(db);
         }
     }
     double cpu_diff = clock() - cpu_begin;
