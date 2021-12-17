@@ -6,7 +6,7 @@ include $(SPDK_ROOT_DIR)/mk/nvme.libtest.mk
 
 ifeq ($(OS),Linux)
 SYS_LIBS += -laio
-CFLAGS += -DHAVE_LIBAIO -I../../sillydb -fsanitize=address -DDEBUG
+CFLAGS += -DHAVE_LIBAIO -I../../sillydb -fsanitize=address -DDEBUG=1
 LDFLAGS += -fsanitize=address
 endif
 
