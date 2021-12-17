@@ -61,8 +61,6 @@ attach_cb(void *cb_ctx, const struct spdk_nvme_transport_id *trid,
         exit(1);
     }
 
-    printf("Attached to %s\n", trid->traddr);
-
     /*
      * spdk_nvme_ctrlr is the logical abstraction in SPDK for an NVMe
      *  controller.  During initialization, the IDENTIFY data for the
@@ -73,16 +71,15 @@ attach_cb(void *cb_ctx, const struct spdk_nvme_transport_id *trid,
      */
     cdata = spdk_nvme_ctrlr_get_data(ctrlr);
     
-    printf("about to get data\n");
-
     snprintf(entry->name, sizeof(entry->name), "%-20.20s (%-20.20s)", cdata->mn, cdata->sn);
-
-    printf("snprintf'd name. \n");
 
     entry->ctrlr = ctrlr;
     TAILQ_INSERT_TAIL(&state -> g_controllers, entry, link);
+
+#ifdef DEBUG
+    printf("io queues: %d io_queue_size: %d io_queue_requests: %d \n", opts -> num_io_queues, opts -> io_queue_size, opts -> io_queue_requests);
+#endif
     
-    printf("inserted tail, about to spdk_nvme_ctrlr_get_first_active_ns\n");
     /*
      * Each controller has one or more namespaces.  An NVMe namespace is basically
      *  equivalent to a SCSI LUN.  The controller's IDENTIFY data tells us how
