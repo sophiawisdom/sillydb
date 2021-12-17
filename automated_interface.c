@@ -111,9 +111,11 @@ int main(int argc, char **argv) {
     srandom(seed);
     int cpu_begin = clock();
     unsigned long long wall_begin = GetTimeStamp();
+    unsigned long long bytes_written = 0;
     for (int i = 0; i < num_keys; i++) {
         db_data key = generate_key();
         db_data value = generate_data();
+        bytes_written += key.length + value.length + sizeof(struct ssd_header);
         struct read_cb_data *data = calloc(sizeof(struct read_cb_data), 1);
         data -> key = key;
         data -> expected_value = value;
@@ -137,7 +139,7 @@ int main(int argc, char **argv) {
     }
     double cpu_diff = clock() - cpu_begin;
     double wall_diff = GetTimeStamp() - wall_begin;
-    printf("Took %2.3g seconds of cpu time and %2.3g seconds of wall time to write %d keys\n", cpu_diff/1000000.0, wall_diff/1000000.0, num_keys);
+    printf("Took %2.3g seconds of cpu time and %2.3g seconds of wall time to write %d keys and %d bytes\n", cpu_diff/1000000.0, wall_diff/1000000.0, num_keys, bytes_written);
 
     for (int i = 0; i < 1000; i++) {
         poll_db(db);
