@@ -248,8 +248,6 @@ void read_value_async(void *opaque, db_data read_key, key_read_cb callback, void
     struct db_state *db = opaque;
     acq_lock(db); // ACQUIRE LOCK
 
-    print_keylist(db);
-
     struct ram_stored_key found_key;
     bool found = search_for_key(db, read_key, &found_key);
     if (!found) { // couldn't find key
