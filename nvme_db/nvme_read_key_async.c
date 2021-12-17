@@ -87,7 +87,7 @@ struct dump_cb {
     int fd;
     void *buf;
     int len;
-}
+};
 
 static void sector_read_cb(struct dump_cb *state, const struct spdk_nvme_cpl *completion) {
     write(state -> fd, state -> buf, state -> len);
