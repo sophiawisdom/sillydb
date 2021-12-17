@@ -97,10 +97,10 @@ db_data generate_data() {
     return value;
 }
 
-uint64_t GetTimeStamp() {
+unsigned long long GetTimeStamp() {
     struct timeval tv;
-    gettimeofday(&tv,NULL);
-    return tv.tv_sec*(uint64_t)1000000+tv.tv_usec;
+    gettimeofday(&tv, NULL);
+    return tv.tv_sec*(unsigned long long)1000000+tv.tv_usec;
 }
 
 int main(int argc, char **argv) {
