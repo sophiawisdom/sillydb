@@ -116,7 +116,7 @@ static bool should_flush_writes(struct db_state *db) {
     
     // Check if oldest write in queue has been waiting more than 1ms.
     unsigned long long cur_t = get_time_us();
-    struct write_cb_state *last = TAILQ_FIRST(&db -> write_callback_queue, write_cb_head);
+    struct write_cb_state *last = TAILQ_FIRST(&db -> write_callback_queue);
     unsigned long long elapsed_us = cur_t - last -> clock_time_enqueued;
     if (elapsed_us > 1000) { // more than 1ms
         return true;
