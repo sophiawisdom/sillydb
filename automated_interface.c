@@ -46,7 +46,9 @@ void read_cb(void *cb_arg, enum read_err error, db_data value) {
     }
 
 exit:
+#ifdef DEBUG
     printf("Read completed with err %d!\n", error);
+#endif
     free(data -> key.data);
     free(data -> expected_value.data);
     free(data);
