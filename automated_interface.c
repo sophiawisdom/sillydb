@@ -108,14 +108,15 @@ int main(int argc, char **argv) {
         data -> key = key;
         data -> expected_value = value;
         write_value_async(db, key, value, write_callback, data);
-        if (argc > 2) {
+        if (argc < 2) {
             for (int i = 0; i < 100; i++) {
                 poll_db(db);
                 usleep(10000);
             }
         } else {
+            unsigned int waits = atoi(argv[2]);
             flush_commands(db);
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < waits; i++) {
                 poll_db(db);
                 usleep(1000);
             }
