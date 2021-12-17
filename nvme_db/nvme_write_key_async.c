@@ -146,6 +146,7 @@ void flush_writes(struct db_state *db) {
         // if write_size is 10000 bytes and we end up writing 9400 bytes, we want to 0 out the last 600 and store the first 400.
         db -> current_sector_bytes = db -> sector_size - (write_size - buf_bytes_written);
         memset(&flush_writes_cb_state -> buf[buf_bytes_written], 'a', write_size-buf_bytes_written);
+        printf("setting %d bytes from %lld to 'a'\n", write_size - buf_bytes_written, buf_bytes_written);
         memcpy(db -> current_sector_data, &flush_writes_cb_state -> buf[write_size - db -> sector_size], db -> sector_size);
     } else {
         db -> current_sector_bytes = 0;

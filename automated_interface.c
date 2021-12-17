@@ -14,7 +14,7 @@ void write_callback(void *cb_arg, enum write_err error) {
     struct read_cb_data *data = cb_arg;
 
     if (error != WRITE_SUCCESSFUL) {
-        printf("GOT ERROR ON WRITE: %d\n", error);
+        printf("\n\nGOT ERROR ON WRITE: %d\n\n", error);
         errors++;
     }
     
