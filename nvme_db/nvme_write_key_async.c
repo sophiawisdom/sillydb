@@ -239,7 +239,9 @@ static void flush_cb(void *arg,  const struct spdk_nvme_cpl *completion) {
         fprintf(stderr, "flush failed: I/O error status: %s\n", spdk_nvme_cpl_get_status_string(&completion->status));
         printf("completed flush with error\n");
     } else {
+#ifdef DEBUG
         printf("completed flush successfully\n");
+#endif
     }
 }
 
