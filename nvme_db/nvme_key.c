@@ -147,6 +147,7 @@ void *create_db() {
 
     state -> writes_in_flight = 0;
     state -> reads_in_flight = 0;
+    state -> flushes_in_flight = 0;
 
     if (initialize(state) != 0) {
         free(state -> keys);
