@@ -107,7 +107,6 @@ static bool should_flush_writes(struct db_state *db) {
         return false;
     }
 
-    return true;
     // Check if there are enough bytes enqueued to fill a sector.
     // TODO: possibly store the current number of write bytes enqueued and update it when callbacks are enqueued.
     // Current behavior could get ~O(n^2) with hundreds of tiny callbacks.
@@ -117,7 +116,7 @@ static bool should_flush_writes(struct db_state *db) {
     
     // Check if oldest write in queue has been waiting more than 1ms.
     unsigned long long cur_t = get_time_us();
-    struct write_cb_state *last = TAILQ_LAST(&db -> write_callback_queue, write_cb_head);
+    struct write_cb_state *last = TAILQ_FIRST(&db -> write_callback_queue, write_cb_head);
     unsigned long long elapsed_us = cur_t - last -> clock_time_enqueued;
     if (elapsed_us > 1000) { // more than 1ms
         return true;
