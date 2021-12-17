@@ -33,3 +33,5 @@ void read_value_async(void *db, db_data key, key_read_cb callback, void *cb_arg)
 void poll_db(void *opaque);
 
 void dump_sectors_to_file(void *opaque, int start_lba, int num_blocks);
+
+void flush_commands(void *opaque);

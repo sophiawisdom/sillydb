@@ -113,6 +113,8 @@ int main(int argc, char **argv) {
                 poll_db(db);
                 usleep(10000);
             }
+        } else {
+            flush_commands(db);
         }
     }
 

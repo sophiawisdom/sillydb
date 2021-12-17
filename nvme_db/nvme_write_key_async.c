@@ -211,3 +211,16 @@ void write_zeroes(struct db_state *db, int start_block, int num_blocks) {
         0
     );
 }
+
+static void flush_cb(void *arg,  const struct spdk_nvme_cpl *completion) {
+    printf("Completed flush\n");
+}
+
+void flush_commands(struct db_state *db) {
+    spdk_nvme_ns_cmd_flush(
+        db -> main_namespace -> ns,
+        db -> main_namespace -> qpair,
+        flush_cb,
+        NULL
+    );
+}
