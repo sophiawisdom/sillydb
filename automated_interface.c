@@ -116,7 +116,7 @@ int main(int argc, char **argv) {
         } else {
             unsigned int waits = atoi(argv[2]);
             flush_commands(db);
-            for (int i = 0; i < waits; i++) {
+            while (db -> writes_in_flight) {
                 poll_db(db);
                 usleep(1000);
             }
