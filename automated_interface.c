@@ -115,6 +115,7 @@ int main(int argc, char **argv) {
             }
         } else {
             flush_commands(db);
+            poll_db(db);
         }
     }
 
