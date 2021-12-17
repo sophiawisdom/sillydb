@@ -216,7 +216,7 @@ static void flush_cb(void *arg,  const struct spdk_nvme_cpl *completion) {
     printf("Completed flush\n");
     if (spdk_nvme_cpl_is_error(completion)) {
         // TODO: fix this. go through each write callback and return an error.
-        spdk_nvme_qpair_print_completion(callback_state->ns_entry->qpair, (struct spdk_nvme_cpl *)completion);
+        // spdk_nvme_qpair_print_completion(callback_state->ns_entry->qpair, (struct spdk_nvme_cpl *)completion);
         fprintf(stderr, "flush failed: I/O error status: %s\n", spdk_nvme_cpl_get_status_string(&completion->status));
     }
 }
