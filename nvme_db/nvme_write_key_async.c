@@ -232,3 +232,11 @@ void flush_commands(void *opaque) {
         NULL
     );
 }
+
+void wait_for_no_writes(void *opaque) {
+    struct db_state *db = opaque;
+    while (db -> writes_in_flight) {
+        poll_db(db);
+        usleep(1000);
+    }
+}
