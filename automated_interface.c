@@ -130,6 +130,13 @@ int main(int argc, char **argv) {
         usleep(1000);
     }
 
+    dump_sectors_to_file(0, 10);
+
+    for (int i = 0; i < 1000; i++) {
+        poll_db(db);
+        usleep(1000);
+    }
+
     printf("Exiting! In total %d errors.\n", errors);
     free_db(db);
     return errors;

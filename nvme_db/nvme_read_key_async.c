@@ -82,3 +82,37 @@ void issue_nvme_read(struct db_state *db, struct ram_stored_key key, key_read_cb
     );
     return 0;
 }
+
+struct dump_cb {
+    int fd;
+    void *buf;
+    int len;
+}
+
+static void sector_read_cb(struct dump_cb *state, const struct spdk_nvme_cpl *completion) {
+    write(state -> fd, state -> buf state -> len);
+    spdk_free(state -> buf);
+    free(state);
+    printf("Completed dump successfully\n");
+}
+
+void dump_sectors_to_file(void *opaque, int start_lba, int num_lbas) {
+    struct db_state *db = opaque;
+    char *filename = calloc(500, 1);
+    sprintf(filename, "/home/sophiawisdom/dump_%d", time());
+    int fd = open(filename, O_CREAT | O_WRONLY);
+    struct dump_cb *dump_state = malloc(sizeof(struct dump_cb));
+    dump_state -> fd = fd;
+    dump_state -> buf = spdk_zmalloc(num_lbas * db -> sector_size, db -> sector_size, NULL, SPDK_ENV_SOCKET_ID_ANY, SPDK_MALLOC_DMA);
+    dump_state -> len = db -> sector_size * num_lbas;
+
+    spdk_nvme_ns_cmd_read(
+        db -> main_namespace -> ns,
+        db -> main_namespace -> qpair,
+        dump_state -> buf,
+        start_lba,
+        num_lbas, // callback
+        dump_state, // callback arg
+        0
+    );
+}

@@ -30,3 +30,5 @@ typedef void (*key_read_cb)(void *, enum read_err, db_data);
 void read_value_async(void *db, db_data key, key_read_cb callback, void *cb_arg);
 
 void poll_db(void *opaque);
+
+void dump_sectors_to_file(int start_lba, int num_blocks);
