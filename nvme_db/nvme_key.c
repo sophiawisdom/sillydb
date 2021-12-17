@@ -223,8 +223,6 @@ void write_value_async(void *opaque, db_data key, db_data value, key_write_cb ca
     ram_key.data_loc = -1;
     db -> keys[key_idx] = ram_key;
 
-    db -> writes_in_flight++;
-
     struct write_cb_state *callback_arg = malloc(sizeof(struct write_cb_state)); // FREED BY THE WRITE CALLBACK
     callback_arg -> db = db;
     callback_arg -> callback = callback;

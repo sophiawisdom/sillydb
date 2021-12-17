@@ -118,6 +118,8 @@ void flush_writes(struct db_state *db) {
         struct write_cb_state *write_callback = TAILQ_FIRST(&db -> write_callback_queue);
         unsigned long long size = callback_ssd_size(write_callback);
 
+        db -> writes_in_flight++;
+
         db -> keys[write_callback -> key_index].data_loc = buf_bytes_written + current_sector * db -> sector_size;
 #ifdef DEBUG
         printf("Writing data to %lld\n", db -> keys[write_callback -> key_index].data_loc);
