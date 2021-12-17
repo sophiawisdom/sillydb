@@ -100,6 +100,7 @@ void dump_sectors_to_file(void *opaque, int start_lba, int num_lbas) {
     struct db_state *db = opaque;
     char *filename = calloc(500, 1);
     sprintf(filename, "/home/sophiawisdom/dump_%d", time(NULL));
+    printf("Writing filename %s\n", filename);
     int fd = open(filename, O_CREAT | O_WRONLY, 0x777);
     struct dump_cb *dump_state = malloc(sizeof(struct dump_cb));
     dump_state -> fd = fd;
