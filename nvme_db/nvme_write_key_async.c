@@ -213,7 +213,7 @@ void write_zeroes(struct db_state *db, int start_block, int num_blocks) {
 }
 
 static void flush_cb(void *arg,  const struct spdk_nvme_cpl *completion) {
-    struct db_state *db = opaque;
+    struct db_state *db = arg;
     db -> flushes_in_flight--;
     if (spdk_nvme_cpl_is_error(completion)) {
         // TODO: fix this. go through each write callback and return an error.
