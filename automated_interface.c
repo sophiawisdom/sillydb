@@ -130,7 +130,7 @@ int main(int argc, char **argv) {
         usleep(1000);
     }
 
-    dump_sectors_to_file(0, 10);
+    dump_sectors_to_file(db, 0, 10);
 
     for (int i = 0; i < 1000; i++) {
         poll_db(db);
