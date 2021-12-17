@@ -106,6 +106,8 @@ static bool should_flush_writes(struct db_state *db) {
     if (TAILQ_EMPTY(&db -> write_callback_queue) || db -> writes_in_flight || db -> flushes_in_flight) {
         return false;
     }
+
+    return true;
     // Check if there are enough bytes enqueued to fill a sector.
     // TODO: possibly store the current number of write bytes enqueued and update it when callbacks are enqueued.
     // Current behavior could get ~O(n^2) with hundreds of tiny callbacks.
