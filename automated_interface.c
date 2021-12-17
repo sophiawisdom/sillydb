@@ -135,9 +135,9 @@ int main(int argc, char **argv) {
             wait_for_no_writes(db);
         }
     }
-    double cpu_diff = clock() - begin;
-    double wall_diff = GetTimeStamp()-wall_begin;
-    printf("Took %2.3g seconds of cpu time and %2.3g seconds of wall time to write %d keys\n", cpu_diff/1000000.0, wall_diff/1000000.0 num_keys);
+    double cpu_diff = clock() - cpu_begin;
+    double wall_diff = GetTimeStamp() - wall_begin;
+    printf("Took %2.3g seconds of cpu time and %2.3g seconds of wall time to write %d keys\n", cpu_diff/1000000.0, wall_diff/1000000.0, num_keys);
 
     for (int i = 0; i < 1000; i++) {
         poll_db(db);
