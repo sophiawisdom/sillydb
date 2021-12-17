@@ -97,13 +97,20 @@ db_data generate_data() {
     return value;
 }
 
+uint64_t GetTimeStamp() {
+    struct timeval tv;
+    gettimeofday(&tv,NULL);
+    return tv.tv_sec*(uint64_t)1000000+tv.tv_usec;
+}
+
 int main(int argc, char **argv) {
     unsigned int seed = 1234;
     unsigned int num_keys = atoi(argv[1]);
     printf("%d keys\n", num_keys);
     void *db = create_db();
     srandom(seed);
-    int begin = clock();
+    int cpu_begin = clock();
+    unsigned long long wall_begin = GetTimeStamp();
     for (int i = 0; i < num_keys; i++) {
         db_data key = generate_key();
         db_data value = generate_data();
@@ -128,8 +135,9 @@ int main(int argc, char **argv) {
             wait_for_no_writes(db);
         }
     }
-    double diff = clock() - begin;
-    printf("Took %2.3g seconds to write %d keys\n", diff/1000000.0, num_keys);
+    double cpu_diff = clock() - begin;
+    double wall_diff = GetTimeStamp()-wall_begin;
+    printf("Took %2.3g seconds of cpu time and %2.3g seconds of wall time to write %d keys\n", cpu_diff/1000000.0, wall_diff/1000000.0 num_keys);
 
     for (int i = 0; i < 1000; i++) {
         poll_db(db);
