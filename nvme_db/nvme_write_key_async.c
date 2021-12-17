@@ -33,7 +33,9 @@ static void flush_writes_cb(void *arg, const struct spdk_nvme_cpl *completion) {
         error = WRITE_IO_ERROR;
     }
 
+#ifdef DEBUG
     printf("Got write callback\n");
+#endif
 
     struct write_cb_state *prev_callback = NULL;
     struct write_cb_state *write_callback;
@@ -46,7 +48,9 @@ static void flush_writes_cb(void *arg, const struct spdk_nvme_cpl *completion) {
             // TODO: what to do here when we get an IO error? remove the key is the only thing.
         } else {
             db -> keys[write_callback -> key_index].flags &= (255-DATA_FLAG_INCOMPLETE); // set incomplete flag to false
+#ifdef DEBUG
             printf("Setting index %d to complete\n", write_callback -> key_index);
+#endif
         }
         // db -> keys[write_callback -> key_index].data_loc = write_callback -> ssd_loc;
         
@@ -82,12 +86,16 @@ short byte_to_hex(unsigned char byte) {
 void flush_writes(struct db_state *db) {
     unsigned long long write_bytes_queued = calc_write_bytes_queued(db);
     // TODO: fail with error if there's not enough space on the SSD.
+#ifdef DEBUG
     printf("write bytes queued: %d. current_sector_bytes is %d\n", write_bytes_queued, db -> current_sector_bytes);
+#endif
     double bytes_to_write = db -> current_sector_bytes + write_bytes_queued;
     unsigned long long current_sector = db -> current_sector_ssd; // sector we're going to write to
     db -> current_sector_ssd += (db -> current_sector_bytes + write_bytes_queued)/db -> sector_size;
-        printf("current_sector_bytes is %lld, write_bytes_queued %lld, increasing current sector by %d to %d\n",
+#ifdef DEBUG
+    printf("current_sector_bytes is %lld, write_bytes_queued %lld, increasing current sector by %d to %d\n",
     db -> current_sector_bytes, write_bytes_queued, (db -> current_sector_bytes + write_bytes_queued)/db -> sector_size, db -> current_sector_ssd);
+#endif
     unsigned long long sectors_to_write = ceil(bytes_to_write/((double)db -> sector_size)); // e.g. We have 10000 bytes enqueued with a sector length of 4096, so write 3 sectors with 1 partially written
     sectors_to_write = sectors_to_write == 0 ? 1 : sectors_to_write; // at min 1
     unsigned long long write_size = sectors_to_write * db -> sector_size;
@@ -102,14 +110,18 @@ void flush_writes(struct db_state *db) {
     unsigned long long buf_bytes_written = db -> current_sector_bytes;
     if (db -> current_sector_bytes) {
         memcpy(flush_writes_cb_state -> buf, db -> current_sector_data, db -> current_sector_bytes);
+#ifdef DEBUG
         printf("Copying first %lld bytes into flush writes cb state: %.64s\n", db -> current_sector_bytes, db -> current_sector_data);
+#endif
     }
     while (!TAILQ_EMPTY(&db -> write_callback_queue)) {
         struct write_cb_state *write_callback = TAILQ_FIRST(&db -> write_callback_queue);
         unsigned long long size = callback_ssd_size(write_callback);
 
         db -> keys[write_callback -> key_index].data_loc = buf_bytes_written + current_sector * db -> sector_size;
+#ifdef DEBUG
         printf("Writing data to %lld\n", db -> keys[write_callback -> key_index].data_loc);
+#endif
 
         // Two important non-regular scenarios here: 1) it's a 'synthetic' callback where
         // part of the data has already been written to the ssd. 2) we can't write all the
@@ -138,8 +150,10 @@ void flush_writes(struct db_state *db) {
         unsigned long long original_sector_bytes = db -> keys[write_callback -> key_index].data_loc % db -> sector_size;
         unsigned long long end_sector = (db -> keys[write_callback -> key_index].data_loc + bytes_written)/db -> sector_size;
         unsigned long long end_sector_bytes = (db -> keys[write_callback -> key_index].data_loc + bytes_written)%db -> sector_size;
+#ifdef DEBUG
         printf("Wrote %lld bytes from sector %lld byte %lld to sector %lld byte %lld for key %.16s\n",
         bytes_written, original_sector, original_sector_bytes, end_sector, end_sector_bytes, (char *)write_callback -> key.data);
+#endif
 
         TAILQ_REMOVE(&db -> write_callback_queue, write_callback, link);
         TAILQ_INSERT_TAIL(&flush_writes_cb_state -> write_callback_queue, write_callback, link);
@@ -147,7 +161,9 @@ void flush_writes(struct db_state *db) {
 
     if (buf_bytes_written < write_size) { // We're writing to 9.5 sectors, so fill out the last .5 with 0s and store the first .5
         // if write_size is 10000 bytes and we end up writing 9400 bytes, we want to 0 out the last 600 and store the first 400.
+#ifdef DEBUG
         printf("setting %d bytes from %lld to 'a'\n", write_size - buf_bytes_written, buf_bytes_written + (current_sector*db -> sector_size));
+#endif
         db -> current_sector_bytes = db -> sector_size - (write_size - buf_bytes_written);
         memset(&flush_writes_cb_state -> buf[buf_bytes_written], 'a', write_size-buf_bytes_written);
         memcpy(db -> current_sector_data, &flush_writes_cb_state -> buf[write_size - db -> sector_size], db -> current_sector_bytes);
@@ -156,7 +172,9 @@ void flush_writes(struct db_state *db) {
         memset(db -> current_sector_data, 'b', db -> sector_size);
     }
 
+#ifdef DEBUG
     printf("Wrote %lld bytes. Set current_sector_bytes to %lld\n", buf_bytes_written, db -> current_sector_bytes);
+#endif
     char *d = calloc(buf_bytes_written+1, 3);
     char *char_buf = flush_writes_cb_state -> buf;
     for (int i = 0; i < buf_bytes_written; i++) {
@@ -169,9 +187,9 @@ void flush_writes(struct db_state *db) {
     free(d);
 
     // print_keylist(db);
-
+#ifdef DEBUG
     printf("Writing %d sectors of data to sector %d\n", sectors_to_write, current_sector);
-
+#endif
     spdk_nvme_ns_cmd_write(
         db -> main_namespace -> ns,
         db -> main_namespace -> qpair,

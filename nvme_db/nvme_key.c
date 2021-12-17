@@ -125,9 +125,11 @@ static bool should_flush_writes(struct db_state *db) {
 }
 
 static void print_key(struct db_state *db, struct ram_stored_key key) {
+#ifdef DEBUG
             printf("Key has length %d, hash %d, vla offset %d, flags %d, data length %d data loc %llu\n",
         key.key_length, key.key_hash, key.key_offset, key.flags, key.data_length, key.data_loc);
         // printf("key itself is %s\n", db -> key_vla + key.key_offset); // todo print only till end of key
+#endif
 }
 
 // PUBLIC API
@@ -162,7 +164,6 @@ void *create_db() {
 
     TAILQ_INIT(&state -> write_callback_queue);
 
-    printf("Freeing first 50000 blocks\n");
     write_zeroes(state, 0, 50000);
     
     return state;
@@ -219,7 +220,6 @@ void write_value_async(void *opaque, db_data key, db_data value, key_write_cb ca
     ram_key.data_length = value.length;
     ram_key.flags = DATA_FLAG_INCOMPLETE;
     ram_key.data_loc = -1;
-    printf("%d %p\n", key_idx, db -> keys);
     db -> keys[key_idx] = ram_key;
 
     db -> writes_in_flight++;
@@ -264,8 +264,10 @@ void read_value_async(void *opaque, db_data read_key, key_read_cb callback, void
         return;
     }
 
+#ifdef DEBUG
     printf("Trying to read key: %.16s at %llu\n", read_key.data, found_key.data_loc);
     print_key(db, found_key);
+#endif
 
     db -> reads_in_flight++;
     issue_nvme_read(db, found_key, callback, cb_arg);
@@ -277,7 +279,9 @@ void poll_db(void *opaque) {
     acq_lock(db); // ACQUIRE LOCK
     
     if (should_flush_writes(db)) {
+#ifdef DEBUG
         printf("flushing writes\n");
+#endif
         flush_writes(db);
     }
 
@@ -289,9 +293,8 @@ void print_keylist(struct db_state *db) {
     // acq_lock(db);
 
     for (int i = 0; i < db -> num_key_entries; i++) {
-        //printf("Key entry %d\n", i);
         struct ram_stored_key key = db -> keys[i];
-        //print_key(db, key);
+        print_key(db, key);
     }
 
     // release_lock(db);

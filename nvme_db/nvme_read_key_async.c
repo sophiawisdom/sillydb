@@ -26,7 +26,9 @@ static void
 read_complete(struct read_cb_state *arg, const struct spdk_nvme_cpl *completion)
 {
     arg -> db -> reads_in_flight--; // don't need to lock here because this key doesn't need a lock
+#ifdef DEBUG
     printf("read has completed! data_length is %d\n", arg -> data_length);
+#endif
 
     /* See if an error occurred. If so, display information
      * about it, and set completion value so that I/O
@@ -52,7 +54,9 @@ end:
 
 void issue_nvme_read(struct db_state *db, struct ram_stored_key key, key_read_cb callback, void *cb_arg) {
     unsigned long long data_beginning = key.data_loc + sizeof(struct ssd_header) + key.key_length;
+#ifdef DEBUG
     printf("data_beginning is %llu, data_loc is %llu\n", data_beginning, key.data_loc);
+#endif
     unsigned long long key_sector = data_beginning/db -> sector_size;
     unsigned long long bytes_within_sector = data_beginning - (key_sector * db -> sector_size);
     unsigned long long bytes_to_read = key.data_length;
@@ -66,10 +70,10 @@ void issue_nvme_read(struct db_state *db, struct ram_stored_key key, key_read_cb
     read_cb -> data = spdk_zmalloc(db -> sector_size * sectors_to_read, db -> sector_size, NULL, SPDK_ENV_SOCKET_ID_ANY, SPDK_MALLOC_DMA);
 
     unsigned long long end_sector_bytes = (data_beginning + key.data_length)%db -> sector_size;
+#ifdef DEBUG
     printf("reading %lld bytes from sector %lld byte %lld to sector %lld byte %lld for key %.16s\n",
     bytes_to_read, key_sector, bytes_within_sector, key_sector + sectors_to_read - 1, end_sector_bytes, &db -> key_vla[key.key_offset]);
-
-    printf("Starting read at sector %llu for %llu bytes and %lld sectors\n", key_sector, bytes_to_read, sectors_to_read);
+#endif
     spdk_nvme_ns_cmd_read(
         db -> main_namespace -> ns,
         db -> main_namespace -> qpair,
