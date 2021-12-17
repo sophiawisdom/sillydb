@@ -108,9 +108,11 @@ int main(int argc, char **argv) {
         data -> key = key;
         data -> expected_value = value;
         write_value_async(db, key, value, write_callback, data);
-        for (int i = 0; i < (argc > 2 ? 100 : 0); i++) {
-            poll_db(db);
-            usleep(10000);
+        if (argc > 2) {
+            for (int i = 0; i < 100; i++) {
+                poll_db(db);
+                usleep(10000);
+            }
         }
     }
 
