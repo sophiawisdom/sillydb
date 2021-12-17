@@ -102,6 +102,7 @@ void dump_sectors_to_file(void *opaque, int start_lba, int num_lbas) {
     sprintf(filename, "/home/sophiawisdom/dump_%d", time(NULL));
     printf("Writing filename %s\n", filename);
     int fd = open(filename, O_CREAT | O_WRONLY, 0x777);
+    free(filename);
     struct dump_cb *dump_state = malloc(sizeof(struct dump_cb));
     dump_state -> fd = fd;
     dump_state -> buf = spdk_zmalloc(num_lbas * db -> sector_size, db -> sector_size, NULL, SPDK_ENV_SOCKET_ID_ANY, SPDK_MALLOC_DMA);
