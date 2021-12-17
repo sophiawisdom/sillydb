@@ -137,8 +137,6 @@ int main(int argc, char **argv) {
             */
             // wait_for_no_writes(db);
         }
-        free(key.data);
-        free(value.data);
     }
     double cpu_diff = clock() - cpu_begin;
     double wall_diff = GetTimeStamp() - wall_begin;
