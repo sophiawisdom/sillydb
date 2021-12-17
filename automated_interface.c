@@ -103,6 +103,7 @@ int main(int argc, char **argv) {
     printf("%d keys\n", num_keys);
     void *db = create_db();
     srandom(seed);
+    int begin = clock();
     for (int i = 0; i < num_keys; i++) {
         db_data key = generate_key();
         db_data value = generate_data();
@@ -118,13 +119,17 @@ int main(int argc, char **argv) {
         } else {
             unsigned int waits = atoi(argv[2]);
             flush_commands(db);
+            /*
             for (int i = 0; i < waits; i++) {
                 poll_db(db);
                 usleep(1000);
             }
-            // wait_for_no_writes(db);
+            */
+            wait_for_no_writes(db);
         }
     }
+    double diff = clock() - begin;
+    printf("Took %2.3g seconds to write %d keys\n", diff/1000000.0, num_keys);
 
     for (int i = 0; i < 1000; i++) {
         poll_db(db);
