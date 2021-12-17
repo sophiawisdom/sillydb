@@ -68,7 +68,7 @@ static short byte_to_hex(unsigned char byte) {
     return (secondletter<<8) + (firstletter);
 }
 
-char *random_bytes(int num_bytes) {
+static char *random_bytes(int num_bytes) {
     unsigned int num_ints = (num_bytes>>2) + ((num_bytes&3) ? 1 : 0);
     int *buf = malloc(num_ints*sizeof(int));
     for (int i = 0; i < num_ints; i++) {
