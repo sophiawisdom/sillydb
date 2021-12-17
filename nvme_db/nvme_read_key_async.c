@@ -100,7 +100,7 @@ void dump_sectors_to_file(void *opaque, int start_lba, int num_lbas) {
     struct db_state *db = opaque;
     char *filename = calloc(500, 1);
     sprintf(filename, "/home/sophiawisdom/dump_%d", time(NULL));
-    int fd = open(filename, O_CREAT | O_WRONLY);
+    int fd = open(filename, O_CREAT | O_WRONLY, 0x777);
     struct dump_cb *dump_state = malloc(sizeof(struct dump_cb));
     dump_state -> fd = fd;
     dump_state -> buf = spdk_zmalloc(num_lbas * db -> sector_size, db -> sector_size, NULL, SPDK_ENV_SOCKET_ID_ANY, SPDK_MALLOC_DMA);
