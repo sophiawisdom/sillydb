@@ -213,6 +213,8 @@ void write_zeroes(struct db_state *db, int start_block, int num_blocks) {
 }
 
 static void flush_cb(void *arg,  const struct spdk_nvme_cpl *completion) {
+    struct db_state *db = opaque;
+    db -> flushes_in_flight--;
     if (spdk_nvme_cpl_is_error(completion)) {
         // TODO: fix this. go through each write callback and return an error.
         // spdk_nvme_qpair_print_completion(callback_state->ns_entry->qpair, (struct spdk_nvme_cpl *)completion);
@@ -225,17 +227,18 @@ static void flush_cb(void *arg,  const struct spdk_nvme_cpl *completion) {
 
 void flush_commands(void *opaque) {
     struct db_state *db = opaque;
+    db -> flushes_in_flight++;
     spdk_nvme_ns_cmd_flush(
         db -> main_namespace -> ns,
         db -> main_namespace -> qpair,
         flush_cb,
-        NULL
+        db
     );
 }
 
 void wait_for_no_writes(void *opaque) {
     struct db_state *db = opaque;
-    while (db -> writes_in_flight) {
+    while (db -> writes_in_flight || db -> flushes_in_flight) {
         poll_db(db);
         usleep(1000);
     }
