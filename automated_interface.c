@@ -115,7 +115,10 @@ int main(int argc, char **argv) {
             }
         } else {
             flush_commands(db);
-            poll_db(db);
+            for (int i = 0; i < 10; i++) {
+                poll_db(db);
+                usleep(1000);
+            }
         }
     }
 
