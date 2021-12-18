@@ -70,6 +70,7 @@ static bool search_for_key(struct db_state *db, db_data search_key, struct ram_s
     if (db -> nodes[0].key_idx == -1) { // If there are no nodes, create the first node.
         if (insert) {
             db -> nodes[0] = (struct key_node){.key_idx=db -> num_key_entries, .left_idx = -1, .right_idx = -1};
+            printf("Inserted node %d\n", db -> num_key_entries);
         }
         return false;
     }
