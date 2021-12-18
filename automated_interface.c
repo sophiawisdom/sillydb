@@ -77,7 +77,7 @@ static short byte_to_hex(unsigned char byte) {
 
 struct data_generator {
     _Atomic void *data; // Each datas() has 64kb of random numbers
-    _Atomic int datas_valid;
+    _Atomic int data_used;
 
     _Atomic bool reset;
 };
@@ -90,13 +90,13 @@ static char *random_bytes(struct data_generator *gen, int num_bytes) {
         while (!gen -> data) {
             usleep(1000);
         }
-        int gen_bytes = (64*1024) - gen -> datas_valid;
+        int gen_bytes = (64*1024) - gen -> data_used;
         int min_bytes = gen_bytes < num_bytes ? gen_bytes : num_bytes;
-        memcpy(buf + buf_location, gen -> data + gen -> datas_valid, min_bytes);
+        memcpy(buf + buf_location, gen -> data + gen -> data_used, min_bytes);
         buf_location += min_bytes;
         num_bytes -= min_bytes;
-        gen -> datas_valid += min_bytes;
-        if (gen -> datas_valid == (64*1024)) {
+        gen -> data_used += min_bytes;
+        if (gen -> data_used >= (64*1024)) {
             free(gen -> data);
             gen -> data = NULL;
         }
@@ -150,6 +150,7 @@ int data_thread(struct data_generator *generator) {
         }
 
         if (generator -> data == 0) {
+            generator -> data_used = 0;
             generator -> data = data;
         }
     }
@@ -162,7 +163,7 @@ int data_thread(struct data_generator *generator) {
         }
 
         if (generator -> data == 0) {
-            generator -> datas_valid = 0;
+            generator -> data_used = 0;
             generator -> data = data;
         }
     }
@@ -177,7 +178,7 @@ int main(int argc, char **argv) {
     pthread_t thread_id = 0;
     struct data_generator *data_gen = calloc(sizeof(struct data_generator), 1);
     data_gen -> data = NULL;
-    data_gen -> datas_valid = 0;
+    data_gen -> data_used = 0;
     pthread_create(&thread_id, NULL, data_thread, data_gen);
     void *db = create_db();
     srandom(seed);
