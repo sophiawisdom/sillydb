@@ -170,7 +170,7 @@ int main(int argc, char **argv) {
     pthread_t thread_id = 0;
     struct data_generator *data_gen = calloc(sizeof(struct data_generator), 1);
     data_gen -> data = NULL;
-    data_gen -> valid_datas = 0;
+    data_gen -> datas_valid = 0;
     pthread_create(&thread_id, NULL, data_thread, data_gen);
     void *db = create_db();
     srandom(seed);
