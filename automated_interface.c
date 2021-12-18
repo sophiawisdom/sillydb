@@ -205,8 +205,8 @@ int main(int argc, char **argv) {
 
     srandom(seed);
     for (int i = 0; i < num_keys; i++) {
-        db_data key = generate_key();
-        db_data value = generate_data();
+        db_data key = generate_key(data_gen);
+        db_data value = generate_data(data_gen);
         struct read_cb_data *data = calloc(sizeof(struct read_cb_data), 1);
         data -> key = key;
         data -> expected_value = value;
