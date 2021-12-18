@@ -158,7 +158,7 @@ int data_thread(struct data_generator *generator) {
 
 int main(int argc, char **argv) {
     unsigned int seed = 5678;
-    unsigned int num_keys = atoi(argv[1]);
+    int num_keys = atoi(argv[1]);
     printf("%d keys. pid %d\n", num_keys, getpid());
     pthread_t thread_id = 0;
     struct data_generator *data_gen = calloc(sizeof(struct data_generator), 1);
