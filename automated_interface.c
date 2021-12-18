@@ -133,8 +133,8 @@ int data_thread(struct data_generator *generator) {
     char   random_state[128];
     memset(&buffer, 0, sizeof(struct random_data));
     memset(random_state, 0, sizeof(random_state));
-    initstate_r(seed,random_state,sizeof(random_state),&buffer);
-    srandom_r(seed, &buffer);
+    initstate_r(data_seed,random_state,sizeof(random_state),&buffer);
+    srandom_r(data_seed, &buffer);
 
     while (!generator -> reset) {
         _Atomic void *data = malloc(64*1024);
@@ -147,7 +147,7 @@ int data_thread(struct data_generator *generator) {
         }
     }
 
-    srandom_r(data_seed, state_buf);
+    srandom_r(data_seed, &buffer);
     while (1) {
         int *data = malloc(64*1024);
         for (int i = 0; i < (16*1024); i++) {
