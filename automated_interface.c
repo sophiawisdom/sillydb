@@ -153,7 +153,7 @@ int data_thread(struct data_generator *generator) {
         while (generator -> data != 0 && !generator -> reset) {
             usleep(1000);
         }
-        if (!generator -> reset) {
+        if (generator -> reset) {
             break;
         }
 
