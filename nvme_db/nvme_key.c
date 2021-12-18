@@ -67,10 +67,13 @@ static unsigned int hash_key(db_data key) {
 static bool search_for_key(struct db_state *db, db_data search_key, struct ram_stored_key *found_key, bool insert) {
     unsigned int key_hash = hash_key(search_key);
 
-    if (db -> nodes[0].key_idx == -1) { // If there are no nodes, create the first node.
+    if (db -> num_nodes == 0) { // If there are no nodes, create the first node.
         if (insert) {
             db -> nodes[0] = (struct key_node){.key_idx=db -> num_key_entries, .left_idx = -1, .right_idx = -1};
-            printf("Inserted node %d\n", db -> num_key_entries);
+            db -> num_nodes++;
+#ifdef DEBUG
+            printf("Inserted node key %.16s as first key\n", search_key.data);
+#endif
         }
         return false;
     }
@@ -181,7 +184,6 @@ void *create_db() {
     state -> keys = calloc(sizeof(struct ram_stored_key), INITIAL_CAPACITY);
 
     state -> nodes = malloc(sizeof(struct key_node) * INITIAL_CAPACITY);
-    state -> nodes[0].key_idx = -1;
     state -> num_nodes = 0;
     state -> node_capacity = INITIAL_CAPACITY;
 
