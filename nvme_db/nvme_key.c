@@ -238,20 +238,24 @@ void write_value_async(void *opaque, db_data key, db_data value, key_write_cb ca
     struct db_state *db = opaque;
     acq_lock(db);
 
+    enum write_err err = WRITE_SUCCESSFUL;
     if (key.length == 0) {
-        return KEY_TOO_SHORT_ERROR;
+        err = KEY_TOO_SHORT_ERROR;
     } else if (key.length > (1<<16)) {
-        return KEY_TOO_LONG_ERROR;
-    }
-    if (value.length == 0) {
-        return VALUE_TOO_SHORT_ERROR;
+        err = KEY_TOO_LONG_ERROR;
+    } else if (value.length == 0) {
+        err = VALUE_TOO_SHORT_ERROR;
     } else if (value.length >= (1<<32)) {
-        return VALUE_TOO_LONG_ERROR;
+        err = VALUE_TOO_LONG_ERROR;
+    }
+    if (err != WRITE_SUCCESSFUL) {
+        release_lock(db);
+        callback(cb_arg, err);
     }
 
     // Check if the key exists already, which requires special logic that's not yet implemented.
     struct ram_stored_key prev_key;
-    if (node_capacity <= num_nodes) {
+    if (db -> node_capacity <= db -> num_nodes) {
         db -> node_capacity *= 2;
         db -> nodes = realloc(db -> nodes, db -> node_capacity * sizeof(struct key_node));
         printf("resizing node area\n");
