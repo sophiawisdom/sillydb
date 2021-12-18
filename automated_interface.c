@@ -97,8 +97,8 @@ static char *random_bytes(struct data_generator *gen, int num_bytes) {
         num_bytes -= min_bytes;
         gen -> datas_valid += min_bytes;
         if (gen -> datas_valid == (64*1024)) {
-            free(gen -> datas);
-            gen -> datas = NULL;
+            free(gen -> data);
+            gen -> data = NULL;
         }
     }
     return buf;
