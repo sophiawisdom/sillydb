@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include <pthread.h>
+#include <unistd.h>
+#include <types.h>
 
 #include <stdatomic.h>
 #include <stdbool.h>
