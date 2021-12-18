@@ -109,7 +109,7 @@ unsigned long long GetTimeStamp() {
 int main(int argc, char **argv) {
     unsigned int seed = 5678;
     unsigned int num_keys = atoi(argv[1]);
-    printf("%d keys\n", num_keys);
+    printf("%d keys. pid %d\n", num_keys, getpid());
     void *db = create_db();
     srandom(seed);
     int cpu_begin = clock();
