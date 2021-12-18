@@ -5,7 +5,7 @@
 #include <time.h>
 #include <pthread.h>
 #include <unistd.h>
-#include <types.h>
+#include <sys/types.h>
 
 #include <stdatomic.h>
 #include <stdbool.h>
