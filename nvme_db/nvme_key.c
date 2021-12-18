@@ -79,13 +79,13 @@ static bool search_for_key(struct db_state *db, db_data search_key, struct ram_s
         struct node_key cur_node = db -> nodes[node_idx];
 
         // We use three different levels of comparison to try to reduce the odds of a memcmp().
+        struct ram_stored_key cur_key = db -> keys[cur_node.key_idx];
         bool left = cur_key.key_hash < key_hash;
         if (cur_key.key_hash == key_hash) {
-            struct ram_stored_key cur_key = db -> keys[cur_node.key_idx];
             left = cur_key.key_length < search_key.length;
             if (cur_key.key_length == search_key.length) {
                 int resp = memcmp(search_key.data, db -> key_vla + cur_key.key_offset, cur_key.key_length);
-                left = resp == -1
+                left = resp == -1;
                 if (resp == 0) {
                     // We've got a match
                     *found_key = cur_key;

@@ -46,7 +46,7 @@ struct key_node {
 
     int left_idx; // idx in tree. -1 == NULL.
     int right_idx;
-}
+};
 
 // header for all nvme data
 __attribute__((packed))
