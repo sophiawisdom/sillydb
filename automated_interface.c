@@ -129,13 +129,17 @@ unsigned long long GetTimeStamp() {
 int data_thread(struct data_generator *generator) {
     printf("data thread started!\n");
     unsigned int data_seed = 8901;
-    char *data_buf = malloc(32);
-    char *state_buf = malloc(32);
-    initstate_r(data_seed, data_buf, 32, state_buf);
+    struct random_data buffer;
+    char   random_state[128];
+    memset(&buffer, 0, sizeof(struct random_data));
+    memset(random_state, 0, sizeof(random_state));
+    initstate_r(seed,random_state,sizeof(random_state),&buffer);
+    srandom_r(seed, &buffer);
+
     while (!generator -> reset) {
         _Atomic void *data = malloc(64*1024);
         for (int i = 0; i < (64*1024); i+=4) {
-            random_r(data_buf, data + i);
+            random_r(buffer, data + i);
         }
 
         if (generator -> data == 0) {
@@ -147,7 +151,7 @@ int data_thread(struct data_generator *generator) {
     while (1) {
         int *data = malloc(64*1024);
         for (int i = 0; i < (16*1024); i++) {
-            random_r(data_buf, &data[i]);
+            random_r(buffer, &data[i]);
         }
 
         if (generator -> data == 0) {
