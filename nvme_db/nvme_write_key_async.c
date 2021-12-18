@@ -172,18 +172,7 @@ void flush_writes(struct db_state *db) {
 #ifdef DEBUG
     printf("Wrote %lld bytes. Set current_sector_bytes to %lld\n", buf_bytes_written, db -> current_sector_bytes);
 #endif
-    char *d = calloc(buf_bytes_written+1, 3);
-    char *char_buf = flush_writes_cb_state -> buf;
-    for (int i = 0; i < buf_bytes_written; i++) {
-        short hex = byte_to_hex(char_buf[i]);
-        memcpy(&d[i*3], &hex, 2);
-        d[(i*3)+2] = 32;
-    }
-    d[buf_bytes_written] = 0;
-    // printf("buf: %s\n", d);
-    free(d);
 
-    // print_keylist(db);
 #ifdef DEBUG
     printf("Writing %d sectors of data to sector %d\n", sectors_to_write, current_sector);
 #endif
