@@ -76,7 +76,7 @@ static bool search_for_key(struct db_state *db, db_data search_key, struct ram_s
 
     int node_idx = 0;
     while (1) {
-        struct node_key cur_node = db -> nodes[node_idx];
+        struct key_node cur_node = db -> nodes[node_idx];
 
         // We use three different levels of comparison to try to reduce the odds of a memcmp().
         struct ram_stored_key cur_key = db -> keys[cur_node.key_idx];
@@ -134,16 +134,6 @@ unsigned long long calc_write_bytes_queued(struct db_state *db) {
         write_bytes_queued += callback_ssd_size(write_callback);
     }
     return write_bytes_queued;
-}
-
-int compar(struct ram_stored_key *first, struct ram_stored_key *second) {
-    if (first -> key_hash < second -> key_hash) {
-        return -1;
-    } else if (first -> key_hash == second -> key_hash) {
-        return 0;
-    } else {
-        return 1;
-    }
 }
 
 // MUST HAVE LOCK TO CALL THIS FUNCTION
@@ -240,11 +230,11 @@ void write_value_async(void *opaque, db_data key, db_data value, key_write_cb ca
     enum write_err err = WRITE_SUCCESSFUL;
     if (key.length == 0) {
         err = KEY_TOO_SHORT_ERROR;
-    } else if (key.length > (1<<16)) {
+    } else if (key.length > (1ULL<<16)) {
         err = KEY_TOO_LONG_ERROR;
     } else if (value.length == 0) {
         err = VALUE_TOO_SHORT_ERROR;
-    } else if (value.length >= (1<<32)) {
+    } else if (value.length >= (1ULL<<32)) {
         err = VALUE_TOO_LONG_ERROR;
     }
     if (err != WRITE_SUCCESSFUL) {
