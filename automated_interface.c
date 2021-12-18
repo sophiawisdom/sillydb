@@ -91,7 +91,7 @@ static char *random_bytes(struct data_generator *gen, int num_bytes) {
             usleep(1000);
         }
         int gen_bytes = (64*1024) - gen -> datas_valid;
-        int min_bytes = gen_bytes < num_bytes ? gen_bytes : gen_bytes : num_bytes;
+        int min_bytes = gen_bytes < num_bytes ? gen_bytes : num_bytes;
         memcpy(buf + buf_location, gen -> data + gen -> datas_valid, min_bytes);
         buf_location += min_bytes;
         num_bytes -= min_bytes;
