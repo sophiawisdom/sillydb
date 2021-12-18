@@ -149,6 +149,10 @@ int data_thread(struct data_generator *generator) {
 #endif
         }
 
+        while (generator -> data != 0) {
+            usleep(1000);
+        }
+
         if (generator -> data == 0) {
             generator -> data_used = 0;
             generator -> data = data;
