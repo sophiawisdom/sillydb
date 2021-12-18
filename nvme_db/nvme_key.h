@@ -31,14 +31,22 @@ struct ns_entry {
 
 __attribute__((packed))
 struct ram_stored_key {
-    unsigned short key_length;
-    unsigned short key_hash; // for speed. we have a shitty architecture where you have to search through the entire list of keys to find any key.
-    unsigned int key_offset;
+    unsigned int key_hash; // for speed. we have a shitty architecture where you have to search through the entire list of keys to find any key.
+    unsigned int key_offset; // Offset in key_vla
+    unsigned short key_length; // max key length: 2^16
 
     char flags; // contains flags, notably DATA_FLAG_INCOMPLETE which indicates whether the data is yet to be written to disk.
-    unsigned int data_length;
+    unsigned int data_length; // max data length: 2^32
     long long data_loc; // location within ssd.
 };
+
+__attribute__((packed))
+struct key_node {
+    int key_idx; // idx in keys. -1 == NULL
+
+    int left_idx; // idx in tree. -1 == NULL.
+    int right_idx;
+}
 
 // header for all nvme data
 __attribute__((packed))
@@ -60,14 +68,14 @@ struct write_cb_state {
     
     void *cb_arg;
     key_write_cb callback;
-    
+
     db_data key;
     db_data value;
 
     int key_index; // TODO: if we implement deletes this has to become more complicated. Perhaps deletes can't occur while a key is in flight?
-    
+
     unsigned long long clock_time_enqueued; // clock() time at which this write was enqueued. After a certain amount of time, or when we have enough writes to fill a sector, this will be unqueued.
-    
+
     unsigned long long ssd_loc; // written in flush_writes and read when the callback returns.
 
     int flag; // WRITE_CB_FLAG_PARTIALLY_WRITTEN
@@ -83,6 +91,10 @@ struct db_state {
     long long key_capacity;
     struct ram_stored_key *keys;
     // Each key is stored here in fixed-width form for enumeration. But the keys themselves are variable-width, so we have key_vla to store the keys themselves. `key_offset` in `struct ram_stored_key` refers to an offset in `key_vla`.
+
+    struct key_node *nodes;
+    long long num_nodes;
+    long long node_capacity;
 
     long long key_vla_length; // end point at which bytes should be written in key_vla
     long long key_vla_capacity; // capacity of key_vla

@@ -54,31 +54,66 @@ void release_lock(struct db_state *db) {
     db -> lock = 0;
 }
 
-static unsigned short hash_key(db_data key) {
-    unsigned short hash = 0x5555; // 0b01010101
-    unsigned short *short_data = key.data;
-    for (int i = 0; i < key.length>>1; i++) {
-        hash ^= short_data[i];
+static unsigned int hash_key(db_data key) {
+    unsigned int hash = 0x55555555; // 0b01010101
+    unsigned int *int_data = key.data;
+    for (int i = 0; i < key.length>>2; i++) {
+        hash ^= int_data[i];
     }
     return hash;
 }
 
 // MUST HAVE LOCK TO CALL THIS FUNCTION
-static bool search_for_key(struct db_state *db, db_data search_key, struct ram_stored_key *found_key) {
-    unsigned short key_hash = hash_key(search_key);
-    for (int i = 0; i < db -> num_key_entries; i++) {
-        struct ram_stored_key key = db -> keys[i];
-        if (key.key_length != search_key.length || key.key_hash != key_hash) {
-            continue;
+static bool search_for_key(struct db_state *db, db_data search_key, struct ram_stored_key *found_key, bool insert) {
+    unsigned int key_hash = hash_key(search_key);
+
+    if (db -> nodes[0].key_idx == -1) { // If there are no nodes, create the first node.
+        if (insert) {
+            db -> nodes[0] = (struct key_node){.key_idx=db -> num_key_entries, .left_idx = -1, .right_idx = -1};
+        }
+        return false;
+    }
+
+    int node_idx = 0;
+    while (1) {
+        struct node_key cur_node = db -> nodes[node_idx];
+
+        // We use three different levels of comparison to try to reduce the odds of a memcmp().
+        bool left = cur_key.key_hash < key_hash;
+        if (cur_key.key_hash == key_hash) {
+            struct ram_stored_key cur_key = db -> keys[cur_node.key_idx];
+            left = cur_key.key_length < search_key.length;
+            if (cur_key.key_length == search_key.length) {
+                int resp = memcmp(search_key.data, db -> key_vla + cur_key.key_offset, cur_key.key_length);
+                left = resp == -1
+                if (resp == 0) {
+                    // We've got a match
+                    *found_key = cur_key;
+                    return true;
+                }
+            }
         }
 
-        void *key_str = db -> key_vla + key.key_offset;
-        if (memcmp(search_key.data, key_str, key.key_length) == 0) {
-            *found_key = key;
-            return true;
+        // It's not equal, so we try to find a lower value on the tree.
+        if (left) {
+            if (cur_node.left_idx != -1) { // Recurse lower
+                node_idx = cur_node.left_idx;
+                continue;
+            } else if (insert) { // Couldn't find it - if insert, this is where we inesrt.
+                db -> nodes[node_idx].left_idx = db -> num_nodes;
+                db -> nodes[db -> num_nodes++] = (struct key_node){.key_idx = db -> num_key_entries, .left_idx=-1, .right_idx=-1};
+            }
+        } else {
+            if (cur_node.right_idx != -1) {
+                node_idx = cur_node.right_idx;
+                continue;
+            } else if (insert) {
+                db -> nodes[node_idx].right_idx = db -> num_nodes;
+                db -> nodes[db -> num_nodes++] = (struct key_node){.key_idx = db -> num_key_entries, .left_idx=-1, .right_idx=-1};
+            }
         }
+        return false;
     }
-    return false;
 }
 
 static unsigned long long get_time_us(void) {
@@ -99,6 +134,16 @@ unsigned long long calc_write_bytes_queued(struct db_state *db) {
         write_bytes_queued += callback_ssd_size(write_callback);
     }
     return write_bytes_queued;
+}
+
+int compar(struct ram_stored_key *first, struct ram_stored_key *second) {
+    if (first -> key_hash < second -> key_hash) {
+        return -1;
+    } else if (first -> key_hash == second -> key_hash) {
+        return 0;
+    } else {
+        return 1;
+    }
 }
 
 // MUST HAVE LOCK TO CALL THIS FUNCTION
@@ -143,7 +188,13 @@ void *create_db() {
     state -> num_key_entries = 0;
     state -> key_capacity = INITIAL_CAPACITY;
     state -> keys = calloc(sizeof(struct ram_stored_key), INITIAL_CAPACITY);
-    
+    state -> keys_at_last_sort = 0;
+
+    state -> nodes = malloc(sizeof(struct key_node) * INITIAL_CAPACITY);
+    state -> nodes[0].key_idx = 0;
+    state -> num_nodes = 0;
+    state -> node_capacity = INITIAL_CAPACITY;
+
     state -> key_vla_capacity = INITIAL_CAPACITY*20;
     state -> key_vla_length = 0;
     state -> key_vla = calloc(sizeof(char), state -> key_vla_capacity);
@@ -187,9 +238,25 @@ void write_value_async(void *opaque, db_data key, db_data value, key_write_cb ca
     struct db_state *db = opaque;
     acq_lock(db);
 
+    if (key.length == 0) {
+        return KEY_TOO_SHORT_ERROR;
+    } else if (key.length > (1<<16)) {
+        return KEY_TOO_LONG_ERROR;
+    }
+    if (value.length == 0) {
+        return VALUE_TOO_SHORT_ERROR;
+    } else if (value.length >= (1<<32)) {
+        return VALUE_TOO_LONG_ERROR;
+    }
+
     // Check if the key exists already, which requires special logic that's not yet implemented.
     struct ram_stored_key prev_key;
-    bool found = search_for_key(db, key, &prev_key);
+    if (node_capacity <= num_nodes) {
+        db -> node_capacity *= 2;
+        db -> nodes = realloc(db -> nodes, db -> node_capacity * sizeof(struct key_node));
+        printf("resizing node area\n");
+    }
+    bool found = search_for_key(db, key, &prev_key, true); // insert key to nodes if not found
     if (found) {
         release_lock(db);
         callback(cb_arg, GENERIC_WRITE_ERROR); // in order to support this we would have to delete the previous key and do a bunch of other work, so not implemented yet.
@@ -248,7 +315,7 @@ void read_value_async(void *opaque, db_data read_key, key_read_cb callback, void
     acq_lock(db); // ACQUIRE LOCK
 
     struct ram_stored_key found_key;
-    bool found = search_for_key(db, read_key, &found_key);
+    bool found = search_for_key(db, read_key, &found_key, false);
     if (!found) { // couldn't find key
         release_lock(db); // RELEASE LOCK
         callback(cb_arg, KEY_NOT_FOUND, (db_data){.data=NULL, .length=0});

@@ -51,17 +51,12 @@ static void flush_writes_cb(void *arg, const struct spdk_nvme_cpl *completion) {
 #ifdef DEBUG
             printf("Setting index %d to complete\n", write_callback -> key_index);
 #endif
-        }
-        // db -> keys[write_callback -> key_index].data_loc = write_callback -> ssd_loc;
-        
+        }        
         write_callback -> callback(write_callback -> cb_arg, error);
     }
     free(prev_callback);
 
     TAILQ_INIT(&callback_state -> write_callback_queue); // believe this frees it? unclear...
-    
-    // TODO: figure out how to free both a) the callback queue and b) all the callbacks inside it.
-    // free(write_callback);
 
 exit:
     release_lock(db);
