@@ -250,7 +250,9 @@ void write_value_async(void *opaque, db_data key, db_data value, key_write_cb ca
     if (db -> node_capacity <= db -> num_nodes) {
         db -> node_capacity *= 2;
         db -> nodes = realloc(db -> nodes, db -> node_capacity * sizeof(struct key_node));
+#ifdef DEBUG
         printf("resizing node area\n");
+#endif
     }
     bool found = search_for_key(db, key, &prev_key, true); // insert key to nodes if not found
     if (found) {
@@ -264,7 +266,9 @@ void write_value_async(void *opaque, db_data key, db_data value, key_write_cb ca
     if (key_idx >= db -> key_capacity) {
         db -> key_capacity *= 2;
         db -> keys = realloc(db -> keys, db -> key_capacity * sizeof(struct ram_stored_key));
+#ifdef DEBUG
         printf("resizing key area\n");
+#endif
     }
 
     // Write the key itself to the VLA, possibly resizing db -> key_vla
@@ -272,7 +276,9 @@ void write_value_async(void *opaque, db_data key, db_data value, key_write_cb ca
     if ((key.length + current_key_vla_offset) > db -> key_vla_capacity) { // resize VLA
         db -> key_vla_capacity *= 2;
         db -> key_vla = realloc(db -> key_vla, db -> key_vla_capacity);
+#ifdef DEBUG
         printf("resizing VLA to %lld\n", db -> key_vla_capacity);
+#endif
     }
     memcpy(db -> key_vla + current_key_vla_offset, key.data, key.length);
     db -> key_vla_length += key.length;
