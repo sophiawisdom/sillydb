@@ -203,6 +203,7 @@ int main(int argc, char **argv) {
     struct data_generator *data_gen = calloc(sizeof(struct data_generator), 1);
     data_gen -> data = NULL;
     data_gen -> data_used = 0;
+    data_gen -> reset = 0;
     pthread_create(&thread_id, NULL, data_thread, data_gen);
     void *db = create_db();
     srandom(seed);
