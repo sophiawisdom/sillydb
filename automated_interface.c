@@ -218,8 +218,6 @@ int main(int argc, char **argv) {
         data -> key = key;
         data -> expected_value = value;
         write_value_async(db, key, value, write_callback, data);
-        free(key.data);
-        free(value.data);
         // flush_commands(db);
         poll_db(db);
         /*
