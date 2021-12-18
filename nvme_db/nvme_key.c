@@ -188,10 +188,9 @@ void *create_db() {
     state -> num_key_entries = 0;
     state -> key_capacity = INITIAL_CAPACITY;
     state -> keys = calloc(sizeof(struct ram_stored_key), INITIAL_CAPACITY);
-    state -> keys_at_last_sort = 0;
 
     state -> nodes = malloc(sizeof(struct key_node) * INITIAL_CAPACITY);
-    state -> nodes[0].key_idx = 0;
+    state -> nodes[0].key_idx = -1;
     state -> num_nodes = 0;
     state -> node_capacity = INITIAL_CAPACITY;
 
