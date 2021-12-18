@@ -73,10 +73,13 @@ static char *random_bytes(int num_bytes) {
     int *buf = malloc(num_ints*sizeof(int));
     for (int i = 0; i < num_ints; i++) {
         int val = random();
+#ifdef DEBUG
         short hexfirst = byte_to_hex(val&255);
         val>>=8;
         short hexsecond = byte_to_hex(val&255);
         buf[i] = (hexfirst << 16) + hexsecond;
+#endif
+        buf[i] = val;
     }
     return buf;
 }
