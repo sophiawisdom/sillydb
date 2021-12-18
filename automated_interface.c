@@ -171,6 +171,13 @@ int data_thread(struct data_generator *generator) {
         int *data = malloc(64*1024);
         for (int i = 0; i < (16*1024); i++) {
             random_r(&buffer, &data[i]);
+#ifdef DEBUG
+            unsigned int val = data[i];
+            short hexfirst = byte_to_hex(val&255);
+            val>>=8;
+            short hexsecond = byte_to_hex(val&255);
+            data[i] = (hexfirst << 16) + hexsecond;
+#endif
         }
 
         while (generator -> data != 0) {
