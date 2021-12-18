@@ -26,7 +26,7 @@ void write_callback(void *cb_arg, enum write_err error) {
 void read_cb(void *cb_arg, enum read_err error, db_data value) {
     struct read_cb_data *data = cb_arg;
     if (error != READ_SUCCESSFUL) {
-        printf("GOT ERROR READING: %d\n", error);
+        printf("GOT ERROR READING: %d for key %.16s\n", error, data -> key.data);
         errors++;
         goto exit;
     }
