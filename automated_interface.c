@@ -151,7 +151,7 @@ int data_thread(struct data_generator *generator) {
     while (1) {
         int *data = malloc(64*1024);
         for (int i = 0; i < (16*1024); i++) {
-            random_r(buffer, &data[i]);
+            random_r(random_state, &data[i]);
         }
 
         if (generator -> data == 0) {
