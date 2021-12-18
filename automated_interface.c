@@ -107,7 +107,7 @@ unsigned long long GetTimeStamp() {
 }
 
 int main(int argc, char **argv) {
-    unsigned int seed = 1234;
+    unsigned int seed = time();
     unsigned int num_keys = atoi(argv[1]);
     printf("%d keys\n", num_keys);
     void *db = create_db();
