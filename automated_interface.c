@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 
 #include <stdatomic.h>
 #include <stdbool.h>
@@ -161,7 +162,7 @@ int main(int argc, char **argv) {
     printf("%d keys. pid %d\n", num_keys, getpid());
     pthread_t thread_id = 0;
     struct data_generator *data_gen = calloc(sizeof(struct data_generator), 1);
-    pthread_create(&thread_id, NULL, data_thread, data);
+    pthread_create(&thread_id, NULL, data_thread, data_gen);
     void *db = create_db();
     srandom(seed);
     int cpu_begin = clock();
