@@ -129,9 +129,9 @@ unsigned long long GetTimeStamp() {
 int data_thread(struct data_generator *generator) {
     printf("data thread started!\n");
     unsigned int data_seed = 8901;
-    char *data_buf = malloc(8);
-    char *state_buf = malloc(8);
-    initstate_r(data_seed, data_buf, 8, state_buf);
+    char *data_buf = malloc(32);
+    char *state_buf = malloc(32);
+    initstate_r(data_seed, data_buf, 32, state_buf);
     while (!generator -> reset) {
         _Atomic void *data = malloc(64*1024);
         for (int i = 0; i < (64*1024); i+=4) {
