@@ -159,6 +159,9 @@ int data_thread(struct data_generator *generator) {
         }
     }
 
+    memset(&buffer, 0, sizeof(struct random_data));
+    memset(random_state, 0, sizeof(random_state));
+    initstate_r(data_seed,random_state,sizeof(random_state),&buffer);
     srandom_r(data_seed, &buffer);
     while (1) {
         int *data = malloc(64*1024);
