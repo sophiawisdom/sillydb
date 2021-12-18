@@ -221,6 +221,7 @@ int main(int argc, char **argv) {
     printf("Took %2.3g seconds of cpu time and %2.3g seconds of wall time to write %d keys and %llu bytes\n", cpu_diff/1000000.0, wall_diff/1000000.0, num_keys, bytes_written);
 
     data_gen -> reset = 1;
+    free(data_gen -> data);
     data_gen -> data = NULL;
     data_gen -> data_used = 0;
     for (int i = 0; i < 1000; i++) {
@@ -249,6 +250,8 @@ int main(int argc, char **argv) {
         poll_db(db);
         usleep(1000);
     }
+
+    free(data_gen -> data);
 
     printf("Exiting! In total %d errors.\n", errors);
     free_db(db);
