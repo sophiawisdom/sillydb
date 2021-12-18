@@ -176,22 +176,15 @@ int main(int argc, char **argv) {
         data -> key = key;
         data -> expected_value = value;
         write_value_async(db, key, value, write_callback, data);
-        if (argc < 2) {
-            for (int i = 0; i < 100; i++) {
-                poll_db(db);
-                usleep(10000);
-            }
-        } else {
-            unsigned int waits = atoi(argv[2]);
-            // flush_commands(db);
+        // flush_commands(db);
+        poll_db(db);
+        /*
+        for (int i = 0; i < waits; i++) {
             poll_db(db);
-            /*
-            for (int i = 0; i < waits; i++) {
-                poll_db(db);
-                usleep(1000);
-            }
-            */
-            // wait_for_no_writes(db);
+            usleep(1000);
+        }
+        */
+        // wait_for_no_writes(db);
         }
     }
     double cpu_diff = clock() - cpu_begin;
