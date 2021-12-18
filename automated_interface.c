@@ -149,8 +149,11 @@ int data_thread(struct data_generator *generator) {
 #endif
         }
 
-        while (generator -> data != 0) {
+        while (generator -> data != 0 && !generator -> reset) {
             usleep(1000);
+        }
+        if (!generator -> reset) {
+            break;
         }
 
         if (generator -> data == 0) {
@@ -163,16 +166,19 @@ int data_thread(struct data_generator *generator) {
     memset(random_state, 0, sizeof(random_state));
     initstate_r(data_seed,random_state,sizeof(random_state),&buffer);
     srandom_r(data_seed, &buffer);
+
     while (1) {
         int *data = malloc(64*1024);
         for (int i = 0; i < (16*1024); i++) {
             random_r(&buffer, &data[i]);
         }
 
-        if (generator -> data == 0) {
-            generator -> data_used = 0;
-            generator -> data = data;
+        while (generator -> data != 0) {
+            usleep(1000);
         }
+
+        generator -> data_used = 0;
+        generator -> data = data;
     }
 
     return 0;
@@ -215,6 +221,8 @@ int main(int argc, char **argv) {
     printf("Took %2.3g seconds of cpu time and %2.3g seconds of wall time to write %d keys and %llu bytes\n", cpu_diff/1000000.0, wall_diff/1000000.0, num_keys, bytes_written);
 
     data_gen -> reset = 1;
+    data_gen -> data = NULL;
+    data_gen -> data_used = 0;
     for (int i = 0; i < 1000; i++) {
         poll_db(db);
         usleep(1000);
