@@ -13,9 +13,12 @@
 struct read_cb_data {
     db_data key;
     db_data expected_value;
+    unsigned long long time_at_issue;
 };
 
 _Atomic int errors = 0;
+_Atomic unsigned long long total_write_latency = 0;
+_Atomic unsigned long long total_read_latency = 0;
 
 void write_callback(void *cb_arg, enum write_err error) {
     struct read_cb_data *data = cb_arg;
@@ -24,7 +27,9 @@ void write_callback(void *cb_arg, enum write_err error) {
         printf("\n\nGOT ERROR ON WRITE: %d\n\n", error);
         errors++;
     }
-    
+
+    total_write_latency += get_time_us() - data -> time_at_issue;
+
     free(data -> key.data);
     free(data -> expected_value.data);
     free(data);
@@ -56,6 +61,7 @@ exit:
 #ifdef DEBUG
     printf("Read completed with err %d!\n", error);
 #endif
+    total_read_latency += get_time_us() - data -> time_at_issue;
     free(data -> key.data);
     free(data -> expected_value.data);
     free(data);
@@ -104,132 +110,60 @@ static char *random_bytes(struct data_generator *gen, int num_bytes) {
     return buf;
 }
 
-db_data generate_key(struct data_generator *gen) {
-    unsigned int key_exp = (random()) % 7 + 4; // e.g. 5, so key is 2<<5 bytes = 32.
-    unsigned int key_len = (2<<key_exp) + (16-(random()%32));
-    // key_len = 16;
-    db_data key = {.length=key_len, .data=random_bytes(gen, key_len)};
-    return key;
+unsigned int generate_key_len(struct data_generator *gen) {
+    unsigned int key_exp = (random() % 7) + 4; // e.g. 5, so key is 2<<5 bytes = 32.
+    return (2<<key_exp) + (16-(random()%32));
 }
 
-db_data generate_data(struct data_generator *gen) {
+unsigned int generate_data_len(struct data_generator *gen) {
     unsigned int data_exp = (random() % 9) + 6;
-    unsigned int data_len = (2<<data_exp) + ((1<<(data_exp-2))-(random()%(1<<(data_exp-1))));
-    // data_len = 64;
-    db_data value = {.length=data_len, .data=random_bytes(gen, data_len)};
-    return value;
+    return (2<<data_exp) + ((1<<(data_exp-2))-(random()%(1<<(data_exp-1))));
 }
 
-unsigned long long GetTimeStamp() {
+unsigned long long get_time_us() {
     struct timeval tv;
     gettimeofday(&tv, NULL);
     return tv.tv_sec*(unsigned long long)1000000+tv.tv_usec;
 }
 
-int data_thread(struct data_generator *generator) {
-    printf("data thread started!\n");
-    unsigned int data_seed = 8901;
-    struct random_data buffer;
-    char   random_state[128];
-    memset(&buffer, 0, sizeof(struct random_data));
-    memset(random_state, 0, sizeof(random_state));
-    initstate_r(data_seed,random_state,sizeof(random_state),&buffer);
-    srandom_r(data_seed, &buffer);
-    printf("Buffer first is %.16s. reset is %d\n", &buffer, generator -> reset);
-
-    while (!generator -> reset) {
-        _Atomic int *data = malloc(64*1024);
-        for (int i = 0; i < (16*1024); i++) {
-            random_r(&buffer, &data[i]);
-#ifdef DEBUG
-            unsigned int val = data[i];
-            short hexfirst = byte_to_hex(val&255);
-            val>>=8;
-            short hexsecond = byte_to_hex(val&255);
-            data[i] = (hexfirst << 16) + hexsecond;
-#endif
-        }
-
-        while (generator -> data != 0 && !generator -> reset) {
-            usleep(1000);
-        }
-        if (generator -> reset) {
-            break;
-        }
-
-        if (generator -> data == 0) {
-            generator -> data_used = 0;
-            generator -> data = data;
-        }
-    }
-
-    /*
-    memset(&buffer, 0, sizeof(struct random_data));
-    memset(random_state, 0, sizeof(random_state));
-    initstate_r(data_seed,random_state,sizeof(random_state),&buffer);
-    */
-    srandom_r(data_seed, &buffer);
-    printf("Buffer second is %.16s\n", &buffer);
-
-    while (1) {
-        int *data = malloc(64*1024);
-        for (int i = 0; i < (16*1024); i++) {
-            random_r(&buffer, &data[i]);
-#ifdef DEBUG
-            unsigned int val = data[i];
-            short hexfirst = byte_to_hex(val&255);
-            val>>=8;
-            short hexsecond = byte_to_hex(val&255);
-            data[i] = (hexfirst << 16) + hexsecond;
-#endif
-        }
-
-        while (generator -> data != 0) {
-            usleep(1000);
-        }
-
-        generator -> data_used = 0;
-        generator -> data = data;
-    }
-
-    return 0;
+void *generate_entropy(unsigned long long length) {
+    int fd = open("/dev/urandom", O_RDONLY);
+    void *data = malloc(length); // TODO: mark this memory unpageable.
+    read(fd, data, length);
+    return data;
 }
 
 int main(int argc, char **argv) {
+    // TODO: implement mixed r/w workload, or full r/full w workloads.
     unsigned int seed = 5678;
     int num_keys = atoi(argv[1]);
     printf("%d keys. pid %d\n", num_keys, getpid());
-    pthread_t thread_id = 0;
-    struct data_generator *data_gen = calloc(sizeof(struct data_generator), 1);
-    data_gen -> data = NULL;
-    data_gen -> data_used = 0;
-    data_gen -> reset = 0;
-    pthread_create(&thread_id, NULL, data_thread, data_gen);
+    void *entropy = generate_entropy(num_keys*40000); // approximate maximum entropy needed. for 100k keys this is 4gb
     void *db = create_db();
     srandom(seed);
     int cpu_begin = clock();
-    unsigned long long wall_begin = GetTimeStamp();
+    unsigned long long wall_begin = get_time_us();
     unsigned long long bytes_written = 0;
+    unsigned long long entropy_used = 0;
     for (int i = 0; i < num_keys; i++) {
-        db_data key = generate_key(data_gen);
-        db_data value = generate_data(data_gen);
-        bytes_written += key.length + value.length + 7;
+        unsigned int key_len = generate_key_len(data_gen);
+        db_data key = {.length=key_len, .data=entropy+entropy_used};
+        entropy_used += key_len;
+
+        unsigned int value_len = generate_data_len(data_gen);
+        db_data value = {.length=value_len, .data=entropy+entropy_used};
+        entropy_used += value_len;
+
+        bytes_written += key_len + value_len + 7;
         struct read_cb_data *data = calloc(sizeof(struct read_cb_data), 1);
         data -> key = key;
         data -> expected_value = value;
+        data -> time_at_issue = get_time_us();
         write_value_async(db, key, value, write_callback, data);
-        // flush_commands(db);
         poll_db(db);
-        /*
-        for (int i = 0; i < waits; i++) {
-            poll_db(db);
-            usleep(1000);
-        }
-        */
-        // wait_for_no_writes(db);
     }
     double cpu_diff = clock() - cpu_begin;
-    double wall_diff = GetTimeStamp() - wall_begin;
+    double wall_diff = get_time_us() - wall_begin;
     printf("Took %2.3g seconds of cpu time and %2.3g seconds of wall time to write %d keys and %llu bytes\n", cpu_diff/1000000.0, wall_diff/1000000.0, num_keys, bytes_written);
 
     data_gen -> reset = 1;
@@ -242,12 +176,20 @@ int main(int argc, char **argv) {
     }
 
     srandom(seed);
+    entropy_used = 0;
     for (int i = 0; i < num_keys; i++) {
-        db_data key = generate_key(data_gen);
-        db_data value = generate_data(data_gen);
+        unsigned int key_len = generate_key_len(data_gen);
+        db_data key = {.length=key_len, .data=entropy+entropy_used};
+        entropy_used += key_len;
+
+        unsigned int value_len = generate_data_len(data_gen);
+        db_data value = {.length=value_len, .data=entropy+entropy_used};
+        entropy_used += value_len;
+
         struct read_cb_data *data = calloc(sizeof(struct read_cb_data), 1);
         data -> key = key;
         data -> expected_value = value;
+        data -> time_at_issue = get_time_us();
         read_value_async(db, key, read_cb, data);
     }
 
@@ -265,7 +207,10 @@ int main(int argc, char **argv) {
 
     free(data_gen -> data);
 
-    printf("Exiting! In total %d errors.\n", errors);
+    double avg_write_latency = ((double) total_write_latency)/num_keys;
+    double avg_read_latency = ((double) total_read_latency)/num_keys;
+
+    printf("Exiting! In total %d errors. Avg write latency: %.03g. Avg read latency: %.03g.\n", errors, avg_write_latency, avg_read_latency);
     free_db(db);
     return errors;
 }
