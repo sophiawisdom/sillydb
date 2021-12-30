@@ -42,7 +42,7 @@ void write_callback(void *cb_arg, enum write_err error) {
     total_write_latency += get_time_us() - data -> time_at_issue;
 
     free(data -> key.data);
-    free(data -> expected_value.data);
+    // free(data -> expected_value.data);
     free(data);
 }
 
