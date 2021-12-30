@@ -106,7 +106,7 @@ void *generate_entropy(int data_seed, unsigned long long length) {
     int fd = open("/dev/urandom", O_RDONLY);
     int *data = malloc(length>>1); // TODO: mark this memory unpageable.
     srandom(data_seed);
-    for (int i = 0; i < (length>>3); i++) {
+    for (int i = 0; i < (length/8); i++) {
         data[i] = random();
     }
     /*
