@@ -94,7 +94,7 @@ static short byte_to_hex(unsigned char byte) {
 
 unsigned int generate_key_len() {
     unsigned int key_exp = (random() % 7) + 4; // e.g. 5, so key is 2<<5 bytes = 32.
-    return (2<<key_exp) + (16-(random()%32));
+    return (2<<key_exp) + ((1<<(key_exp-2))-(random()%(1<<(key_exp-1))))
 }
 
 unsigned int generate_data_len() {
