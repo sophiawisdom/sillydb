@@ -6,6 +6,8 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include <stdatomic.h>
 #include <stdbool.h>
@@ -84,12 +86,12 @@ static short byte_to_hex(unsigned char byte) {
     return (secondletter<<8) + (firstletter);
 }
 
-unsigned int generate_key_len(struct data_generator *gen) {
+unsigned int generate_key_len() {
     unsigned int key_exp = (random() % 7) + 4; // e.g. 5, so key is 2<<5 bytes = 32.
     return (2<<key_exp) + (16-(random()%32));
 }
 
-unsigned int generate_data_len(struct data_generator *gen) {
+unsigned int generate_data_len() {
     unsigned int data_exp = (random() % 9) + 6;
     return (2<<data_exp) + ((1<<(data_exp-2))-(random()%(1<<(data_exp-1))));
 }
@@ -120,11 +122,11 @@ int main(int argc, char **argv) {
     unsigned long long bytes_written = 0;
     unsigned long long entropy_used = 0;
     for (int i = 0; i < num_keys; i++) {
-        unsigned int key_len = generate_key_len(data_gen);
+        unsigned int key_len = generate_key_len();
         db_data key = {.length=key_len, .data=entropy+entropy_used};
         entropy_used += key_len;
 
-        unsigned int value_len = generate_data_len(data_gen);
+        unsigned int value_len = generate_data_len();
         db_data value = {.length=value_len, .data=entropy+entropy_used};
         entropy_used += value_len;
 
