@@ -201,7 +201,7 @@ int main(int argc, char **argv) {
 
     shuffle(cbs, num_keys);
 
-    for (int i = 0; i < num_keys) {
+    for (int i = 0; i < num_keys; i++) {
         cbs[i].time_at_issue = get_time_us();
         read_value_async(db, cbs[i].key, read_cb, cbs+i);
         poll_db(db);
