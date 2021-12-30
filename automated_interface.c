@@ -111,7 +111,7 @@ void *generate_entropy(unsigned long long length) {
 
 int main(int argc, char **argv) {
     // TODO: implement mixed r/w workload, or full r/full w workloads, for perf testing.
-    unsigned int seed = 5678;
+    unsigned int seed = 1001;
     int num_keys = atoi(argv[1]);
     printf("%d keys. pid %d\n", num_keys, getpid());
     void *entropy = generate_entropy(num_keys*40000); // approximate maximum entropy needed. for 100k keys this is 4gb
