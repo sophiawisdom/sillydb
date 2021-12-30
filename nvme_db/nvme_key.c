@@ -220,6 +220,7 @@ void free_db(void *opaque) {
     free(db -> keys);
     free(db -> key_vla);
     free(db -> current_sector_data);
+    free(db -> nodes);
     free(TAILQ_FIRST(&db -> g_controllers));
     free(db);
     // TODO: TAILQ_FREE our tail queues
