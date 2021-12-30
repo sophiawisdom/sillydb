@@ -114,6 +114,7 @@ int main(int argc, char **argv) {
     unsigned int seed = 1001;
     int num_keys = atoi(argv[1]);
     printf("%d keys. pid %d\n", num_keys, getpid());
+    unsigned long long num_bytes = num_keys * 40000;
     void *entropy = generate_entropy(num_keys*40000); // approximate maximum entropy needed. for 100k keys this is 4gb
     void *db = create_db();
     srandom(seed);
@@ -129,7 +130,7 @@ int main(int argc, char **argv) {
         unsigned int value_len = generate_data_len();
         db_data value = {.length=value_len, .data=entropy+entropy_used};
         entropy_used += value_len;
-        printf("writing value of length %d\n", value_len);
+        printf("writing value of length %d. at %llu bytes out of %llu\n", value_len, entropy_used, num_bytes);
 
         bytes_written += key_len + value_len + 7;
         struct read_cb_data *data = calloc(sizeof(struct read_cb_data), 1);
