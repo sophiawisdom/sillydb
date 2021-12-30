@@ -130,7 +130,7 @@ void *generate_entropy(int data_seed, unsigned long long length) {
 void shuffle(struct read_cb_data *array, int n) {
     for (int i = 0; i < n - 1; i++) {
         int j = i + random() / (RAND_MAX / (n - i) + 1);
-        read_cb_data t = array[j];
+        struct read_cb_data t = array[j];
         array[j] = array[i];
         array[i] = t;
     }
