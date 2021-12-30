@@ -107,6 +107,7 @@ void *generate_entropy(unsigned long long length) {
     char *data = malloc(length>>1); // TODO: mark this memory unpageable.
     unsigned long long total_read = 0;
     while (total_read != length) {
+        // reading from urandom will provide only 32mb at a time, so account for that.
         total_read += read(fd, data+total_read, (length>>1)-total_read);
     }
     close(fd);
@@ -114,6 +115,7 @@ void *generate_entropy(unsigned long long length) {
     for (int i = 0; i < (length>>1); i++) {
         bata[i] = byte_to_hex(data[i]);
     }
+    free(data);
     return (void *)bata;
 }
 
@@ -124,6 +126,7 @@ int main(int argc, char **argv) {
     printf("%d keys. pid %d\n", num_keys, getpid());
     unsigned long long num_bytes = num_keys * 40000;
     void *entropy = generate_entropy(num_keys*40000); // approximate maximum entropy needed. for 100k keys this is 4gb
+    printf("Generated entropy\n");
     void *db = create_db();
     srandom(seed);
     int cpu_begin = clock();
