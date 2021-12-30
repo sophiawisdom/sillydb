@@ -102,14 +102,20 @@ unsigned int generate_data_len() {
     return (2<<data_exp) + ((1<<(data_exp-2))-(random()%(1<<(data_exp-1))));
 }
 
-void *generate_entropy(unsigned long long length) {
+void *generate_entropy(int data_seed, unsigned long long length) {
     int fd = open("/dev/urandom", O_RDONLY);
-    char *data = malloc(length>>1); // TODO: mark this memory unpageable.
+    int *data = malloc(length>>1); // TODO: mark this memory unpageable.
+    srandom(data_seed);
+    for (int i = 0; i < (length>>3); i++) {
+        data[i] = random();
+    }
+    /*
     unsigned long long total_read = 0;
     while (total_read != length) {
         // reading from urandom will provide only 32mb at a time, so account for that.
         total_read += read(fd, data+total_read, (length>>1)-total_read);
     }
+    */
     close(fd);
     short *bata = malloc(length);
     for (int i = 0; i < (length>>1); i++) {
@@ -125,7 +131,7 @@ int main(int argc, char **argv) {
     int num_keys = atoi(argv[1]);
     printf("%d keys. pid %d\n", num_keys, getpid());
     unsigned long long num_bytes = num_keys * 40000;
-    void *entropy = generate_entropy(num_keys*40000); // approximate maximum entropy needed. for 100k keys this is 4gb
+    void *entropy = generate_entropy(5678, num_keys*40000); // approximate maximum entropy needed. for 100k keys this is 4gb
     printf("Generated entropy\n");
     void *db = create_db();
     srandom(seed);
@@ -141,9 +147,6 @@ int main(int argc, char **argv) {
         unsigned int value_len = generate_data_len();
         db_data value = {.length=value_len, .data=entropy+entropy_used};
         entropy_used += value_len;
-        if (key_len == 32) {
-            printf("key: %d value: %d. at %llu bytes out of %llu\n", key_len, value_len, entropy_used, num_bytes);
-        }
 
         bytes_written += key_len + value_len + 7;
         struct read_cb_data *data = calloc(sizeof(struct read_cb_data), 1);
