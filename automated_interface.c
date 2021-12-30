@@ -104,9 +104,13 @@ unsigned int generate_data_len() {
 
 void *generate_entropy(unsigned long long length) {
     int fd = open("/dev/urandom", O_RDONLY);
-    void *data = malloc(length); // TODO: mark this memory unpageable.
-    read(fd, data, length);
-    return data;
+    char *data = malloc(length>>1); // TODO: mark this memory unpageable.
+    read(fd, data, length>>1);
+    short *bata = malloc(length);
+    for (int i = 0; i < (length>>1); i++) {
+        bata[i] = byte_to_hex(data[i]);
+    }
+    return (void *)bata;
 }
 
 int main(int argc, char **argv) {
