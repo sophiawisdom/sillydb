@@ -205,6 +205,9 @@ int main(int argc, char **argv) {
 
     double avg_write_latency = ((double) total_write_latency)/num_keys;
     double avg_read_latency = ((double) total_read_latency)/num_keys;
+    avg_write_latency/=1000000.0;
+    avg_read_latency/=1000000.0;
+
 
     printf("Exiting! In total %d errors. Avg write latency: %.03g. Avg read latency: %.03g.\n", errors, avg_write_latency, avg_read_latency);
     free_db(db);
