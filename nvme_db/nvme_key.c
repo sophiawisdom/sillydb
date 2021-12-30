@@ -208,7 +208,7 @@ void *create_db() {
 
     TAILQ_INIT(&state -> write_callback_queue);
 
-    write_zeroes(state, 0, 50000);
+    // write_zeroes(state, 0, 50000);
     
     return state;
 }
