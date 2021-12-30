@@ -257,6 +257,7 @@ void write_value_async(void *opaque, db_data key, db_data value, key_write_cb ca
     bool found = search_for_key(db, key, &prev_key, true); // insert key to nodes if not found
     if (found) {
         release_lock(db);
+        printf("Key %.16s has already been written\n", key.data);
         callback(cb_arg, GENERIC_WRITE_ERROR); // in order to support this we would have to delete the previous key and do a bunch of other work, so not implemented yet.
         return;
     }
