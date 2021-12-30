@@ -117,9 +117,10 @@ void *generate_entropy(int data_seed, unsigned long long length) {
     }
     */
     close(fd);
+    char *char_data = data;
     short *bata = malloc(length);
     for (int i = 0; i < (length>>1); i++) {
-        bata[i] = byte_to_hex(data[i]);
+        bata[i] = byte_to_hex(char_data[i]);
     }
     free(data);
     return (void *)bata;
