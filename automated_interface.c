@@ -132,7 +132,7 @@ int main(int argc, char **argv) {
     int num_keys = atoi(argv[1]);
     printf("%d keys. pid %d\n", num_keys, getpid());
     unsigned long long num_bytes = num_keys * 40000;
-    void *entropy = generate_entropy(5678, num_keys*40000); // approximate maximum entropy needed. for 100k keys this is 4gb
+    void *entropy = generate_entropy(5678, num_keys*60000); // approximate maximum entropy needed. for 100k keys this is 4gb
     printf("Generated entropy\n");
     void *db = create_db();
     srandom(seed);
