@@ -87,6 +87,7 @@ void flush_writes(struct db_state *db) {
     double bytes_to_write = db -> current_sector_bytes + write_bytes_queued;
     unsigned long long current_sector = db -> current_sector_ssd; // sector we're going to write to
     db -> current_sector_ssd += (db -> current_sector_bytes + write_bytes_queued)/db -> sector_size;
+    db -> current_sector_ssd += 1;
 #ifdef DEBUG
     printf("current_sector_bytes is %lld, write_bytes_queued %lld, increasing current sector by %d to %d\n",
     db -> current_sector_bytes, write_bytes_queued, (db -> current_sector_bytes + write_bytes_queued)/db -> sector_size, db -> current_sector_ssd);
