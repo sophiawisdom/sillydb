@@ -131,7 +131,7 @@ int main(int argc, char **argv) {
     unsigned int seed = 1001;
     int num_keys = atoi(argv[1]);
     printf("%d keys. pid %d\n", num_keys, getpid());
-    unsigned long long num_bytes = num_keys * 40000;
+    unsigned long long num_bytes = num_keys * 60000;
     void *entropy = generate_entropy(5678, num_keys*60000); // approximate maximum entropy needed. for 100k keys this is 4gb
     printf("Generated entropy\n");
     void *db = create_db();
@@ -148,6 +148,9 @@ int main(int argc, char **argv) {
         unsigned int value_len = generate_data_len();
         db_data value = {.length=value_len, .data=entropy+entropy_used};
         entropy_used += value_len;
+        if (entropy_used > num_bytes) {
+            printf("ENTROPY USED TOO MUCH!!\n");
+        }
 
         bytes_written += key_len + value_len + 7;
         struct read_cb_data *data = calloc(sizeof(struct read_cb_data), 1);
