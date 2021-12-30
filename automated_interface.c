@@ -172,7 +172,7 @@ int main(int argc, char **argv) {
     printf("Took %2.3g seconds of cpu time and %2.3g seconds of wall time to write %d keys and %llu bytes\n", cpu_diff/1000000.0, wall_diff/1000000.0, num_keys, bytes_written);
 
     // Let everything settle out, purge all writes etc.
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < 3000; i++) {
         poll_db(db);
         usleep(1000);
     }
