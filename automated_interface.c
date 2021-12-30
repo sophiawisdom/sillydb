@@ -126,6 +126,16 @@ void *generate_entropy(int data_seed, unsigned long long length) {
     return (void *)bata;
 }
 
+// Stolen from stackoverflow:
+void shuffle(struct read_cb_data *array, int n) {
+    for (int i = 0; i < n - 1; i++) {
+        int j = i + random() / (RANDOM_MAX / (n - i) + 1);
+        read_cb_data t = array[j];
+        array[j] = array[i];
+        array[i] = t;
+    }
+}
+
 int main(int argc, char **argv) {
     // TODO: implement mixed r/w workload, or full r/full w workloads, for perf testing.
     unsigned int seed = 1001;
@@ -174,6 +184,8 @@ int main(int argc, char **argv) {
     // can exactly replicate the previous set of keys+values and we can make sure the db stored them
     // correctly.
     entropy_used = 0;
+
+    struct read_cb_data *cbs = calloc(sizeof(struct read_cb_data), num_keys);
     for (int i = 0; i < num_keys; i++) {
         unsigned int key_len = generate_key_len();
         db_data key = {.length=key_len, .data=entropy+entropy_used};
@@ -183,11 +195,15 @@ int main(int argc, char **argv) {
         db_data value = {.length=value_len, .data=entropy+entropy_used};
         entropy_used += value_len;
 
-        struct read_cb_data *data = calloc(sizeof(struct read_cb_data), 1);
-        data -> key = key;
-        data -> expected_value = value;
-        data -> time_at_issue = get_time_us();
-        read_value_async(db, key, read_cb, data);
+        cbs[i].key = key;
+        cbs[i].expected_value = value;
+    }
+
+    shuffle(cbs, num_keys);
+
+    for (int i = 0; i < num_keys) {
+        cbs[i].time_at_issue = get_time_us();
+        read_value_async(db, cbs[i].key, read_cb, cbs+i);
         poll_db(db);
     }
 
