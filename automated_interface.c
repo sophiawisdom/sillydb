@@ -25,6 +25,12 @@ int errors = 0;
 unsigned long long total_write_latency = 0;
 unsigned long long total_read_latency = 0;
 
+unsigned long long get_time_us() {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return tv.tv_sec*(unsigned long long)1000000+tv.tv_usec;
+}
+
 void write_callback(void *cb_arg, enum write_err error) {
     struct read_cb_data *data = cb_arg;
 
@@ -96,12 +102,6 @@ unsigned int generate_data_len() {
     return (2<<data_exp) + ((1<<(data_exp-2))-(random()%(1<<(data_exp-1))));
 }
 
-unsigned long long get_time_us() {
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-    return tv.tv_sec*(unsigned long long)1000000+tv.tv_usec;
-}
-
 void *generate_entropy(unsigned long long length) {
     int fd = open("/dev/urandom", O_RDONLY);
     void *data = malloc(length); // TODO: mark this memory unpageable.
@@ -153,11 +153,11 @@ int main(int argc, char **argv) {
     // correctly.
     entropy_used = 0;
     for (int i = 0; i < num_keys; i++) {
-        unsigned int key_len = generate_key_len(data_gen);
+        unsigned int key_len = generate_key_len();
         db_data key = {.length=key_len, .data=entropy+entropy_used};
         entropy_used += key_len;
 
-        unsigned int value_len = generate_data_len(data_gen);
+        unsigned int value_len = generate_data_len();
         db_data value = {.length=value_len, .data=entropy+entropy_used};
         entropy_used += value_len;
 
