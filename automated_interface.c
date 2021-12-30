@@ -73,8 +73,8 @@ exit:
     printf("Read completed with err %d!\n", error);
 #endif
     total_read_latency += get_time_us() - data -> time_at_issue;
-    free(data -> key.data);
-    free(data -> expected_value.data);
+    // free(data -> key.data);
+    // free(data -> expected_value.data);
     free(data);
 }
 
