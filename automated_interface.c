@@ -130,7 +130,7 @@ int main(int argc, char **argv) {
         unsigned int value_len = generate_data_len();
         db_data value = {.length=value_len, .data=entropy+entropy_used};
         entropy_used += value_len;
-        if (key_len == 1020) {
+        if (key_len == 32) {
             printf("key: %d value: %d. at %llu bytes out of %llu\n", key_len, value_len, entropy_used, num_bytes);
         }
 
