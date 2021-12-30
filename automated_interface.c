@@ -129,6 +129,7 @@ int main(int argc, char **argv) {
         unsigned int value_len = generate_data_len();
         db_data value = {.length=value_len, .data=entropy+entropy_used};
         entropy_used += value_len;
+        printf("writing value of length %d\n", value_len);
 
         bytes_written += key_len + value_len + 7;
         struct read_cb_data *data = calloc(sizeof(struct read_cb_data), 1);
