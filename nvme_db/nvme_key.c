@@ -351,8 +351,11 @@ void poll_db(void *opaque) {
         flush_writes(db);
     }
 
-    release_lock(db); // have to release lock here so the callback can acquire lock
-    spdk_nvme_qpair_process_completions(db->main_namespace->qpair, 0);
+    spdk_nvme_qpair_process_completions(db->main_namespace->qpair, 0); // We acquire lock for callbacks.
+    // TOCONSIDER: currently we acquire the lock on behalf of the callbacks so there isn't a weird gap
+    // where the lock would be taken away. However, as stands, the read cbs don't need the lock, so
+    // if there are a lot of read cbs + contention there will be problems.
+    release_lock(db);
 }
 
 void print_keylist(struct db_state *db) {

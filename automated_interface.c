@@ -10,15 +10,18 @@
 #include <stdatomic.h>
 #include <stdbool.h>
 
+// Automated testing for the sillydb. At the moment this is primarily just for testing correctness,
+// not performance (though I do intend to make it better for testing the latter).
+
 struct read_cb_data {
     db_data key;
     db_data expected_value;
     unsigned long long time_at_issue;
 };
 
-_Atomic int errors = 0;
-_Atomic unsigned long long total_write_latency = 0;
-_Atomic unsigned long long total_read_latency = 0;
+int errors = 0;
+unsigned long long total_write_latency = 0;
+unsigned long long total_read_latency = 0;
 
 void write_callback(void *cb_arg, enum write_err error) {
     struct read_cb_data *data = cb_arg;
@@ -81,35 +84,6 @@ static short byte_to_hex(unsigned char byte) {
     return (secondletter<<8) + (firstletter);
 }
 
-struct data_generator {
-    _Atomic void *data; // Each datas() has 64kb of random numbers
-    _Atomic int data_used;
-
-    _Atomic bool reset;
-};
-
-static char *random_bytes(struct data_generator *gen, int num_bytes) {
-    unsigned int num_ints = (num_bytes>>2) + ((num_bytes&3) ? 1 : 0);
-    void *buf = malloc(num_ints*sizeof(int));
-    int buf_location = 0;
-    while (num_bytes) {
-        while (!gen -> data) {
-            usleep(1000);
-        }
-        int gen_bytes = (64*1024) - gen -> data_used;
-        int min_bytes = gen_bytes < num_bytes ? gen_bytes : num_bytes;
-        memcpy(buf + buf_location, gen -> data + gen -> data_used, min_bytes);
-        buf_location += min_bytes;
-        num_bytes -= min_bytes;
-        gen -> data_used += min_bytes;
-        if (gen -> data_used >= (64*1024)) {
-            free(gen -> data);
-            gen -> data = NULL;
-        }
-    }
-    return buf;
-}
-
 unsigned int generate_key_len(struct data_generator *gen) {
     unsigned int key_exp = (random() % 7) + 4; // e.g. 5, so key is 2<<5 bytes = 32.
     return (2<<key_exp) + (16-(random()%32));
@@ -134,7 +108,7 @@ void *generate_entropy(unsigned long long length) {
 }
 
 int main(int argc, char **argv) {
-    // TODO: implement mixed r/w workload, or full r/full w workloads.
+    // TODO: implement mixed r/w workload, or full r/full w workloads, for perf testing.
     unsigned int seed = 5678;
     int num_keys = atoi(argv[1]);
     printf("%d keys. pid %d\n", num_keys, getpid());
@@ -166,16 +140,15 @@ int main(int argc, char **argv) {
     double wall_diff = get_time_us() - wall_begin;
     printf("Took %2.3g seconds of cpu time and %2.3g seconds of wall time to write %d keys and %llu bytes\n", cpu_diff/1000000.0, wall_diff/1000000.0, num_keys, bytes_written);
 
-    data_gen -> reset = 1;
-    free(data_gen -> data);
-    data_gen -> data = NULL;
-    data_gen -> data_used = 0;
+    // Let everything settle out, purge all writes etc.
     for (int i = 0; i < 1000; i++) {
         poll_db(db);
         usleep(1000);
     }
 
-    srandom(seed);
+    srandom(seed); // We only use this for the key len, but it's still important. This means we 
+    // can exactly replicate the previous set of keys+values and we can make sure the db stored them
+    // correctly.
     entropy_used = 0;
     for (int i = 0; i < num_keys; i++) {
         unsigned int key_len = generate_key_len(data_gen);
@@ -191,6 +164,7 @@ int main(int argc, char **argv) {
         data -> expected_value = value;
         data -> time_at_issue = get_time_us();
         read_value_async(db, key, read_cb, data);
+        poll_db(db);
     }
 
     for (int i = 0; i < 1000; i++) {
@@ -206,6 +180,7 @@ int main(int argc, char **argv) {
     }
 
     free(data_gen -> data);
+    free(entropy);
 
     double avg_write_latency = ((double) total_write_latency)/num_keys;
     double avg_read_latency = ((double) total_read_latency)/num_keys;

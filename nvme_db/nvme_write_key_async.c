@@ -18,7 +18,7 @@ struct flush_writes_state {
 static void flush_writes_cb(void *arg, const struct spdk_nvme_cpl *completion) {
     struct flush_writes_state *callback_state = arg;
     struct db_state *db = callback_state -> db;
-    acq_lock(db);
+    // Lock is acquired by the caller of spdk_nvme_qpair_process_completions.
 
     enum write_err error = WRITE_SUCCESSFUL;
 
