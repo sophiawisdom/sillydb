@@ -75,7 +75,7 @@ exit:
     total_read_latency += get_time_us() - data -> time_at_issue;
     // free(data -> key.data);
     // free(data -> expected_value.data);
-    free(data);
+    // free(data);
 }
 
 static short halfbyte(char halfbyte) {
@@ -158,9 +158,6 @@ int main(int argc, char **argv) {
         unsigned int value_len = generate_data_len();
         db_data value = {.length=value_len, .data=entropy+entropy_used};
         entropy_used += value_len;
-        if (entropy_used > num_bytes) {
-            printf("ENTROPY USED TOO MUCH!!\n");
-        }
 
         bytes_written += key_len + value_len + 7;
         struct read_cb_data *data = calloc(sizeof(struct read_cb_data), 1);
@@ -227,6 +224,7 @@ int main(int argc, char **argv) {
 
     printf("Exiting! In total %d errors. Avg write latency: %.03gms. Avg read latency: %.03gms.\n", errors, avg_write_latency, avg_read_latency);
     free_db(db);
+    free(cbs);
     free(entropy);
     return errors;
 }
