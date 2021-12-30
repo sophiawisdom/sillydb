@@ -181,7 +181,6 @@ int main(int argc, char **argv) {
         usleep(1000);
     }
 
-    free(data_gen -> data);
     free(entropy);
 
     double avg_write_latency = ((double) total_write_latency)/num_keys;
