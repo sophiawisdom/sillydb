@@ -48,6 +48,8 @@ void write_callback(void *cb_arg, enum write_err error) {
 
 void read_cb(void *cb_arg, enum read_err error, db_data value) {
     struct read_cb_data *data = cb_arg;
+    total_read_latency += get_time_us() - data -> time_at_issue;
+
     if (error != READ_SUCCESSFUL) {
         printf("GOT ERROR READING: %d for key %.16s\n", error, data -> key.data);
         errors++;
@@ -72,7 +74,6 @@ exit:
 #ifdef DEBUG
     printf("Read completed with err %d!\n", error);
 #endif
-    total_read_latency += get_time_us() - data -> time_at_issue;
     // free(data -> key.data);
     // free(data -> expected_value.data);
     // free(data);

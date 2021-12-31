@@ -51,7 +51,7 @@ static void flush_writes_cb(void *arg, const struct spdk_nvme_cpl *completion) {
 #ifdef DEBUG
             printf("Setting index %d to complete\n", write_callback -> key_index);
 #endif
-        }        
+        }
         write_callback -> callback(write_callback -> cb_arg, error);
     }
     free(prev_callback);
@@ -87,7 +87,6 @@ void flush_writes(struct db_state *db) {
     double bytes_to_write = db -> current_sector_bytes + write_bytes_queued;
     unsigned long long current_sector = db -> current_sector_ssd; // sector we're going to write to
     db -> current_sector_ssd += (db -> current_sector_bytes + write_bytes_queued)/db -> sector_size;
-    db -> current_sector_ssd += 1;
 #ifdef DEBUG
     printf("current_sector_bytes is %lld, write_bytes_queued %lld, increasing current sector by %d to %d\n",
     db -> current_sector_bytes, write_bytes_queued, (db -> current_sector_bytes + write_bytes_queued)/db -> sector_size, db -> current_sector_ssd);
@@ -169,6 +168,9 @@ void flush_writes(struct db_state *db) {
         db -> current_sector_bytes = 0;
         memset(db -> current_sector_data, 'b', db -> sector_size);
     }
+
+    db -> current_sector_ssd += 1;
+    db -> current_sector_bytes = 0;
 
 #ifdef DEBUG
     printf("Wrote %lld bytes. Set current_sector_bytes to %lld\n", buf_bytes_written, db -> current_sector_bytes);
