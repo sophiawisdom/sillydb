@@ -53,13 +53,13 @@ void read_cb(void *cb_arg, enum read_err error, db_data value) {
     if (error != READ_SUCCESSFUL) {
         printf("GOT ERROR READING: %d for key %.16s\n", error, data -> key.data);
         errors++;
-        goto exit;
+        return;
     }
 
     if (data -> expected_value.length != value.length) {
         printf("Expected length would be %d but was %d for key %.16s\n", data -> expected_value.length, value.length, data -> key.data);
         errors++;
-        goto exit;
+        return;
     }
 
     if (memcmp(value.data, data -> expected_value.data, value.length) != 0) {
@@ -67,16 +67,11 @@ void read_cb(void *cb_arg, enum read_err error, db_data value) {
         printf("got:      %.64s (%d)\n", value.data, value.length);
         printf("expected: %.64s (%d)\n", data -> expected_value.data, data -> expected_value.length);
         errors++;
-        goto exit;
+        return;
     }
-
-exit:
 #ifdef DEBUG
     printf("Read completed with err %d!\n", error);
 #endif
-    // free(data -> key.data);
-    // free(data -> expected_value.data);
-    // free(data);
 }
 
 static short halfbyte(char halfbyte) {
