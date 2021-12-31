@@ -79,7 +79,6 @@ short byte_to_hex(unsigned char byte) {
 
 // MUST HAVE LOCK TO CALL THIS FUNCTION
 void flush_writes(struct db_state *db) {
-    printf("Issuing write\n");
     unsigned long long write_bytes_queued = calc_write_bytes_queued(db);
     // TODO: fail with error if there's not enough space on the SSD.
 #ifdef DEBUG
