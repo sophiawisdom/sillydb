@@ -47,9 +47,8 @@ static void flush_writes_cb(void *arg, const struct spdk_nvme_cpl *completion) {
             // TODO: what to do here when we get an IO error? remove the key is the only thing.
         } else {
             db -> keys[write_callback -> key_index].flags &= (255-DATA_FLAG_INCOMPLETE); // set incomplete flag to false
-            printf("Setting complete for key %.16s\n", (char *)db -> key_vla+db -> keys[write_callback -> key_index].key_offset);
 #ifdef DEBUG
-            printf("Setting index %d to complete\n", write_callback -> key_index);
+            printf("Setting complete for key %.16s\n", (char *)db -> key_vla+db -> keys[write_callback -> key_index].key_offset);
 #endif
         }
         write_callback -> callback(write_callback -> cb_arg, error);
@@ -100,11 +99,9 @@ void flush_writes(struct db_state *db) {
     while (!TAILQ_EMPTY(&db -> write_callback_queue)) {
         struct write_cb_state *write_callback = TAILQ_FIRST(&db -> write_callback_queue);
 
-        printf("Flushing key %.16s\n", (char *)db -> key_vla+db -> keys[write_callback -> key_index].key_offset);
-
         db -> keys[write_callback -> key_index].data_loc = buf_bytes_written + current_sector * db -> sector_size;
 #ifdef DEBUG
-        printf("Writing data to %lld\n", db -> keys[write_callback -> key_index].data_loc);
+        printf("Flushing key %.16s to %lld\n", (char *)db -> key_vla+db -> keys[write_callback -> key_index].key_offset, db -> keys[write_callback -> key_index].data_loc);
 #endif
 
         // Write header
