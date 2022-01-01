@@ -328,7 +328,7 @@ void read_value_async(void *opaque, db_data read_key, key_read_cb callback, void
     if (found_key.flags & DATA_FLAG_INCOMPLETE) { // The key is in the process of being written, so it's effectively not there.
         release_lock(db);
         callback(cb_arg, KEY_NOT_FOUND, (db_data){.data=NULL, .length=0});
-        printf("Returning can't found for key because data not yet written\n");
+        printf("Returning can't found for key because data not yet written: %d\n", found_key.flags & DATA_FLAG_INCOMPLETE);
         return;
     }
 
