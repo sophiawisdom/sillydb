@@ -100,7 +100,7 @@ void flush_writes(struct db_state *db) {
     flush_writes_cb_state -> db = db;
     // transfer the callback queue to the callback, it will be written to when that's completed.
     flush_writes_cb_state -> buf = spdk_zmalloc(write_size, db -> sector_size, NULL, SPDK_ENV_SOCKET_ID_ANY, SPDK_MALLOC_DMA);
-    flush_writes_cb_state -> ns_entry = db -> main_namespace -> ns;
+    flush_writes_cb_state -> ns_entry = db -> main_namespace;
     TAILQ_INIT(&flush_writes_cb_state -> write_callback_queue);
 
     unsigned long long buf_bytes_written = db -> current_sector_bytes;
