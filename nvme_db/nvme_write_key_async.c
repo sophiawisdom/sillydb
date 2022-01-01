@@ -125,15 +125,15 @@ void flush_writes(struct db_state *db) {
             .data_length = write_callback -> value.length,
             .flags = 0
         };
-        memcpy(&flush_writes_cb_state -> buf[buf_bytes_written], &header, sizeof(header));
+        memcpy(flush_writes_cb_state -> buf + buf_bytes_written, &header, sizeof(header));
         buf_bytes_written += sizeof(header);
 
         // Write key
-        memcpy(&flush_writes_cb_state -> buf[buf_bytes_written], write_callback -> key.data, write_callback -> key.length);
+        memcpy(flush_writes_cb_state -> buf + buf_bytes_written, write_callback -> key.data, write_callback -> key.length);
         buf_bytes_written += write_callback -> key.length;
 
         // Write data
-        memcpy(&flush_writes_cb_state -> buf[buf_bytes_written], write_callback -> value.data, write_callback -> value.length);
+        memcpy(flush_writes_cb_state -> buf + buf_bytes_written, write_callback -> value.data, write_callback -> value.length);
         buf_bytes_written += write_callback -> value.length;
 
 #ifdef DEBUG
@@ -237,12 +237,4 @@ void flush_commands(void *opaque) {
         flush_cb,
         db
     );
-}
-
-void wait_for_no_writes(void *opaque) {
-    struct db_state *db = opaque;
-    while (db -> writes_in_flight || db -> flushes_in_flight) {
-        poll_db(db);
-        usleep(1000);
-    }
 }
