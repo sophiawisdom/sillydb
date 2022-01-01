@@ -42,7 +42,6 @@ static void flush_writes_cb(void *arg, const struct spdk_nvme_cpl *completion) {
     TAILQ_FOREACH(write_callback, &callback_state -> write_callback_queue, link) {
         free(prev_callback);
         prev_callback = write_callback;
-        db -> writes_in_flight--;
         if (error != WRITE_SUCCESSFUL) {
             printf("Not setting incomplete false due to IO error\n");
             // TODO: what to do here when we get an IO error? remove the key is the only thing.
@@ -56,6 +55,8 @@ static void flush_writes_cb(void *arg, const struct spdk_nvme_cpl *completion) {
         write_callback -> callback(write_callback -> cb_arg, error);
     }
     free(prev_callback);
+
+    db -> writes_in_flight--;
 
     TAILQ_INIT(&callback_state -> write_callback_queue); // believe this frees it? unclear...
 
@@ -98,7 +99,6 @@ void flush_writes(struct db_state *db) {
     }
     while (!TAILQ_EMPTY(&db -> write_callback_queue)) {
         struct write_cb_state *write_callback = TAILQ_FIRST(&db -> write_callback_queue);
-        db -> writes_in_flight++;
 
         printf("Flushing key %.16s\n", (char *)db -> key_vla+db -> keys[write_callback -> key_index].key_offset);
 
@@ -153,6 +153,8 @@ void flush_writes(struct db_state *db) {
 
     db -> current_sector_ssd += 1;
     db -> current_sector_bytes = 0;
+
+    db -> writes_in_flight++;
 
 #ifdef DEBUG
     printf("Wrote %lld bytes. Set current_sector_bytes to %lld\n", buf_bytes_written, db -> current_sector_bytes);

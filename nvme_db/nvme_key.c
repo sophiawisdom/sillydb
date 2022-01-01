@@ -142,10 +142,8 @@ unsigned long long calc_write_bytes_queued(struct db_state *db) {
 
 // MUST HAVE LOCK TO CALL THIS FUNCTION
 static bool should_flush_writes(struct db_state *db) {
-    if (TAILQ_EMPTY(&db -> write_callback_queue) /*|| db -> writes_in_flight || db -> flushes_in_flight*/) {
+    if (TAILQ_EMPTY(&db -> write_callback_queue) || db -> writes_in_flight > 200 /*|| db -> flushes_in_flight*/) {
         return false;
-    } else {
-        return true;
     }
 
     // Check if there are enough bytes enqueued to fill a sector.
