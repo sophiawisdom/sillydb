@@ -304,6 +304,7 @@ void write_value_async(void *opaque, db_data key, db_data value, key_write_cb ca
     callback_arg -> key = key;
     callback_arg -> value = value;
     callback_arg -> clock_time_enqueued = get_time_us();
+    printf("Got write request for key %.16s\n", (char *)key.data);
     TAILQ_INSERT_TAIL(&db -> write_callback_queue, callback_arg, link); // Append the callback to a linked list of write callbacks
 
     if (should_flush_writes(db)) {
@@ -341,6 +342,8 @@ void read_value_async(void *opaque, db_data read_key, key_read_cb callback, void
     issue_nvme_read(db, found_key, callback, cb_arg);
     release_lock(db);
 }
+
+// 59e5b1e5f7070b1c
 
 void poll_db(void *opaque) {
     struct db_state *db = opaque;

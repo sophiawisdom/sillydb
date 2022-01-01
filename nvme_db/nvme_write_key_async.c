@@ -100,6 +100,8 @@ void flush_writes(struct db_state *db) {
         struct write_cb_state *write_callback = TAILQ_FIRST(&db -> write_callback_queue);
         db -> writes_in_flight++;
 
+        printf("Flushing key %.16s\n", (char *)db -> key_vla+db -> keys[write_callback -> key_index].key_offset);
+
         db -> keys[write_callback -> key_index].data_loc = buf_bytes_written + current_sector * db -> sector_size;
 #ifdef DEBUG
         printf("Writing data to %lld\n", db -> keys[write_callback -> key_index].data_loc);
