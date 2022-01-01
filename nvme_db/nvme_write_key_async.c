@@ -120,11 +120,6 @@ void flush_writes(struct db_state *db) {
         printf("Writing data to %lld\n", db -> keys[write_callback -> key_index].data_loc);
 #endif
 
-        // Two important non-regular scenarios here: 1) it's a 'synthetic' callback where
-        // part of the data has already been written to the ssd. 2) we can't write all the
-        // data because it would mean writing a partial sector. These can't both happen at
-        // the same time.
-
         // Write header
         struct ssd_header header = (struct ssd_header){
             .key_length = write_callback -> key.length,

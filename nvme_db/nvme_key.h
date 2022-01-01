@@ -78,9 +78,6 @@ struct write_cb_state {
 
     unsigned long long ssd_loc; // written in flush_writes and read when the callback returns.
 
-    int flag; // WRITE_CB_FLAG_PARTIALLY_WRITTEN
-    unsigned long long bytes_written; // for partially written cbs.
-
     TAILQ_ENTRY(write_cb_state)    link;
 };
 
