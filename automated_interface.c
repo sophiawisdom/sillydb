@@ -167,11 +167,15 @@ int main(int argc, char **argv) {
     double wall_diff = get_time_us() - wall_begin;
     printf("Took %2.3g seconds of cpu time and %2.3g seconds of wall time to write %d keys and %llu bytes\n", cpu_diff/1000000.0, wall_diff/1000000.0, num_keys, bytes_written);
 
+    wait_for_zero_writes(db);
+
+    /*
     // Let everything settle out, purge all writes etc.
     for (int i = 0; i < 30000; i++) {
         poll_db(db);
         usleep(1000);
     }
+    */
 
     srandom(seed); // We only use this for the key len, but it's still important. This means we 
     // can exactly replicate the previous set of keys+values and we can make sure the db stored them

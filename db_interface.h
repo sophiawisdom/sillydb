@@ -39,3 +39,5 @@ void poll_db(void *opaque);
 void dump_sectors_to_file(void *opaque, int start_lba, int num_blocks);
 
 void flush_commands(void *opaque);
+
+void wait_for_zero_writes(void *opaque);
