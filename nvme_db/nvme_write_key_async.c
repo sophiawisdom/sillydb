@@ -64,19 +64,6 @@ static void flush_writes_cb(void *arg, const struct spdk_nvme_cpl *completion) {
     free(callback_state);
 }
 
-static short halfbyte(char halfbyte) {
-    if (halfbyte < 10) {
-        return 48 + halfbyte;
-    }
-    return 97 + halfbyte-10;
-}
-
-short byte_to_hex(unsigned char byte) {
-    short firstletter = halfbyte(byte & 15);
-    short secondletter = halfbyte((byte & 240)<<4);
-    return (secondletter<<8) + (firstletter);
-}
-
 // MUST HAVE LOCK TO CALL THIS FUNCTION
 void flush_writes(struct db_state *db) {
     unsigned long long write_bytes_queued = calc_write_bytes_queued(db);
