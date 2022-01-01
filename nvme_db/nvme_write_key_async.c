@@ -48,7 +48,7 @@ static void flush_writes_cb(void *arg, const struct spdk_nvme_cpl *completion) {
             // TODO: what to do here when we get an IO error? remove the key is the only thing.
         } else {
             db -> keys[write_callback -> key_index].flags &= (255-DATA_FLAG_INCOMPLETE); // set incomplete flag to false
-            printf("Setting complete for key %.16s\n", db -> key_vla+db -> keys[write_callback -> key_index].key_offset);
+            printf("Setting complete for key %.16s\n", (char *)db -> key_vla+db -> keys[write_callback -> key_index].key_offset);
 #ifdef DEBUG
             printf("Setting index %d to complete\n", write_callback -> key_index);
 #endif
@@ -59,7 +59,6 @@ static void flush_writes_cb(void *arg, const struct spdk_nvme_cpl *completion) {
 
     TAILQ_INIT(&callback_state -> write_callback_queue); // believe this frees it? unclear...
 
-exit:
     release_lock(db);
     spdk_free(callback_state -> buf);
     free(callback_state);
